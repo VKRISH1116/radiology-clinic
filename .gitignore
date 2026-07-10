@@ -1,0 +1,49 @@
+# ───────────────────────── Java / Spring Boot (backend) ─────────────────────────
+target/
+build/
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.jar
+*.war
+*.log
+.mvn/wrapper/maven-wrapper.jar
+### Gradle
+.gradle/
+
+# ───────────────────────── Node / React (frontend) ─────────────────────────
+node_modules/
+frontend/dist/
+frontend/build/
+.npm/
+.pnp
+.pnp.js
+coverage/
+
+# ───────────────────────── Environment & secrets ─────────────────────────
+# NEVER commit secrets, DB passwords, or API keys.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ───────────────────────── IDE / Editor ─────────────────────────
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ───────────────────────── OS ─────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ───────────────────────── MS Office temp/lock files ─────────────────────────
+~$*
+*.tmp
+
+# ───────────────────────── Build/temp ─────────────────────────
+*.tmp
+*.bak
