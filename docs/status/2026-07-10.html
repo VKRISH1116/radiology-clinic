@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Status — 2026-07-10</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--green:#16a34a;--amber:#d97706;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--green:#4ade80;--amber:#fbbf24;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 60px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:820px;margin:0 auto}
+  header{padding:38px 0 20px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+    background:var(--accent-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:26px;margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--ink-soft);margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:13px;color:var(--ink-faint)}
+  .meta b{color:var(--ink-soft)}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+    margin:30px 0 12px;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:6px 22px;box-shadow:var(--shadow)}
+  ul{margin:14px 0;padding-left:4px;list-style:none}
+  li{position:relative;padding:6px 0 6px 28px;border-bottom:1px solid var(--line)}
+  li:last-child{border-bottom:none}
+  li::before{content:"✓";position:absolute;left:2px;top:6px;color:var(--green);font-weight:700}
+  li.learn::before{content:"💡";left:0}
+  li.next::before{content:"→";color:var(--amber);font-weight:700;left:4px}
+  li b{color:var(--ink)}
+  .k{color:var(--ink-soft)}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:13px}
+  footer{margin-top:34px;font-size:12px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">● Daily Status · For mentor review</span>
+    <h1>Day 1 — Project kickoff & environment setup</h1>
+    <p class="sub">Radiology Clinic Website · Learning-first full-stack build</p>
+    <div class="meta">
+      <span><b>Date:</b> 2026-07-10</span>
+      <span><b>Phase:</b> 0 — Onboarding &amp; Setup</span>
+      <span><b>Stack:</b> Spring Boot · React · PostgreSQL</span>
+    </div>
+  </header>
+
+  <h2>What I did today</h2>
+  <div class="card">
+    <ul>
+      <li>Read the raw problem statement and wrote a <b>plain-language summary</b> of the app (patients book scans &amp; download reports; staff manage visits; admin tracks referring-doctor payouts).</li>
+      <li>Agreed a <b>learning-first, phased method</b>: follow the full SDLC and understand the "why" of each choice, not just build.</li>
+      <li>Created the project <b>knowledge base</b> in <code>docs/</code> with a one-page <b>Onboarding→Deployment roadmap</b> (<code>docs/index.html</code>).</li>
+      <li>Set up the repo skeleton: <code>backend/</code>, <code>frontend/</code>, <code>docs/</code>, a comprehensive <code>.gitignore</code>, and a VS Code <b>workspace</b> file.</li>
+      <li>Initialised <b>git</b> and made the first commit; connecting to GitHub.</li>
+    </ul>
+  </div>
+
+  <h2>What I learned</h2>
+  <div class="card">
+    <ul>
+      <li class="learn"><b>SDLC has a shape:</b> raw requirements → URD → PRD → design/architecture → build → testing (unit/integration/E2E/UAT) → deployment → iterate.</li>
+      <li class="learn"><b>Docs-as-code:</b> keeping the plan &amp; learning as HTML files in the repo means they're versioned, browsable, and shareable — not lost in chat.</li>
+      <li class="learn"><b>Why a monorepo:</b> keeping backend + frontend in one repo keeps a solo project's two halves versioned together.</li>
+      <li class="learn"><b>Why <code>.gitignore</code> matters:</b> build output and secrets (<code>.env</code>, keys) must never be committed.</li>
+    </ul>
+  </div>
+
+  <h2>Next up</h2>
+  <div class="card">
+    <ul>
+      <li class="next">Finish connecting the repo to <b>GitHub</b> (first push).</li>
+      <li class="next">Start <b>Phase 1 — Requirements</b>: turn the raw problem statement into a <b>User Requirements Document (URD)</b>.</li>
+    </ul>
+  </div>
+
+  <footer>Generated as part of the daily learning log · Phase 0</footer>
+</div>
+</body>
+</html>

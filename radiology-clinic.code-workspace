@@ -1,0 +1,27 @@
+{
+  "folders": [
+    { "name": "🩻 root", "path": "." },
+    { "name": "⚙️ backend (Spring Boot)", "path": "backend" },
+    { "name": "🖥️ frontend (React)", "path": "frontend" },
+    { "name": "📚 docs (knowledge base)", "path": "docs" },
+    { "name": "🤖 .claude (global config)", "path": "C:\\Users\\yathi\\.claude" }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/target": true,
+      "**/.credentials.json": true,
+      "**/.last-cleanup": true,
+      "**/cache": true,
+      "**/shell-snapshots": true,
+      "**/session-env": true,
+      "**/sessions": true,
+      "**/file-history": true,
+      "**/backups": true,
+      "**/ide": true,
+      "**/history.jsonl": true
+    },
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  }
+}

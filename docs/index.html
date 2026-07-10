@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Radiology Clinic — Onboarding Roadmap</title>
+<style>
+  :root {
+    --bg: #f7f8fb;
+    --panel: #ffffff;
+    --ink: #1a2233;
+    --ink-soft: #55617a;
+    --ink-faint: #8a93a8;
+    --line: #e6e9f0;
+    --accent: #4f46e5;
+    --accent-soft: #eef0fe;
+    --teal: #0d9488;
+    --amber: #d97706;
+    --green: #16a34a;
+    --shadow: 0 1px 2px rgba(20,30,60,.06), 0 8px 24px rgba(20,30,60,.06);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1117;
+      --panel: #161b24;
+      --ink: #e8ecf4;
+      --ink-soft: #a4adc2;
+      --ink-faint: #6b7488;
+      --line: #262d3a;
+      --accent: #7c83ff;
+      --accent-soft: #1e2233;
+      --teal: #2dd4bf;
+      --amber: #fbbf24;
+      --green: #4ade80;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 0 20px 64px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  /* ---- Header ---- */
+  header.top {
+    padding: 40px 0 22px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 30px;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 5px 11px; border-radius: 999px;
+  }
+  h1 { font-size: 30px; line-height: 1.15; margin: 16px 0 8px; letter-spacing: -0.02em; }
+  .lede { color: var(--ink-soft); font-size: 16px; max-width: 760px; margin: 0; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px;
+    font-size: 13px; color: var(--ink-faint);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---- Section titles ---- */
+  h2.section {
+    font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 34px 0 14px; font-weight: 700;
+  }
+
+  /* ---- What we're building card ---- */
+  .brief {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 22px; box-shadow: var(--shadow); margin-bottom: 8px;
+  }
+  .brief p { margin: 0 0 14px; color: var(--ink-soft); }
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; }
+  .role {
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--bg);
+  }
+  .role h4 { margin: 0 0 4px; font-size: 14px; }
+  .role p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+  /* ---- Legend ---- */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 4px 0 6px; font-size: 12.5px; color: var(--ink-soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .dot.todo { background: var(--ink-faint); }
+  .dot.now  { background: var(--amber); }
+  .dot.done { background: var(--green); }
+
+  /* ---- Phase board ---- */
+  .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .phase {
+    position: relative; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 18px 16px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column;
+  }
+  .phase::before {
+    content: ""; position: absolute; left: 0; top: 16px; bottom: 16px; width: 4px;
+    border-radius: 4px; background: var(--accent);
+  }
+  .phase.p-teal::before { background: var(--teal); }
+  .phase.p-amber::before { background: var(--amber); }
+  .phase-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .num {
+    flex: none; width: 34px; height: 34px; border-radius: 9px;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; font-weight: 700; font-size: 15px;
+  }
+  .phase h3 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+  .phase .status {
+    margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--ink-faint);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .phase .goal { color: var(--ink-soft); font-size: 13.5px; margin: 0 0 12px; }
+  .kv { margin-top: auto; display: grid; gap: 8px; }
+  .kv .row { font-size: 12.5px; }
+  .kv .k {
+    display: inline-block; font-weight: 600; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: .05em; font-size: 10.5px; margin-bottom: 2px;
+  }
+  .kv .v { color: var(--ink-soft); }
+  .tag {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px;
+    background: var(--bg); border: 1px solid var(--line); color: var(--ink-soft);
+    margin: 2px 4px 0 0;
+  }
+
+  /* ---- Footer note ---- */
+  .note {
+    margin-top: 30px; background: var(--accent-soft); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px 20px; font-size: 13.5px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); }
+  a { color: var(--accent); }
+  footer { margin-top: 40px; font-size: 12px; color: var(--ink-faint); text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">● Knowledge Base · Board View</span>
+    <h1>Radiology Clinic Website — Onboarding to Deployment</h1>
+    <p class="lede">A learning-first journey through the full software development lifecycle. We build a real
+      diagnostic-clinic web app <em>and</em> learn every stage of how software reaches the market — one phase at a time.</p>
+    <div class="meta">
+      <span><b>Stack:</b> Java · Spring Boot · React · PostgreSQL</span>
+      <span><b>Deploy target:</b> Localhost now → AWS later</span>
+      <span><b>Method:</b> Understand the "why" before the "how"</span>
+      <span><b>Owner:</b> You (mentored daily)</span>
+    </div>
+  </header>
+
+  <h2 class="section">What we're building</h2>
+  <div class="brief">
+    <p>A website for a radiology / diagnostic clinic in India that lets patients book appointments, register
+      details with consent, and securely download reports — replacing today's manual, phone-based process.
+      Staff manage bookings and upload reports; admins oversee activity and track <strong>referring-doctor payouts</strong>
+      (a percentage of each visit's bill that varies by doctor, scan type, or amount range).</p>
+    <div class="roles">
+      <div class="role"><h4>🧑‍⚕️ Patient</h4><p>Register, book scans, give consent, view status, download reports securely.</p></div>
+      <div class="role"><h4>🖥️ Front-desk staff</h4><p>Daily appointment list, register walk-ins, upload reports, update status.</p></div>
+      <div class="role"><h4>📊 Admin</h4><p>Dashboard, manage referring doctors, track referral amounts & payouts.</p></div>
+    </div>
+  </div>
+
+  <h2 class="section">The path — 10 phases</h2>
+  <div class="legend">
+    <span><i class="dot done"></i> Done</span>
+    <span><i class="dot now"></i> In progress</span>
+    <span><i class="dot todo"></i> Not started</span>
+    <span style="margin-left:auto; color:var(--ink-faint)">Each phase produces a real SDLC artifact you keep in this knowledge base.</span>
+  </div>
+
+  <div class="board">
+
+    <!-- 0 -->
+    <div class="phase p-teal">
+      <div class="phase-head">
+        <span class="num">0</span>
+        <h3>Onboarding & Setup</h3>
+        <span class="status"><i class="dot now"></i> Now</span>
+      </div>
+      <p class="goal">Set up the repository, folder structure, workspace, and this knowledge base. Agree on how we work and learn together.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">This roadmap · repo · knowledge-base home</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Git init, monorepo layout, VS Code workspace, why we document as we go</span></div>
+        <div class="row"><span class="v"><span class="tag">git</span><span class="tag">VS Code</span><span class="tag">folder structure</span></span></div>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">1</span>
+        <h3>Requirements (Raw → URD)</h3>
+        <span class="status"><i class="dot todo"></i> Next</span>
+      </div>
+      <p class="goal">Turn messy, raw user needs into a clear <strong>User Requirements Document</strong>: who the users are, what they need, and why.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">URD.html — actors, user stories, constraints</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Elicitation, functional vs non-functional needs, scope control</span></div>
+        <div class="row"><span class="v"><span class="tag">user stories</span><span class="tag">scope</span><span class="tag">privacy/consent</span></span></div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">2</span>
+        <h3>Product Requirements (PRD)</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Translate the URD into a <strong>Product Requirements Document</strong>: features, acceptance criteria, MVP boundary, success metrics.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">PRD.html — feature list, MVP cut, acceptance criteria</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Prioritisation (MoSCoW), MVP thinking, writing testable criteria</span></div>
+        <div class="row"><span class="v"><span class="tag">MVP</span><span class="tag">acceptance criteria</span><span class="tag">MoSCoW</span></span></div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">3</span>
+        <h3>Design & Architecture</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Design the screens (wireframes) and the system: <strong>data model, API contract, tech architecture</strong>, and the key "why" decisions.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">Architecture.html · ER diagram · API spec · wireframes</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Why Postgres vs Oracle, REST design, schema design, auth model (JWT)</span></div>
+        <div class="row"><span class="v"><span class="tag">ERD</span><span class="tag">REST</span><span class="tag">architecture</span><span class="tag">wireframes</span></span></div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="phase p-amber">
+      <div class="phase-head">
+        <span class="num">4</span>
+        <h3>Build — Backend</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Build the Spring Boot API: entities, database, REST endpoints, authentication, and the referral-calculation engine.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">Running backend + PostgreSQL, tested endpoints</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Spring Boot layers, JPA/Hibernate, why Spring over plain Java servlets</span></div>
+        <div class="row"><span class="v"><span class="tag">Spring Boot</span><span class="tag">JPA</span><span class="tag">PostgreSQL</span><span class="tag">REST</span></span></div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="phase p-amber">
+      <div class="phase-head">
+        <span class="num">5</span>
+        <h3>Build — Frontend</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Build the React UI: patient, staff, and admin screens, forms, and routing — first with mock data, then real.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">React app with the core screens & flows</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Components & state, why React vs vanilla JS, routing, forms</span></div>
+        <div class="row"><span class="v"><span class="tag">React</span><span class="tag">components</span><span class="tag">state</span><span class="tag">routing</span></span></div>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">6</span>
+        <h3>Integration</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Wire frontend to backend over real HTTP: auth tokens, CORS, error handling, loading states. The full stack talks end-to-end.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">Working end-to-end flows on localhost</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">CORS, JWT flow front-to-back, API clients, env config</span></div>
+        <div class="row"><span class="v"><span class="tag">CORS</span><span class="tag">JWT</span><span class="tag">fetch/axios</span></span></div>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">7</span>
+        <h3>Testing (Unit → E2E → UAT)</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Prove it works: unit tests, integration tests, end-to-end tests, and User Acceptance Testing against the PRD criteria.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">Test suites + UAT checklist signed off</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Test pyramid, JUnit, React Testing Library, what UAT really means</span></div>
+        <div class="row"><span class="v"><span class="tag">JUnit</span><span class="tag">RTL</span><span class="tag">E2E</span><span class="tag">UAT</span></span></div>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">8</span>
+        <h3>Deployment & CI/CD</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Package and ship: build pipelines, environment config, and deploy — localhost first, then AWS as the long-term target.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">Deploy pipeline + running deployed app</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">CI/CD, containers, why AWS, build vs runtime environments</span></div>
+        <div class="row"><span class="v"><span class="tag">CI/CD</span><span class="tag">Docker</span><span class="tag">AWS</span></span></div>
+      </div>
+    </div>
+
+    <!-- 9 -->
+    <div class="phase">
+      <div class="phase-head">
+        <span class="num">9</span>
+        <h3>Iterate & Maintain</h3>
+        <span class="status"><i class="dot todo"></i></span>
+      </div>
+      <p class="goal">Real products never "finish". Gather feedback, fix bugs, add features, monitor, and repeat the cycle with discipline.</p>
+      <div class="kv">
+        <div class="row"><span class="k">Deliverable</span><span class="v">Backlog, changelog, monitoring notes</span></div>
+        <div class="row"><span class="k">You'll learn</span><span class="v">Agile loops, versioning, tech debt, observability basics</span></div>
+        <div class="row"><span class="v"><span class="tag">Agile</span><span class="tag">versioning</span><span class="tag">monitoring</span></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <b>How this knowledge base works.</b> Every phase above produces a self-contained HTML page saved in the
+    <code>docs/</code> folder of the repo. You can open any page in a browser, and send it to your mentor as a single file
+    — no server or build step needed. A daily <b>Status</b> page will summarise what you did and learned each day, ready to forward.
+    We move one phase at a time: understand it, build it, document it, then advance.
+  </div>
+
+  <footer>
+    Radiology Clinic Knowledge Base · Phase 0: Onboarding · Built while learning, one phase at a time.
+  </footer>
+
+</div>
+</body>
+</html>
