@@ -76,10 +76,10 @@
     <p class="lede">Radiology Clinic Website — what the users need, and why, expressed in the problem space
       before any solution or technology is chosen.</p>
     <div class="docctl">
-      <span><b>Version:</b> 0.2 (Baselined)</span>
+      <span><b>Version:</b> 0.3 (Baselined)</span>
       <span><b>Date:</b> 2026-07-14</span>
       <span><b>Author:</b> Yatin Krishna</span>
-      <span><b>Status:</b> Open questions resolved — ready for PRD</span>
+      <span><b>Status:</b> Review additions incorporated — ready for PRD</span>
       <span><b>Source:</b> Problem statement + elicitation</span>
     </div>
   </header>
@@ -136,6 +136,7 @@
   <h3>Out of scope (for now)</h3>
   <p>Full PACS / DICOM medical-image viewing · insurance claims &amp; billing automation · online payment collection ·
      multi-clinic / multi-location support · a login portal for referring doctors.</p>
+  <p style="margin-top:2px"><b>Deferred to backlog</b> (consciously postponed in review, not dropped): patients editing their own saved profile / contact details after registration.</p>
   <div class="callout"><b>Why draw a scope line at all?</b> An MVP ("Minimum Viable Product") delivers the smallest
      set of features that is genuinely useful, so you can ship, learn, and iterate — rather than trying to build
      everything and finishing nothing. Everything above the line is what we commit to; everything below is explicitly deferred.</div>
@@ -162,12 +163,14 @@
   <div class="tablewrap"><table>
     <tr><th>ID</th><th>The user needs to…</th><th>Priority</th></tr>
     <tr><td><span class="id">UR-P-01</span></td><td>Register an account and log in securely.</td><td><span class="pill must">Must</span></td></tr>
-    <tr><td><span class="id">UR-P-02</span></td><td>Book an appointment by choosing <b>one or more ultrasound studies</b>, a date, and time.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-P-02</span></td><td>Book an appointment by choosing <b>one or more ultrasound studies</b> and an <b>available</b> date/time slot.</td><td><span class="pill must">Must</span></td></tr>
     <tr><td><span class="id">UR-P-03</span></td><td>Provide personal &amp; basic medical details and give <b>explicit consent</b> before any data is stored.</td><td><span class="pill must">Must</span></td></tr>
     <tr><td><span class="id">UR-P-04</span></td><td>View the status of their appointment(s) (booked / in-progress / completed).</td><td><span class="pill must">Must</span></td></tr>
     <tr><td><span class="id">UR-P-05</span></td><td>Securely view and download their report(s) once ready — only after logging in.</td><td><span class="pill must">Must</span></td></tr>
     <tr><td><span class="id">UR-P-06</span></td><td>Optionally indicate the doctor who referred them during registration.</td><td><span class="pill should">Should</span></td></tr>
     <tr><td><span class="id">UR-P-07</span></td><td>Be notified when a report is ready (e.g. SMS/email).</td><td><span class="pill could">Could</span></td></tr>
+    <tr><td><span class="id">UR-P-08</span></td><td>Cancel or reschedule an upcoming appointment. <span style="color:var(--teal)">(added in review)</span></td><td><span class="pill should">Should</span></td></tr>
+    <tr><td><span class="id">UR-P-09</span></td><td>Reset a forgotten password via a secure link sent to their email. <span style="color:var(--teal)">(added in review)</span></td><td><span class="pill should">Should</span></td></tr>
   </table></div>
 
   <h3>5.2 Front-desk staff</h3>
@@ -179,6 +182,8 @@
     <tr><td><span class="id">UR-S-04</span></td><td>Record the billed amount for a visit (defaults to the sum of the selected studies' catalogue prices; staff may adjust).</td><td><span class="pill must">Must</span></td></tr>
     <tr><td><span class="id">UR-S-05</span></td><td>Upload / attach a report to a patient's visit.</td><td><span class="pill must">Must</span></td></tr>
     <tr><td><span class="id">UR-S-06</span></td><td>Update the appointment status (booked → in-progress → completed).</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-S-07</span></td><td>Cancel or reschedule a patient's appointment on their behalf. <span style="color:var(--teal)">(added in review)</span></td><td><span class="pill should">Should</span></td></tr>
+    <tr><td><span class="id">UR-S-08</span></td><td>Define and adjust available appointment slots (working hours and capacity per slot). <span style="color:var(--teal)">(added in review)</span></td><td><span class="pill should">Should</span></td></tr>
   </table></div>
 
   <h3>5.3 Admin</h3>
@@ -206,6 +211,7 @@
     <tr><td><span class="id">NFR-05</span></td><td>Reliability / availability</td><td>Available during clinic operating hours; no data loss on reports once uploaded.</td></tr>
     <tr><td><span class="id">NFR-06</span></td><td>Data integrity</td><td>Referral calculations are accurate and reproducible from the stored rules and billed amounts.</td></tr>
     <tr><td><span class="id">NFR-07</span></td><td>Performance</td><td>Common screens (daily list, dashboard, report download) respond within a few seconds under normal load.</td></tr>
+    <tr><td><span class="id">NFR-08</span></td><td>Booking integrity</td><td>The system prevents booking more appointments into a slot than its defined capacity — no double-booking. <span style="color:var(--teal)">(added in review)</span></td></tr>
   </table></div>
 
   <!-- 7 -->
@@ -272,7 +278,7 @@
   </dl>
 
   <footer>
-    URD v0.1 (Draft) · Radiology Clinic Knowledge Base · Phase 1 of 10 ·
+    URD v0.3 (Baselined) · Radiology Clinic Knowledge Base · Phase 1 of 10 ·
     Traces forward to the PRD (Phase 2) and Architecture (Phase 3).
   </footer>
 
