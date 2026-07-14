@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: radiology-clinic-backend
+
+  # Connects to the PostgreSQL started by docker-compose.yml.
+  # Values fall back to the dev defaults but can be overridden by env vars.
+  datasource:
+    url: jdbc:postgresql://localhost:5432/radiology_clinic
+    username: ${DB_USER:clinic}
+    password: ${DB_PASSWORD:clinic_dev_pw}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Flyway OWNS the schema; Hibernate only validates entities against it
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration   # V1__, V2__ ... run in order on startup
+
+server:
+  port: 8080

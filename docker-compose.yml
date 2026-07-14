@@ -1,0 +1,23 @@
+# Local development database for the Radiology Clinic backend.
+# Start it with:   docker compose up -d
+# Stop it with:    docker compose down     (add -v to also wipe the data)
+services:
+  db:
+    image: postgres:16
+    container_name: radiology-clinic-db
+    environment:
+      POSTGRES_DB: radiology_clinic
+      POSTGRES_USER: clinic
+      POSTGRES_PASSWORD: clinic_dev_pw   # dev-only; real deploys use secrets/env vars
+    ports:
+      - "5432:5432"                      # host:container — Spring connects to localhost:5432
+    volumes:
+      - clinic_pgdata:/var/lib/postgresql/data   # named volume = data survives restarts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinic -d radiology_clinic"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  clinic_pgdata:
