@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Status — 2026-07-14</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--green:#16a34a;--amber:#d97706;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--green:#4ade80;--amber:#fbbf24;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 60px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:820px;margin:0 auto}
+  header{padding:38px 0 20px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+    background:var(--accent-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:26px;margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--ink-soft);margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:13px;color:var(--ink-faint)}
+  .meta b{color:var(--ink-soft)}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+    margin:30px 0 12px;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:6px 22px;box-shadow:var(--shadow)}
+  ul{margin:14px 0;padding-left:4px;list-style:none}
+  li{position:relative;padding:6px 0 6px 28px;border-bottom:1px solid var(--line)}
+  li:last-child{border-bottom:none}
+  li::before{content:"✓";position:absolute;left:2px;top:6px;color:var(--green);font-weight:700}
+  li.learn::before{content:"💡";left:0}
+  li.next::before{content:"→";color:var(--amber);font-weight:700;left:4px}
+  li b{color:var(--ink)}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:13px}
+  footer{margin-top:34px;font-size:12px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">● Daily Status · For mentor review</span>
+    <h1>Day 2 — Requirements (URD)</h1>
+    <p class="sub">Radiology Clinic Website · Learning-first full-stack build</p>
+    <div class="meta">
+      <span><b>Date:</b> 2026-07-14</span>
+      <span><b>Phase:</b> 1 — Requirements</span>
+      <span><b>Artifact:</b> docs/URD.html (v0.2, baselined)</span>
+    </div>
+  </header>
+
+  <h2>What I did today</h2>
+  <div class="card">
+    <ul>
+      <li>Wrote the <b>User Requirements Document</b> (<code>docs/URD.html</code>): purpose, business objectives, scope, actors, and <b>20 traceable requirements</b> (functional + non-functional) with MoSCoW priorities.</li>
+      <li>Ran a <b>requirements-elicitation dialogue</b> to resolve six open questions with the (proxy) clinic stakeholder.</li>
+      <li>Captured the <b>service catalogue</b>: ultrasound-only clinic, 9 studies with prices (Appendix A).</li>
+      <li>Decided <b>patient login = email + password</b> for the MVP.</li>
+      <li>Reconciled a conflict: brief wanted variable referral rates, stakeholder said "flat 20%". Chose a <b>configurable rule engine seeded at 20%</b> — keeps the feature and today's simplicity.</li>
+      <li>Baselined the URD to <b>v0.2</b>, ready to feed the PRD.</li>
+    </ul>
+  </div>
+
+  <h2>What I learned</h2>
+  <div class="card">
+    <ul>
+      <li class="learn"><b>Needs vs solutions:</b> a URD describes <em>what</em> users need in the problem space, never <em>how</em> to build it — that keeps options open until design.</li>
+      <li class="learn"><b>Traceability:</b> giving every requirement an ID (<code>UR-P-01</code>) lets us prove later that design, code, and tests actually satisfy each need.</li>
+      <li class="learn"><b>Elicitation surfaces contradictions:</b> the "20% vs variable rate" clash showed how interviewing the stakeholder reveals gaps a written brief hides.</li>
+      <li class="learn"><b>Stakeholder ≠ user:</b> the referring doctor is central to the business but never logs in for the MVP.</li>
+      <li class="learn"><b>Data-model signals appear early:</b> the ultrasound price list already hints at Service → Appointment → Bill → Referral, the spine of Phase 3.</li>
+    </ul>
+  </div>
+
+  <h2>Decisions locked</h2>
+  <div class="card">
+    <ul>
+      <li>Ultrasound-only clinic; 9 studies (Obstetrics has sub-studies); prices ₹1,000–₹2,000.</li>
+      <li>Patient auth: email + password.</li>
+      <li>Multiple studies per appointment; bill = sum of study prices.</li>
+      <li>Referral: configurable engine, default 20% of bill, "most specific rule wins".</li>
+      <li>Deferred from MVP: SMS/email notifications, online payments, DICOM viewing, multi-location.</li>
+    </ul>
+  </div>
+
+  <h2>Next up</h2>
+  <div class="card">
+    <ul>
+      <li class="next"><b>Phase 2 — Product Requirements Document (PRD)</b>: turn these needs into concrete features, screens, MVP cut, and acceptance criteria.</li>
+    </ul>
+  </div>
+
+  <footer>Generated as part of the daily learning log · Phase 1 complete</footer>
+</div>
+</body>
+</html>
