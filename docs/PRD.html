@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Product Requirements Document (PRD) — Radiology Clinic</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--teal:#0d9488;--amber:#d97706;
+    --green:#16a34a;--red:#dc2626;--shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--teal:#2dd4bf;--amber:#fbbf24;
+    --green:#4ade80;--red:#f87171;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 70px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto}
+  header.top{padding:38px 0 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .lede{color:var(--ink-soft);margin:0;max-width:740px}
+  .docctl{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px;font-size:13px;color:var(--ink-faint)}
+  .docctl b{color:var(--ink-soft)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;margin:24px 0;box-shadow:var(--shadow);font-size:14px}
+  nav.toc b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  nav.toc a{color:var(--accent);text-decoration:none;margin-right:16px;line-height:2;white-space:nowrap}
+  h2{font-size:20px;margin:38px 0 10px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font-weight:700;margin-right:8px}
+  h3{font-size:16px;margin:22px 0 6px}
+  h3 .fid{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--teal);margin-right:8px}
+  p{color:var(--ink-soft)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 20px;box-shadow:var(--shadow);margin:14px 0}
+  .callout{border-left:4px solid var(--teal);background:var(--accent-soft);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:16px 0;font-size:14px;color:var(--ink-soft)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .tablewrap{overflow-x:auto}
+  .trace{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--accent)}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:6px;text-transform:uppercase;white-space:nowrap}
+  .in{background:rgba(22,163,74,.14);color:var(--green)}
+  .out{background:rgba(138,147,168,.16);color:var(--ink-faint)}
+  .ac{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--green);
+    border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;font-size:13.5px}
+  .ac .acid{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--green);margin-right:6px}
+  .ac .g{color:var(--ink-faint);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  ul,ol{color:var(--ink-soft)}li{margin:5px 0}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:13px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;font-size:13px}
+  .flow .step{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 11px;color:var(--ink-soft)}
+  .flow .arr{color:var(--ink-faint)}
+  footer{margin-top:44px;font-size:12px;color:var(--ink-faint);text-align:center;border-top:1px solid var(--line);padding-top:18px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">● Phase 2 · SDLC Artifact</span>
+    <h1>Product Requirements Document (PRD)</h1>
+    <p class="lede">Radiology Clinic Website — what we will build for the MVP: features, screens, business rules,
+      and testable acceptance criteria, traced back to the URD.</p>
+    <div class="docctl">
+      <span><b>Version:</b> 0.2 (Baselined)</span>
+      <span><b>Date:</b> 2026-07-14</span>
+      <span><b>Author:</b> Yatin Krishna</span>
+      <span><b>Traces from:</b> URD v0.3</span>
+      <span><b>Status:</b> MVP signed off — ready for design</span>
+    </div>
+  </header>
+
+  <div class="callout"><b>How this differs from the URD.</b> The URD said <em>what users need</em>. This PRD decides
+    <em>what we build</em>: it draws the <b>MVP line</b>, groups needs into <b>features</b> (each tagged with the URD IDs it
+    satisfies — <span class="trace">UR-x-nn</span>), and gives every feature <b>acceptance criteria</b> in
+    <b>Given/When/Then</b> form. Those criteria become the test cases in Phase 7 — so "done" is defined here, not guessed later.</div>
+
+  <nav class="toc">
+    <b>Contents</b>
+    <a href="#vision">1 · Vision & goals</a>
+    <a href="#personas">2 · Personas</a>
+    <a href="#mvp">3 · MVP scope</a>
+    <a href="#features">4 · Features & acceptance criteria</a>
+    <a href="#rules">5 · Business rules</a>
+    <a href="#screens">6 · Screen inventory</a>
+    <a href="#data">7 · Data entities</a>
+    <a href="#metrics">8 · Success metrics</a>
+    <a href="#open">9 · Open items</a>
+  </nav>
+
+  <!-- 1 -->
+  <h2 id="vision"><span class="n">1</span>Vision &amp; goals</h2>
+  <p><b>Vision.</b> Give a single-location ultrasound clinic a simple web app that moves booking, registration,
+     report delivery, and referral-payout tracking off phone-and-paper and online — safely and with clear consent.</p>
+  <p><b>Product goals</b> (from URD objectives O1–O4):</p>
+  <ul>
+    <li>Let patients self-serve booking and get 24/7 secure access to reports.</li>
+    <li>Cut front-desk phone/paper workload with a fast daily workflow.</li>
+    <li>Make referral payouts accurate, transparent, and auditable.</li>
+    <li>Protect patient data with explicit consent and role-based access.</li>
+  </ul>
+
+  <!-- 2 -->
+  <h2 id="personas"><span class="n">2</span>Personas</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Persona</th><th>Context</th><th>Top needs</th></tr>
+    <tr><td><b>Priya — Patient</b></td><td>Working mother, books from her phone, dislikes clinic queues.</td><td>Book quickly, know when the report is ready, download it without a trip.</td></tr>
+    <tr><td><b>Ravi — Front-desk staff</b></td><td>Handles ~30 visits/day at the counter; wants speed, not clicks.</td><td>See today's list, register walk-ins fast, attach reports, keep status current.</td></tr>
+    <tr><td><b>Dr. Sharma — Admin / owner</b></td><td>Runs the clinic; pays referring doctors monthly.</td><td>Oversight dashboard; correct, defensible referral totals; manage doctors &amp; rules.</td></tr>
+  </table></div>
+
+  <!-- 3 -->
+  <h2 id="mvp"><span class="n">3</span>MVP scope</h2>
+  <p>The cut below is a <b>proposal</b> for sign-off. Rule of thumb: every URD <b>Must</b> is in; high-value
+     <b>Shoulds</b> that complete a core flow are in; <b>Coulds</b> and heavy items wait.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Capability</th><th>URD</th><th>MVP?</th></tr>
+    <tr><td>Email + password auth, roles (patient/staff/admin)</td><td class="trace">UR-P-01, A-07</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Password reset via email</td><td class="trace">UR-P-09</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Book appointment (multi-study) on available slots</td><td class="trace">UR-P-02, S-08, NFR-08</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Registration details + explicit consent</td><td class="trace">UR-P-03</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>View appointment status</td><td class="trace">UR-P-04</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Cancel / reschedule appointment</td><td class="trace">UR-P-08, S-07</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Secure report upload &amp; download</td><td class="trace">UR-S-05, P-05, NFR-01</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Daily appointment list, walk-in registration</td><td class="trace">UR-S-01, S-02</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Tag referring doctor, record billed amount, set status</td><td class="trace">UR-S-03, S-04, S-06</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Manage referring doctors</td><td class="trace">UR-A-02</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Manage service catalogue &amp; prices (admin)</td><td class="trace">PRD-added</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Configurable referral rules (default 20%)</td><td class="trace">UR-A-03</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Per-doctor running totals + payout status</td><td class="trace">UR-A-04, A-05</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Admin dashboard</td><td class="trace">UR-A-01</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Top-referrers report</td><td class="trace">UR-A-06</td><td><span class="pill in">In</span></td></tr>
+    <tr><td>Report-ready SMS/email notification</td><td class="trace">UR-P-07</td><td><span class="pill out">Later</span></td></tr>
+    <tr><td>Patient indicates referrer at registration</td><td class="trace">UR-P-06</td><td><span class="pill out">Later</span></td></tr>
+    <tr><td>Patient edits own profile</td><td class="trace">backlog</td><td><span class="pill out">Later</span></td></tr>
+  </table></div>
+
+  <!-- 4 -->
+  <h2 id="features"><span class="n">4</span>Features &amp; acceptance criteria</h2>
+  <p>Seven feature epics. Each lists the URD needs it satisfies and a few acceptance criteria (AC) written as
+     Given/When/Then — deliberately testable.</p>
+
+  <h3><span class="fid">F1</span>Accounts &amp; authentication <span class="trace">(UR-P-01, P-09, A-07)</span></h3>
+  <p>Email + password login with three roles. A seeded first admin creates staff/admin accounts; patients self-register.</p>
+  <div class="ac"><span class="acid">AC-F1-1</span><span class="g">Given</span> a visitor on the register page, <span class="g">When</span> they submit a unique email + valid password + accept consent, <span class="g">Then</span> a patient account is created and they are logged in.</div>
+  <div class="ac"><span class="acid">AC-F1-2</span><span class="g">Given</span> a user with role <code>PATIENT</code>, <span class="g">When</span> they call a staff-only page/endpoint, <span class="g">Then</span> access is denied (403).</div>
+  <div class="ac"><span class="acid">AC-F1-3</span><span class="g">Given</span> a registered user, <span class="g">When</span> they request a password reset, <span class="g">Then</span> a time-limited reset link is emailed and can set a new password once.</div>
+
+  <h3><span class="fid">F2</span>Appointment booking &amp; slots <span class="trace">(UR-P-02, P-04, P-08, S-07, S-08, NFR-08)</span></h3>
+  <p>Patients pick one or more studies and an available slot. Staff define slot capacity. Appointments can be cancelled/rescheduled. No double-booking.</p>
+  <div class="flow"><span class="step">Pick studies</span><span class="arr">→</span><span class="step">Choose available slot</span><span class="arr">→</span><span class="step">Confirm</span><span class="arr">→</span><span class="step">Status: Booked</span></div>
+  <div class="ac"><span class="acid">AC-F2-1</span><span class="g">Given</span> a slot at capacity, <span class="g">When</span> a patient tries to book it, <span class="g">Then</span> the slot is not offered / booking is rejected (NFR-08).</div>
+  <div class="ac"><span class="acid">AC-F2-2</span><span class="g">Given</span> a patient booking two studies (e.g. NT ₹1,000 + Doppler ₹1,000), <span class="g">When</span> they confirm, <span class="g">Then</span> one appointment is created with both studies and an indicative bill of ₹2,000.</div>
+  <div class="ac"><span class="acid">AC-F2-3</span><span class="g">Given</span> a booked, not-yet-started appointment, <span class="g">When</span> the patient reschedules to another available slot, <span class="g">Then</span> the old slot is freed and the new one reserved.</div>
+
+  <h3><span class="fid">F3</span>Registration &amp; consent <span class="trace">(UR-P-03, S-02)</span></h3>
+  <p>Collect patient details and capture explicit, timestamped consent before storing data. Staff can register walk-ins.</p>
+  <div class="ac"><span class="acid">AC-F3-1</span><span class="g">Given</span> the registration form, <span class="g">When</span> the consent box is unticked, <span class="g">Then</span> submission is blocked and no data is stored.</div>
+  <div class="ac"><span class="acid">AC-F3-2</span><span class="g">Given</span> consent is given, <span class="g">When</span> the patient registers, <span class="g">Then</span> a consent record with timestamp and version is saved (NFR-02).</div>
+
+  <h3><span class="fid">F4</span>Reports <span class="trace">(UR-S-05, P-05, NFR-01, NFR-03)</span></h3>
+  <p>Staff upload a report file (PDF) to a visit; the owning patient downloads it after login. Access is logged.</p>
+  <div class="ac"><span class="acid">AC-F4-1</span><span class="g">Given</span> a completed visit with an uploaded report, <span class="g">When</span> the owning patient opens the visit, <span class="g">Then</span> a Download button appears and returns the file.</div>
+  <div class="ac"><span class="acid">AC-F4-2</span><span class="g">Given</span> a report belonging to patient A, <span class="g">When</span> patient B requests it, <span class="g">Then</span> access is denied and the attempt is logged.</div>
+
+  <h3><span class="fid">F5</span>Visit, billing &amp; status <span class="trace">(UR-S-03, S-04, S-06)</span></h3>
+  <p>Staff tag the referring doctor, confirm/adjust the billed amount (defaults to sum of study prices), and move status Booked → In-progress → Completed.</p>
+  <div class="ac"><span class="acid">AC-F5-1</span><span class="g">Given</span> a visit with studies totalling ₹2,000, <span class="g">When</span> staff open billing, <span class="g">Then</span> the billed amount defaults to ₹2,000 and is editable.</div>
+  <div class="ac"><span class="acid">AC-F5-2</span><span class="g">Given</span> a visit, <span class="g">When</span> staff set status to Completed, <span class="g">Then</span> it appears as completed to the patient and is eligible for referral calculation.</div>
+
+  <h3><span class="fid">F6</span>Referring doctors &amp; referral engine <span class="trace">(UR-A-02, A-03, A-04, A-05, A-06)</span></h3>
+  <p>Admin manages doctors and referral rules. The engine computes each visit's referral from the bill using the
+     most-specific matching rule (default 20%). Running totals and payout status per doctor.</p>
+  <div class="ac"><span class="acid">AC-F6-1</span><span class="g">Given</span> only the default rule (20%), <span class="g">When</span> a ₹2,000 visit referred by Dr. Rao completes, <span class="g">Then</span> the referral is ₹400.</div>
+  <div class="ac"><span class="acid">AC-F6-2</span><span class="g">Given</span> a doctor rule "Dr. Rao = 25%" plus the default, <span class="g">When</span> the same visit completes, <span class="g">Then</span> the most-specific rule wins and the referral is ₹500.</div>
+  <div class="ac"><span class="acid">AC-F6-3</span><span class="g">Given</span> several completed visits for Dr. Rao, <span class="g">When</span> admin opens his summary, <span class="g">Then</span> it shows patients referred, total billed, total referral owed, and paid/pending.</div>
+
+  <h3><span class="fid">F7</span>Admin dashboard <span class="trace">(UR-A-01, A-06)</span></h3>
+  <p>At-a-glance activity: today's appointments, patient/report counts, and top referring doctors.</p>
+  <div class="ac"><span class="acid">AC-F7-1</span><span class="g">Given</span> the admin dashboard, <span class="g">When</span> it loads, <span class="g">Then</span> it shows counts of today's appointments, total patients, reports pending vs delivered, and a top-5 referrers list.</div>
+
+  <h3><span class="fid">F8</span>Service catalogue management <span class="trace">(admin, PRD-added)</span></h3>
+  <p>Admin can add, edit, and deactivate ultrasound services and set prices in-app. To keep past bills correct,
+     a study's price is <b>snapshotted</b> onto each appointment at booking time (BR-9).</p>
+  <div class="ac"><span class="acid">AC-F8-1</span><span class="g">Given</span> an admin on Manage Services, <span class="g">When</span> they change a study's price, <span class="g">Then</span> new bookings use the new price while existing appointments keep their snapshotted price.</div>
+  <div class="ac"><span class="acid">AC-F8-2</span><span class="g">Given</span> a deactivated service, <span class="g">When</span> a patient books, <span class="g">Then</span> it is not offered in the study list.</div>
+
+  <!-- 5 -->
+  <h2 id="rules"><span class="n">5</span>Business rules</h2>
+  <ul>
+    <li><b>BR-1 Billing:</b> A visit's indicative bill = sum of its studies' catalogue prices; staff may override the final billed amount.</li>
+    <li><b>BR-2 Referral amount:</b> referral = billed amount × applicable rule's percentage.</li>
+    <li><b>BR-3 Rule precedence:</b> most specific wins — doctor+scan-type &gt; doctor &gt; scan-type &gt; amount-range &gt; clinic default (20%).</li>
+    <li><b>BR-4 Referral eligibility:</b> a referral is only counted once a visit is <b>Completed</b> and has a referring doctor.</li>
+    <li><b>BR-5 Slot capacity:</b> a slot cannot hold more appointments than its capacity (NFR-08).</li>
+    <li><b>BR-6 Consent gate:</b> no personal data is stored without a recorded consent (NFR-02).</li>
+    <li><b>BR-7 Report access:</b> a report is visible only to its owning patient and authorised staff/admin (NFR-01).</li>
+    <li><b>BR-8 Slots:</b> appointment slots are <b>15 minutes</b>, <b>09:00–21:00</b> daily (48 slots/day); per-slot capacity is configurable by staff (UR-S-08).</li>
+    <li><b>BR-9 Price snapshot:</b> each study's price is copied onto the appointment at booking; later catalogue-price edits never change existing bills.</li>
+  </ul>
+
+  <!-- 6 -->
+  <h2 id="screens"><span class="n">6</span>Screen inventory</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Role</th><th>Screens</th></tr>
+    <tr><td><b>Patient</b></td><td>Register (+consent) · Login · Forgot/Reset password · Book appointment · My appointments (status, cancel/reschedule) · Report download</td></tr>
+    <tr><td><b>Staff</b></td><td>Login · Today's appointment list · Register walk-in · Visit detail (tag doctor, billing, status) · Upload report · Manage slots</td></tr>
+    <tr><td><b>Admin</b></td><td>Login · Dashboard · Manage referring doctors · Manage referral rules · Manage services (catalogue &amp; prices) · Doctor payout summary / top-referrers · Manage users</td></tr>
+  </table></div>
+
+  <!-- 7 -->
+  <h2 id="data"><span class="n">7</span>Data entities (business view)</h2>
+  <p>Not the database schema yet (that's Phase 3) — just the business "nouns" and how they relate.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Entity</th><th>Holds</th><th>Related to</th></tr>
+    <tr><td><b>User</b></td><td>email, password hash, role</td><td>1–1 Patient (if patient role)</td></tr>
+    <tr><td><b>Patient</b></td><td>name, contact, details</td><td>has many Appointments, ConsentRecords</td></tr>
+    <tr><td><b>ReferringDoctor</b></td><td>name, contact, active</td><td>referenced by Appointments &amp; ReferralRules</td></tr>
+    <tr><td><b>Service</b></td><td>category, name, price</td><td>listed in AppointmentStudy</td></tr>
+    <tr><td><b>Appointment</b> (Visit)</td><td>slot, status, billed amount, referring doctor</td><td>has many AppointmentStudy, one Report</td></tr>
+    <tr><td><b>AppointmentStudy</b></td><td>the chosen Service + price snapshot</td><td>line item of Appointment</td></tr>
+    <tr><td><b>Report</b></td><td>file ref, uploaded-by, timestamp</td><td>belongs to one Appointment</td></tr>
+    <tr><td><b>ReferralRule</b></td><td>scope (doctor/scan-type/amount-range), percentage, priority</td><td>used by referral engine</td></tr>
+    <tr><td><b>Referral</b> (ledger)</td><td>visit, amount, paid/pending</td><td>per completed Appointment</td></tr>
+    <tr><td><b>ConsentRecord</b></td><td>version, timestamp</td><td>belongs to Patient</td></tr>
+    <tr><td><b>Slot</b></td><td>date/time, capacity</td><td>holds Appointments</td></tr>
+    <tr><td><b>AuditLog</b></td><td>who/what/when</td><td>report access, payouts</td></tr>
+  </table></div>
+
+  <!-- 8 -->
+  <h2 id="metrics"><span class="n">8</span>Success metrics</h2>
+  <ul>
+    <li>% of appointments booked online (vs walk-in/phone) — adoption.</li>
+    <li>Median time from "report uploaded" to "patient downloaded" — access speed.</li>
+    <li>Referral total accuracy: system total matches a manual spot-check — trust.</li>
+    <li>Front-desk time per visit — efficiency (O1).</li>
+  </ul>
+
+  <!-- 9 -->
+  <h2 id="open"><span class="n">9</span>Sign-off decisions</h2>
+  <ul>
+    <li><b>OI-1 ✓</b> — MVP cut <b>approved as proposed</b> (Section 3), including the top-referrers report.</li>
+    <li><b>OI-2 ✓</b> — Slots are <b>15 minutes, 09:00–21:00</b> daily (48 slots/day). See BR-8.</li>
+    <li><b>OI-3 ✓</b> — Service catalogue &amp; prices are <b>editable in the admin UI</b> (feature F8), with price snapshotting (BR-9).</li>
+  </ul>
+
+  <footer>
+    PRD v0.2 (Baselined) · Radiology Clinic Knowledge Base · Phase 2 of 10 ·
+    Traces from URD v0.3 · Feeds Design &amp; Architecture (Phase 3) and Testing (Phase 7).
+  </footer>
+
+</div>
+</body>
+</html>
