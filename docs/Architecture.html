@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Design &amp; Architecture — Radiology Clinic</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--teal:#0d9488;--amber:#d97706;
+    --green:#16a34a;--red:#dc2626;--shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--teal:#2dd4bf;--amber:#fbbf24;
+    --green:#4ade80;--red:#f87171;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 70px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto}
+  header.top{padding:38px 0 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .lede{color:var(--ink-soft);margin:0;max-width:760px}
+  .docctl{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px;font-size:13px;color:var(--ink-faint)}
+  .docctl b{color:var(--ink-soft)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;margin:24px 0;box-shadow:var(--shadow);font-size:14px}
+  nav.toc b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  nav.toc a{color:var(--accent);text-decoration:none;margin-right:16px;line-height:2;white-space:nowrap}
+  h2{font-size:20px;margin:40px 0 10px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font-weight:700;margin-right:8px}
+  h3{font-size:16px;margin:24px 0 6px}
+  p{color:var(--ink-soft)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 20px;box-shadow:var(--shadow);margin:14px 0}
+  .callout{border-left:4px solid var(--teal);background:var(--accent-soft);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:16px 0;font-size:14px;color:var(--ink-soft)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .tablewrap{overflow-x:auto}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;
+    font:12.5px/1.55 ui-monospace,Menlo,Consolas,monospace;color:var(--ink)}
+  /* architecture diagram */
+  .tiers{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;margin:16px 0}
+  .tier{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;box-shadow:var(--shadow);position:relative}
+  .tier h4{margin:0 0 6px;font-size:14px}
+  .tier .tech{font-size:12px;color:var(--teal);font-weight:600}
+  .tier p{margin:6px 0 0;font-size:12.5px}
+  .tier .conn{position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-weight:700;z-index:2}
+  /* ADR */
+  .adr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;box-shadow:var(--shadow)}
+  .adr h4{margin:0 0 6px;font-size:15px}
+  .adr .aid{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--accent);font-weight:700;margin-right:8px}
+  .adr .row{font-size:13.5px;margin:4px 0}
+  .adr .k{font-weight:700;color:var(--ink-faint);text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;display:inline-block;min-width:96px;vertical-align:top}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(22,163,74,.14);color:var(--green);text-transform:uppercase}
+  /* schema entity */
+  .entity{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin:12px 0;overflow:hidden}
+  .entity>.name{background:var(--accent-soft);color:var(--ink);font-weight:700;padding:8px 14px;font-size:14px;border-bottom:1px solid var(--line)}
+  .entity table{margin:0}
+  .entity td{padding:6px 14px;font-size:13px}
+  .pk{color:var(--amber);font-weight:700}
+  .fk{color:var(--teal);font-weight:700}
+  .method{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;font-size:12px;padding:1px 7px;border-radius:5px}
+  .get{background:rgba(13,148,136,.14);color:var(--teal)}
+  .post{background:rgba(22,163,74,.14);color:var(--green)}
+  .put{background:rgba(217,119,6,.14);color:var(--amber)}
+  .del{background:rgba(220,38,38,.14);color:var(--red)}
+  .role{font-size:11px;color:var(--ink-faint)}
+  ul,ol{color:var(--ink-soft)}li{margin:5px 0}
+  footer{margin-top:44px;font-size:12px;color:var(--ink-faint);text-align:center;border-top:1px solid var(--line);padding-top:18px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">● Phase 3 · SDLC Artifact</span>
+    <h1>Design &amp; Architecture</h1>
+    <p class="lede">Radiology Clinic Website — how we will build it: system architecture, the reasoning behind each
+      technology (as ADRs), the database model, the API contract, and the security design.</p>
+    <div class="docctl">
+      <span><b>Version:</b> 0.1 (Draft)</span>
+      <span><b>Date:</b> 2026-07-14</span>
+      <span><b>Author:</b> Yatin Krishna</span>
+      <span><b>Traces from:</b> PRD v0.2</span>
+      <span><b>Status:</b> Draft — for design review</span>
+    </div>
+  </header>
+
+  <div class="callout"><b>Crossing from problem to solution.</b> The URD and PRD stayed in the problem space on purpose.
+    This document is the first that talks about <em>technology</em> — and every choice is written as an
+    <b>ADR (Architecture Decision Record)</b>: the decision, the reasoning, and the alternatives we rejected. That's how
+    professional teams keep design decisions honest and reviewable.</div>
+
+  <nav class="toc">
+    <b>Contents</b>
+    <a href="#overview">1 · System overview</a>
+    <a href="#adr">2 · Decision records (why)</a>
+    <a href="#layers">3 · Backend layers</a>
+    <a href="#data">4 · Data model</a>
+    <a href="#referral">5 · Referral engine</a>
+    <a href="#api">6 · API contract</a>
+    <a href="#security">7 · Security</a>
+    <a href="#structure">8 · Project structure</a>
+    <a href="#next">9 · What's next</a>
+  </nav>
+
+  <!-- 1 -->
+  <h2 id="overview"><span class="n">1</span>System overview — a 3-tier web app</h2>
+  <p>The app is a classic <b>three-tier architecture</b>: a browser UI, a server that holds the logic, and a database.
+     Each tier has one job and talks to the next through a clear contract.</p>
+  <div class="tiers">
+    <div class="tier">
+      <h4>1 · Presentation</h4>
+      <div class="tech">React (browser)</div>
+      <p>Screens, forms, routing. Talks to the server over HTTPS with JSON. Holds no business rules.</p>
+      <span class="conn">→</span>
+    </div>
+    <div class="tier">
+      <h4>2 · Application</h4>
+      <div class="tech">Java · Spring Boot (REST API)</div>
+      <p>Authentication, business rules (billing, referral engine), validation. The only tier that touches the DB.</p>
+      <span class="conn">→</span>
+    </div>
+    <div class="tier">
+      <h4>3 · Data</h4>
+      <div class="tech">PostgreSQL</div>
+      <p>Durable storage: patients, appointments, reports metadata, referral rules &amp; ledger.</p>
+    </div>
+  </div>
+  <div class="callout"><b>Why separate tiers?</b> So each can change independently and be secured separately. The browser is
+     untrusted (anyone can tamper with it), so <b>all rules and access checks live on the server</b> — the React app is a
+     convenient face, never the source of truth. Report <em>files</em> live on disk/object storage; the database stores only
+     their metadata and who may access them.</div>
+
+  <!-- 2 -->
+  <h2 id="adr"><span class="n">2</span>Architecture Decision Records — the "why"</h2>
+  <p>Each ADR: the decision, why it fits <em>this</em> project, and the alternatives we consciously rejected.</p>
+
+  <div class="adr">
+    <h4><span class="aid">ADR-1</span>Database: PostgreSQL <span class="badge">accepted</span></h4>
+    <div class="row"><span class="k">Why</span> Our data is highly <b>relational</b> (patients→appointments→studies→referrals) and needs <b>transactions</b> and <b>accurate money math</b> (<code>NUMERIC</code>, not floats). Postgres is free, open-source, rock-solid, and the default choice for Spring Boot.</div>
+    <div class="row"><span class="k">Rejected</span> <b>Oracle</b> — powerful but commercial/costly, overkill for one clinic. <b>MySQL</b> — fine, but Postgres has richer types (JSON, enums, checks) and stricter SQL. <b>MongoDB</b> — document DBs are weak for the many-to-many, transactional relations at the heart of referrals.</div>
+    <div class="row"><span class="k">Trade-off</span> You must design a schema up front (vs Mongo's schema-less speed) — but that rigor is exactly what protects patient and payout data.</div>
+  </div>
+
+  <div class="adr">
+    <h4><span class="aid">ADR-2</span>Backend: Java + Spring Boot <span class="badge">accepted</span></h4>
+    <div class="row"><span class="k">Why</span> A constraint (C1), and a great fit: Spring Boot gives batteries-included <b>security, data access (JPA), validation, and REST</b> with minimal boilerplate. Huge ecosystem, very employable skill.</div>
+    <div class="row"><span class="k">Rejected</span> <b>Plain Java servlets</b> — you'd hand-build everything Spring gives free. <b>Node/Express</b> — lighter, but Java/Spring is the stated learning target and stronger for typed, long-lived business systems.</div>
+    <div class="row"><span class="k">Trade-off</span> More initial concepts to learn (beans, annotations) — but they encode industry best-practice you want to know.</div>
+  </div>
+
+  <div class="adr">
+    <h4><span class="aid">ADR-3</span>Frontend: React <span class="badge">accepted</span></h4>
+    <div class="row"><span class="k">Why</span> A constraint (C1). React's <b>component model</b> and <b>state management</b> make the multi-screen, role-based UI maintainable, with a massive ecosystem (routing, forms).</div>
+    <div class="row"><span class="k">Rejected</span> <b>Vanilla JS</b> — fine for a page or two, but manual DOM updates become unmanageable across many stateful screens. <b>Angular</b> — heavier/opinionated; steeper for a first project.</div>
+    <div class="row"><span class="k">Trade-off</span> A build toolchain (Vite/npm) to learn — worth it for componentised, testable UI.</div>
+  </div>
+
+  <div class="adr">
+    <h4><span class="aid">ADR-4</span>API style: REST over JSON <span class="badge">accepted</span></h4>
+    <div class="row"><span class="k">Why</span> Simple, universal, easy to learn and debug (works with a browser + curl). Maps cleanly to our resources (appointments, reports, doctors).</div>
+    <div class="row"><span class="k">Rejected</span> <b>GraphQL</b> — flexible querying we don't need yet; adds complexity. <b>gRPC</b> — great for service-to-service, awkward from browsers.</div>
+  </div>
+
+  <div class="adr">
+    <h4><span class="aid">ADR-5</span>Auth: JWT (stateless tokens) <span class="badge">accepted</span></h4>
+    <div class="row"><span class="k">Why</span> A React SPA + REST API pairs naturally with <b>JWTs</b>: the server issues a signed token at login; the browser sends it on each request; the server verifies it without server-side session storage. Carries the user's role for authorization.</div>
+    <div class="row"><span class="k">Rejected</span> <b>Server sessions + cookies</b> — perfectly valid, but stateful and slightly more setup for an SPA. We can revisit if we need instant token revocation.</div>
+    <div class="row"><span class="k">Trade-off</span> Tokens can't be individually revoked before expiry — mitigated with short lifetimes + refresh tokens later.</div>
+  </div>
+
+  <div class="adr">
+    <h4><span class="aid">ADR-6</span>Backend shape: layered (Controller → Service → Repository) <span class="badge">accepted</span></h4>
+    <div class="row"><span class="k">Why</span> Separation of concerns: <b>Controllers</b> handle HTTP, <b>Services</b> hold business rules, <b>Repositories</b> talk to the DB. Testable, and the standard Spring pattern.</div>
+    <div class="row"><span class="k">Rejected</span> Putting SQL/logic directly in controllers — fast to write, painful to test and maintain.</div>
+  </div>
+
+  <!-- 3 -->
+  <h2 id="layers"><span class="n">3</span>Backend layers &amp; request flow</h2>
+  <p>A single request — "download my report" — flows through the layers like this:</p>
+  <pre>Browser (React)
+  │  GET /api/appointments/42/report   (Authorization: Bearer &lt;JWT&gt;)
+  ▼
+[Security filter]  verify JWT, load user + role
+  ▼
+[Controller]       ReportController.download(42)         ← HTTP in/out only
+  ▼
+[Service]          ReportService: is this MY report? (access rule NFR-01) → audit log
+  ▼
+[Repository]       ReportRepository.findByAppointmentId(42)   ← Spring Data JPA
+  ▼
+PostgreSQL         SELECT ... FROM reports WHERE appointment_id = 42
+  ▲
+  └─ file streamed back if authorised, else 403 (logged)</pre>
+  <div class="callout"><b>Learning note.</b> Notice the access check lives in the <b>Service</b>, not the UI. Even if someone
+     crafts the request by hand (no browser), the server still enforces "only the owner or staff can read this report."
+     Security you can only bypass by compromising the server is <em>real</em> security.</div>
+
+  <!-- 4 -->
+  <h2 id="data"><span class="n">4</span>Data model (PostgreSQL schema)</h2>
+  <p>The PRD's business entities become tables. <span class="pk">PK</span> = primary key, <span class="fk">FK</span> = foreign key.
+     Money is <code>NUMERIC(10,2)</code>; roles/status use enums or checked text.</p>
+
+  <div class="entity"><div class="name">users</div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td>email</td><td>TEXT UNIQUE NOT NULL</td></tr>
+    <tr><td>password_hash</td><td>TEXT NOT NULL (BCrypt)</td></tr>
+    <tr><td>role</td><td>TEXT CHECK (PATIENT|STAFF|ADMIN)</td></tr>
+    <tr><td>created_at</td><td>TIMESTAMPTZ</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">patients <span style="font-weight:400;color:var(--ink-faint)">(a walk-in may have no user account)</span></div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td class="fk">user_id</td><td>FK → users(id), NULLABLE</td></tr>
+    <tr><td>full_name, phone, dob, gender, address</td><td>patient details</td></tr>
+    <tr><td>created_at</td><td>TIMESTAMPTZ</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">services <span style="font-weight:400;color:var(--ink-faint)">(the ultrasound catalogue — editable)</span></div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td>category, name</td><td>e.g. Obstetrics · TIFFA Scan</td></tr>
+    <tr><td>price</td><td>NUMERIC(10,2)</td></tr>
+    <tr><td>active</td><td>BOOLEAN (deactivate, don't delete)</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">referring_doctors</div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td>name, phone</td><td>doctor details</td></tr>
+    <tr><td>active</td><td>BOOLEAN</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">slots</div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td>start_time</td><td>TIMESTAMPTZ (15-min grid, 09:00–21:00)</td></tr>
+    <tr><td>capacity</td><td>INT (default 1, configurable)</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">appointments <span style="font-weight:400;color:var(--ink-faint)">(the "visit")</span></div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td class="fk">patient_id</td><td>FK → patients(id)</td></tr>
+    <tr><td class="fk">slot_id</td><td>FK → slots(id)</td></tr>
+    <tr><td class="fk">referring_doctor_id</td><td>FK → referring_doctors(id), NULLABLE</td></tr>
+    <tr><td>status</td><td>BOOKED | IN_PROGRESS | COMPLETED | CANCELLED</td></tr>
+    <tr><td>billed_amount</td><td>NUMERIC(10,2) NULLABLE (defaults to sum of studies)</td></tr>
+    <tr><td>created_at, created_by</td><td>audit</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">appointment_studies <span style="font-weight:400;color:var(--ink-faint)">(line items — price snapshot, BR-9)</span></div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td class="fk">appointment_id</td><td>FK → appointments(id)</td></tr>
+    <tr><td class="fk">service_id</td><td>FK → services(id)</td></tr>
+    <tr><td>price_snapshot</td><td>NUMERIC(10,2) — copied at booking</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">reports</div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td class="fk">appointment_id</td><td>FK → appointments(id) UNIQUE (one per visit)</td></tr>
+    <tr><td>file_path</td><td>TEXT (file on disk/object store)</td></tr>
+    <tr><td class="fk">uploaded_by</td><td>FK → users(id)</td></tr>
+    <tr><td>uploaded_at</td><td>TIMESTAMPTZ</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">referral_rules <span style="font-weight:400;color:var(--ink-faint)">(the configurable engine)</span></div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td class="fk">referring_doctor_id</td><td>FK, NULLABLE (null = any doctor)</td></tr>
+    <tr><td class="fk">service_id</td><td>FK, NULLABLE (null = any study)</td></tr>
+    <tr><td>min_amount, max_amount</td><td>NUMERIC NULLABLE (amount-range scope)</td></tr>
+    <tr><td>percentage</td><td>NUMERIC(5,2) — e.g. 20.00</td></tr>
+    <tr><td>active</td><td>BOOLEAN</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">referrals <span style="font-weight:400;color:var(--ink-faint)">(ledger — one per completed, referred visit)</span></div><table>
+    <tr><td class="pk">id</td><td>BIGSERIAL PK</td></tr>
+    <tr><td class="fk">appointment_id</td><td>FK → appointments(id) UNIQUE</td></tr>
+    <tr><td class="fk">referring_doctor_id</td><td>FK → referring_doctors(id)</td></tr>
+    <tr><td class="fk">rule_id</td><td>FK → referral_rules(id) (which rule applied)</td></tr>
+    <tr><td>amount</td><td>NUMERIC(10,2)</td></tr>
+    <tr><td>status</td><td>PENDING | PAID</td></tr>
+  </table></div>
+
+  <div class="entity"><div class="name">consent_records &amp; audit_logs</div><table>
+    <tr><td>consent_records</td><td>id PK, <span class="fk">patient_id</span> FK, consent_version, consented_at</td></tr>
+    <tr><td>audit_logs</td><td>id PK, <span class="fk">user_id</span> FK, action, entity, entity_id, at</td></tr>
+  </table></div>
+
+  <h3>Relationships (cardinality)</h3>
+  <ul>
+    <li><code>users 1 — 0..1 patients</code> (a patient may or may not have a login)</li>
+    <li><code>patients 1 — * appointments</code> · <code>slots 1 — * appointments</code></li>
+    <li><code>appointments 1 — * appointment_studies * — 1 services</code></li>
+    <li><code>appointments 1 — 0..1 reports</code> · <code>appointments 1 — 0..1 referrals</code></li>
+    <li><code>referring_doctors 1 — * appointments</code> and <code>1 — * referral_rules</code></li>
+    <li><code>patients 1 — * consent_records</code></li>
+  </ul>
+
+  <!-- 5 -->
+  <h2 id="referral"><span class="n">5</span>Referral engine (the heart of the app)</h2>
+  <p>When an appointment is marked <b>Completed</b> and has a referring doctor, the engine computes the payout and writes
+     one <code>referrals</code> row. Rules are matched, then the <b>most specific</b> wins (BR-3).</p>
+  <pre>function computeReferral(appointment):
+    if appointment.referring_doctor is null: return   // no referral
+    bill = appointment.billed_amount
+    candidates = referral_rules where active AND
+        (doctor_id is null OR = appointment.doctor) AND
+        (service_id is null OR matches a study in the visit) AND
+        (min/max is null OR bill within range)
+    // specificity score: doctor(+4), service(+2), amount-range(+1)
+    winner = candidates.maxBy(specificityScore)   // default 20% rule scores 0
+    amount = round(bill * winner.percentage / 100, 2)
+    upsert referrals(appointment, winner.doctor, winner.id, amount, PENDING)</pre>
+  <div class="callout"><b>Worked example (from PRD AC-F6-2).</b> Bill ₹2,000, Dr. Rao. Rules: default 20% (score 0) and
+     "Dr. Rao = 25%" (score 4). Winner = the doctor rule → ₹2,000 × 25% = <b>₹500</b>. With only the default rule present,
+     it would be ₹400. This matches the acceptance criteria exactly — design tracing straight back to the PRD.</div>
+
+  <!-- 6 -->
+  <h2 id="api"><span class="n">6</span>REST API contract (representative)</h2>
+  <p>All under <code>/api</code>, JSON in/out, JWT required except login/register. Roles show who may call each.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Method</th><th>Path</th><th>Purpose</th><th>Role</th></tr>
+    <tr><td><span class="method post">POST</span></td><td>/api/auth/register</td><td>Patient self-registration (+consent)</td><td class="role">public</td></tr>
+    <tr><td><span class="method post">POST</span></td><td>/api/auth/login</td><td>Get a JWT</td><td class="role">public</td></tr>
+    <tr><td><span class="method post">POST</span></td><td>/api/auth/forgot-password</td><td>Email a reset link</td><td class="role">public</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/services</td><td>List active studies + prices</td><td class="role">any</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/slots?date=</td><td>Available slots for a date</td><td class="role">any</td></tr>
+    <tr><td><span class="method post">POST</span></td><td>/api/appointments</td><td>Book (studies + slot)</td><td class="role">patient/staff</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/appointments?date=</td><td>Daily list / my appointments</td><td class="role">staff / owner</td></tr>
+    <tr><td><span class="method put">PUT</span></td><td>/api/appointments/{id}</td><td>Reschedule / cancel / set status / billing</td><td class="role">staff (owner: cancel)</td></tr>
+    <tr><td><span class="method post">POST</span></td><td>/api/appointments/{id}/report</td><td>Upload report file</td><td class="role">staff</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/appointments/{id}/report</td><td>Download report (access-checked)</td><td class="role">owner / staff</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/doctors · <span class="method post">POST</span>/<span class="method put">PUT</span></td><td>Manage referring doctors</td><td class="role">admin</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/referral-rules · <span class="method post">POST</span></td><td>Manage referral rules</td><td class="role">admin</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/referrals/summary</td><td>Per-doctor totals + paid/pending</td><td class="role">admin</td></tr>
+    <tr><td><span class="method put">PUT</span></td><td>/api/referrals/{id}</td><td>Mark paid/pending</td><td class="role">admin</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>/api/admin/dashboard</td><td>Dashboard counts + top referrers</td><td class="role">admin</td></tr>
+    <tr><td><span class="method post">POST</span></td><td>/api/services · <span class="method put">PUT</span>/{id}</td><td>Manage catalogue &amp; prices (F8)</td><td class="role">admin</td></tr>
+  </table></div>
+
+  <!-- 7 -->
+  <h2 id="security"><span class="n">7</span>Security &amp; privacy design</h2>
+  <ul>
+    <li><b>Passwords</b> stored as <b>BCrypt</b> hashes, never plaintext (one-way, salted).</li>
+    <li><b>JWT</b> signed by the server; carries user id + role; short expiry. Sent as <code>Authorization: Bearer</code>.</li>
+    <li><b>Authorization</b> enforced server-side per endpoint by role, plus <b>ownership checks</b> (a patient can only read <em>their</em> data — NFR-01).</li>
+    <li><b>Consent gate</b>: registration writes a <code>consent_records</code> row; no personal data persists without it (NFR-02).</li>
+    <li><b>Audit log</b> for report access &amp; payout changes (NFR-03).</li>
+    <li><b>Transport</b>: HTTPS in deployment; secrets (DB password, JWT key) in env vars, never in git (already in <code>.gitignore</code>).</li>
+    <li><b>Report files</b> stored outside the web root; served only through the access-checked endpoint.</li>
+  </ul>
+
+  <!-- 8 -->
+  <h2 id="structure"><span class="n">8</span>Project structure (bridge to Phases 4 &amp; 5)</h2>
+  <div class="tablewrap"><table><tr>
+    <td style="width:50%;border:none">
+      <b>backend/ (Spring Boot)</b>
+<pre>src/main/java/com/clinic/
+  config/        security, CORS, seed
+  auth/          controller, service, jwt
+  patient/       controller, service, repo, entity
+  appointment/   ... studies, slots
+  report/        upload/download + storage
+  doctor/        referring doctors
+  referral/      rules + engine + ledger
+  service_catalog/ services CRUD
+  dashboard/
+  common/        errors, audit, dto
+src/main/resources/
+  application.yml
+  db/migration/  (Flyway SQL)</pre>
+    </td>
+    <td style="width:50%;border:none">
+      <b>frontend/ (React + Vite)</b>
+<pre>src/
+  api/           axios client, endpoints
+  auth/          login, register, token
+  routes/        role-based routing
+  pages/
+    patient/     book, my-appointments, report
+    staff/       daily-list, visit, upload
+    admin/       dashboard, doctors, rules
+  components/     shared UI
+  hooks/  utils/
+public/
+</pre>
+    </td>
+  </tr></table></div>
+  <div class="callout"><b>Why organise by feature (patient/, appointment/, referral/) not by layer?</b> Grouping a feature's
+     controller+service+repo together keeps related code close — easier to navigate and grow than one giant
+     <code>controllers/</code> folder. This is "package by feature", a widely-recommended Spring practice.</div>
+
+  <!-- 9 -->
+  <h2 id="next"><span class="n">9</span>What's next</h2>
+  <ul>
+    <li><b>Design review with your mentor</b> — walk through URD → PRD → this Architecture as one story.</li>
+    <li><b>Phase 4 — Backend build</b>: set up the Spring Boot project, PostgreSQL (local vs Docker decision), Flyway migrations for this schema, then build auth + one vertical slice (e.g. services + booking) end-to-end.</li>
+    <li>Open design decision to confirm at build time: <b>local PostgreSQL install vs Docker Compose</b> (recommended: Docker, for a clean reproducible DB).</li>
+  </ul>
+
+  <footer>
+    Architecture v0.1 (Draft) · Radiology Clinic Knowledge Base · Phase 3 of 10 ·
+    Traces from PRD v0.2 · Feeds the Backend (Phase 4) and Frontend (Phase 5) builds.
+  </footer>
+
+</div>
+</body>
+</html>

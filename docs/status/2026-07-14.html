@@ -46,12 +46,12 @@
 <div class="wrap">
   <header>
     <span class="eyebrow">● Daily Status · For mentor review</span>
-    <h1>Day 2 — Requirements (URD)</h1>
+    <h1>Day 2 — Requirements, Product &amp; Design (Phases 1–3)</h1>
     <p class="sub">Radiology Clinic Website · Learning-first full-stack build</p>
     <div class="meta">
       <span><b>Date:</b> 2026-07-14</span>
-      <span><b>Phase:</b> 1 — Requirements</span>
-      <span><b>Artifact:</b> docs/URD.html (v0.3, baselined)</span>
+      <span><b>Phases:</b> 1 URD · 2 PRD · 3 Architecture</span>
+      <span><b>Artifacts:</b> URD v0.3 · PRD v0.2 · Architecture v0.1</span>
     </div>
   </header>
 
@@ -65,12 +65,16 @@
       <li>Reconciled a conflict: brief wanted variable referral rates, stakeholder said "flat 20%". Chose a <b>configurable rule engine seeded at 20%</b> — keeps the feature and today's simplicity.</li>
       <li>Baselined the URD to <b>v0.2</b>, then ran a <b>requirements review</b>: fixed a version bug and added 5 missed requirements (cancel/reschedule, password reset, slot availability + no double-booking) — bumped to <b>v0.3</b>; deferred "patient edits profile" to a backlog.</li>
       <li><b>Phase 2:</b> wrote the <b>Product Requirements Document</b> (<code>docs/PRD.html</code>) — MVP cut, 8 feature epics with <b>Given/When/Then acceptance criteria</b>, business rules, screen inventory, and business data entities. Signed off: MVP scope approved, <b>15-min slots 9am–9pm</b>, <b>editable service catalogue</b> (with price snapshotting). Baselined to <b>v0.2</b>.</li>
+      <li><b>Phase 3:</b> wrote the <b>Design &amp; Architecture</b> doc (<code>docs/Architecture.html</code>) — 3-tier system design, <b>6 ADRs</b> explaining the why (PostgreSQL, Spring Boot, React, REST, JWT, layered), full <b>PostgreSQL schema</b> (12 tables), the <b>referral-engine algorithm</b>, the <b>REST API contract</b>, security design, and the backend/frontend project structure. Updated the roadmap board with progress + doc links.</li>
     </ul>
   </div>
 
   <h2>What I learned</h2>
   <div class="card">
     <ul>
+      <li class="learn"><b>ADRs record the "why":</b> writing decisions down (with rejected alternatives) makes design reviewable — e.g. PostgreSQL over Oracle/Mongo for relational, transactional, accurate-money data.</li>
+      <li class="learn"><b>Security lives on the server:</b> the browser is untrusted, so access checks sit in the Service layer — bypassable only by breaching the server.</li>
+      <li class="learn"><b>Design traces to the PRD:</b> the referral-engine example (₹500 for a doctor rule) matches acceptance criterion AC-F6-2 exactly.</li>
       <li class="learn"><b>Needs vs solutions:</b> a URD describes <em>what</em> users need in the problem space, never <em>how</em> to build it — that keeps options open until design.</li>
       <li class="learn"><b>Traceability:</b> giving every requirement an ID (<code>UR-P-01</code>) lets us prove later that design, code, and tests actually satisfy each need.</li>
       <li class="learn"><b>Elicitation surfaces contradictions:</b> the "20% vs variable rate" clash showed how interviewing the stakeholder reveals gaps a written brief hides.</li>
@@ -93,11 +97,12 @@
   <h2>Next up</h2>
   <div class="card">
     <ul>
-      <li class="next"><b>Phase 3 — Design &amp; Architecture</b>: data model (ER diagram), REST API contract, and the key "why" decisions (PostgreSQL, REST, JWT auth).</li>
+      <li class="next"><b>Design review with mentor</b> — walk URD → PRD → Architecture as one story.</li>
+      <li class="next"><b>Phase 4 — Backend build</b>: Spring Boot project + PostgreSQL (local vs Docker), Flyway migrations, then auth + a first vertical slice.</li>
     </ul>
   </div>
 
-  <footer>Generated as part of the daily learning log · Phases 1 &amp; 2 complete</footer>
+  <footer>Generated as part of the daily learning log · Phases 1, 2 &amp; 3 complete — ready for design review</footer>
 </div>
 </body>
 </html>
