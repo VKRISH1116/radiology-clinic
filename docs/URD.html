@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>User Requirements Document (URD) — Radiology Clinic</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--teal:#0d9488;--amber:#d97706;
+    --green:#16a34a;--red:#dc2626;--shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--teal:#2dd4bf;--amber:#fbbf24;
+    --green:#4ade80;--red:#f87171;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 70px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:960px;margin:0 auto}
+  header.top{padding:38px 0 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .lede{color:var(--ink-soft);margin:0;max-width:720px}
+  .docctl{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px;font-size:13px;color:var(--ink-faint)}
+  .docctl b{color:var(--ink-soft)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;margin:24px 0;box-shadow:var(--shadow);font-size:14px}
+  nav.toc b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  nav.toc a{color:var(--accent);text-decoration:none;margin-right:16px;line-height:2;white-space:nowrap}
+  nav.toc a:hover{text-decoration:underline}
+  h2{font-size:20px;margin:38px 0 10px;padding-top:8px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font-weight:700;margin-right:8px}
+  h3{font-size:15px;margin:22px 0 8px;color:var(--ink)}
+  p{color:var(--ink-soft)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;box-shadow:var(--shadow);margin:14px 0}
+  .callout{border-left:4px solid var(--accent);background:var(--accent-soft);
+    border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0;font-size:14px;color:var(--ink-soft)}
+  .callout.why{border-left-color:var(--teal)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  td .id{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:600;color:var(--accent);white-space:nowrap}
+  .tablewrap{overflow-x:auto}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;
+    border-radius:6px;text-transform:uppercase;white-space:nowrap}
+  .must{background:rgba(220,38,38,.12);color:var(--red)}
+  .should{background:rgba(217,119,6,.14);color:var(--amber)}
+  .could{background:rgba(13,148,136,.14);color:var(--teal)}
+  .wont{background:rgba(138,147,168,.16);color:var(--ink-faint)}
+  ul,ol{color:var(--ink-soft)}
+  li{margin:5px 0}
+  .q{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--amber);
+    border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px}
+  .q .qid{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--amber);margin-right:6px}
+  .q.resolved{border-left-color:var(--green)}
+  .q.resolved .qid{color:var(--green)}
+  .gloss dt{font-weight:700;color:var(--ink);margin-top:12px}
+  .gloss dd{margin:2px 0 0;color:var(--ink-soft)}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:13px}
+  footer{margin-top:44px;font-size:12px;color:var(--ink-faint);text-align:center;border-top:1px solid var(--line);padding-top:18px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">● Phase 1 · SDLC Artifact</span>
+    <h1>User Requirements Document (URD)</h1>
+    <p class="lede">Radiology Clinic Website — what the users need, and why, expressed in the problem space
+      before any solution or technology is chosen.</p>
+    <div class="docctl">
+      <span><b>Version:</b> 0.2 (Baselined)</span>
+      <span><b>Date:</b> 2026-07-14</span>
+      <span><b>Author:</b> Yatin Krishna</span>
+      <span><b>Status:</b> Open questions resolved — ready for PRD</span>
+      <span><b>Source:</b> Problem statement + elicitation</span>
+    </div>
+  </header>
+
+  <div class="callout why">
+    <b>How to read this document.</b> Each requirement has a unique <b>ID</b> (e.g. <code>UR-P-01</code>) so we can
+    trace it forward into design, code, and tests — and prove later that we built what was needed. Each carries a
+    <b>MoSCoW priority</b>: <span class="pill must">Must</span> <span class="pill should">Should</span>
+    <span class="pill could">Could</span> <span class="pill wont">Won't (now)</span>. This version is <b>baselined</b>:
+    the elicitation questions in section 8 have been <b>resolved</b> (shown in green), and the agreed service prices are in Appendix A.
+  </div>
+
+  <nav class="toc">
+    <b>Contents</b>
+    <a href="#purpose">1 · Purpose</a>
+    <a href="#context">2 · Business context</a>
+    <a href="#scope">3 · Scope</a>
+    <a href="#actors">4 · Actors</a>
+    <a href="#func">5 · Functional requirements</a>
+    <a href="#nfr">6 · Non-functional</a>
+    <a href="#constraints">7 · Constraints & assumptions</a>
+    <a href="#open">8 · Resolved questions</a>
+    <a href="#catalogue">A · Service catalogue</a>
+    <a href="#glossary">9 · Glossary</a>
+  </nav>
+
+  <!-- 1 -->
+  <h2 id="purpose"><span class="n">1</span>Purpose</h2>
+  <p>This document captures the <b>user requirements</b> for a web application that lets a radiology / diagnostic
+     clinic in India run appointments, patient registration, report delivery, and referring-doctor payout tracking
+     online — replacing today's manual, phone-based process. It describes <b>what users need</b>, not how the system
+     will be built. It is the input to the Product Requirements Document (PRD, Phase 2) and the design (Phase 3).</p>
+
+  <!-- 2 -->
+  <h2 id="context"><span class="n">2</span>Business context &amp; objectives</h2>
+  <div class="card">
+    <p><b>The problem today.</b> Appointments are booked by phone; patient details and consent are collected on paper;
+       reports are collected in person; and referring-doctor payouts are tracked manually — slow, error-prone, and hard to audit.</p>
+    <p style="margin-bottom:0"><b>Business objectives</b> (the "why" behind the app):</p>
+    <ul>
+      <li><b>O1</b> — Reduce phone/paper workload for front-desk staff.</li>
+      <li><b>O2</b> — Give patients self-service booking and secure, 24/7 access to their reports.</li>
+      <li><b>O3</b> — Make referral payouts accurate, transparent, and auditable.</li>
+      <li><b>O4</b> — Protect sensitive patient data with explicit consent and controlled access.</li>
+    </ul>
+  </div>
+
+  <!-- 3 -->
+  <h2 id="scope"><span class="n">3</span>Scope</h2>
+  <h3>In scope (MVP)</h3>
+  <p>Patient registration &amp; login · appointment booking · consent capture · appointment status · secure report
+     download · staff daily list &amp; walk-in registration · report upload · status updates · billed-amount capture ·
+     admin dashboard · referring-doctor management · configurable referral rules · payout tracking.</p>
+  <h3>Out of scope (for now)</h3>
+  <p>Full PACS / DICOM medical-image viewing · insurance claims &amp; billing automation · online payment collection ·
+     multi-clinic / multi-location support · a login portal for referring doctors.</p>
+  <div class="callout"><b>Why draw a scope line at all?</b> An MVP ("Minimum Viable Product") delivers the smallest
+     set of features that is genuinely useful, so you can ship, learn, and iterate — rather than trying to build
+     everything and finishing nothing. Everything above the line is what we commit to; everything below is explicitly deferred.</div>
+
+  <!-- 4 -->
+  <h2 id="actors"><span class="n">4</span>Actors &amp; stakeholders</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Actor</th><th>Type</th><th>Description &amp; goals</th></tr>
+    <tr><td><b>Patient</b></td><td>Primary user</td><td>Books scans, registers details, consents, checks status, downloads reports. Non-technical; may use a phone.</td></tr>
+    <tr><td><b>Front-desk staff</b></td><td>Primary user</td><td>Manages the day: daily appointment list, registers walk-ins, tags referring doctor, records billed amount, uploads reports, updates status.</td></tr>
+    <tr><td><b>Admin</b></td><td>Primary user</td><td>Oversees activity via dashboard; manages referring doctors and referral rules; tracks and settles payouts.</td></tr>
+    <tr><td><b>Referring doctor</b></td><td>Stakeholder (not a system user in MVP)</td><td>An external doctor who sends patients to the clinic. Tracked as data + paid a referral; does <em>not</em> log in for the MVP.</td></tr>
+    <tr><td><b>Clinic owner</b></td><td>Business stakeholder</td><td>Cares about O1–O4 above; consumes the referral/top-doctor reports.</td></tr>
+  </table></div>
+  <div class="callout why"><b>Learning note.</b> Not every stakeholder is a <em>user</em>. The referring doctor is central
+     to the business but never touches the system in the MVP — recognising that keeps us from building screens nobody asked for.</div>
+
+  <!-- 5 -->
+  <h2 id="func"><span class="n">5</span>Functional user requirements</h2>
+  <p>Stated as user needs ("A patient can …"), each with an ID and priority. IDs group by actor:
+     <code>P</code>=patient, <code>S</code>=staff, <code>A</code>=admin.</p>
+
+  <h3>5.1 Patient</h3>
+  <div class="tablewrap"><table>
+    <tr><th>ID</th><th>The user needs to…</th><th>Priority</th></tr>
+    <tr><td><span class="id">UR-P-01</span></td><td>Register an account and log in securely.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-P-02</span></td><td>Book an appointment by choosing <b>one or more ultrasound studies</b>, a date, and time.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-P-03</span></td><td>Provide personal &amp; basic medical details and give <b>explicit consent</b> before any data is stored.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-P-04</span></td><td>View the status of their appointment(s) (booked / in-progress / completed).</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-P-05</span></td><td>Securely view and download their report(s) once ready — only after logging in.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-P-06</span></td><td>Optionally indicate the doctor who referred them during registration.</td><td><span class="pill should">Should</span></td></tr>
+    <tr><td><span class="id">UR-P-07</span></td><td>Be notified when a report is ready (e.g. SMS/email).</td><td><span class="pill could">Could</span></td></tr>
+  </table></div>
+
+  <h3>5.2 Front-desk staff</h3>
+  <div class="tablewrap"><table>
+    <tr><th>ID</th><th>The user needs to…</th><th>Priority</th></tr>
+    <tr><td><span class="id">UR-S-01</span></td><td>View the daily list of appointments.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-S-02</span></td><td>Register a walk-in patient (who did not book online).</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-S-03</span></td><td>Tag which referring doctor (if any) is associated with a patient's visit.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-S-04</span></td><td>Record the billed amount for a visit (defaults to the sum of the selected studies' catalogue prices; staff may adjust).</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-S-05</span></td><td>Upload / attach a report to a patient's visit.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-S-06</span></td><td>Update the appointment status (booked → in-progress → completed).</td><td><span class="pill must">Must</span></td></tr>
+  </table></div>
+
+  <h3>5.3 Admin</h3>
+  <div class="tablewrap"><table>
+    <tr><th>ID</th><th>The user needs to…</th><th>Priority</th></tr>
+    <tr><td><span class="id">UR-A-01</span></td><td>See a dashboard summarising appointments, patients, and reports.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-A-02</span></td><td>Maintain the list of referring doctors (add / edit / deactivate).</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-A-03</span></td><td>Configure referral rules where the percentage varies <b>by doctor, by scan type, or by billed-amount range</b>. Ships with a default rule of <b>20% of the final bill</b>; when several rules match a visit, the <b>most specific wins</b> (doctor+scan-type &gt; doctor &gt; scan-type &gt; amount-range &gt; default).</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-A-04</span></td><td>See a running total per doctor: patients referred, total billed value, referral amount owed, and paid/pending status.</td><td><span class="pill must">Must</span></td></tr>
+    <tr><td><span class="id">UR-A-05</span></td><td>Mark referral payouts as paid or pending.</td><td><span class="pill should">Should</span></td></tr>
+    <tr><td><span class="id">UR-A-06</span></td><td>View a report of the top referring doctors and totals.</td><td><span class="pill should">Should</span></td></tr>
+    <tr><td><span class="id">UR-A-07</span></td><td>Manage user accounts &amp; roles (patient / staff / admin).</td><td><span class="pill should">Should</span></td></tr>
+  </table></div>
+
+  <!-- 6 -->
+  <h2 id="nfr"><span class="n">6</span>Non-functional requirements</h2>
+  <p>These describe <b>qualities</b> of the system — how well it must behave — as opposed to features. They're
+     easy to forget and expensive to retrofit, so we name them now.</p>
+  <div class="tablewrap"><table>
+    <tr><th>ID</th><th>Quality</th><th>Requirement</th></tr>
+    <tr><td><span class="id">NFR-01</span></td><td>Security / access control</td><td>Reports and records are visible only to the owning patient and authorised staff. Access is role-based.</td></tr>
+    <tr><td><span class="id">NFR-02</span></td><td>Privacy &amp; consent</td><td>Explicit consent is captured and stored (with timestamp) before personal data is collected. Aligns with India's DPDP Act 2023 spirit.</td></tr>
+    <tr><td><span class="id">NFR-03</span></td><td>Auditability</td><td>Key actions (report upload, report access, payout changes) are logged for accountability.</td></tr>
+    <tr><td><span class="id">NFR-04</span></td><td>Usability</td><td>Usable by non-technical patients and front-desk staff with minimal training; works on a typical phone browser.</td></tr>
+    <tr><td><span class="id">NFR-05</span></td><td>Reliability / availability</td><td>Available during clinic operating hours; no data loss on reports once uploaded.</td></tr>
+    <tr><td><span class="id">NFR-06</span></td><td>Data integrity</td><td>Referral calculations are accurate and reproducible from the stored rules and billed amounts.</td></tr>
+    <tr><td><span class="id">NFR-07</span></td><td>Performance</td><td>Common screens (daily list, dashboard, report download) respond within a few seconds under normal load.</td></tr>
+  </table></div>
+
+  <!-- 7 -->
+  <h2 id="constraints"><span class="n">7</span>Constraints &amp; assumptions</h2>
+  <h3>Constraints (fixed, non-negotiable)</h3>
+  <ul>
+    <li><b>C1 — Technology:</b> Backend Java + Spring Boot, Frontend React, Database PostgreSQL.</li>
+    <li><b>C2 — Deployment:</b> Runs on localhost during development; AWS is the long-term target.</li>
+    <li><b>C3 — Single clinic:</b> One location; no multi-tenant support in the MVP.</li>
+    <li><b>C4 — Learning project:</b> Built incrementally, one SDLC phase at a time, prioritising understanding.</li>
+  </ul>
+  <h3>Assumptions (believed true; to confirm)</h3>
+  <ul>
+    <li><b>AS1</b> — Reports are produced outside the system (e.g. by a radiologist) and uploaded as files (e.g. PDF).</li>
+    <li><b>AS2</b> — Referring doctors do not need to log in for the MVP; staff/admin manage their data.</li>
+    <li><b>AS3</b> — Payment is collected offline; the system only <em>records</em> the billed amount, it doesn't process payments.</li>
+    <li><b>AS4</b> — The primary language is English for the MVP.</li>
+    <li><b>AS5</b> — One appointment may include <b>multiple ultrasound studies</b>; the billed amount is the sum of their catalogue prices.</li>
+  </ul>
+
+  <!-- 8 -->
+  <h2 id="open"><span class="n">8</span>Resolved questions (elicitation outcomes)</h2>
+  <p>The draft's open questions have been resolved with the clinic. Recorded here for traceability
+     — ✓ = decided, ○ = deferred/assumed.</p>
+  <div class="q resolved"><span class="qid">OQ-01 ✓</span> <b>Scan types:</b> Ultrasound-only clinic. Nine studies at fixed prices — see Appendix A. Obstetrics is a <em>category</em> containing sub-studies (NT, TIFFA, Growth &amp; Doppler).</div>
+  <div class="q resolved"><span class="qid">OQ-02 ✓</span> <b>Patient login:</b> Email + password (no SMS/OTP dependency for the MVP).</div>
+  <div class="q resolved"><span class="qid">OQ-03 ✓</span> <b>Referral model:</b> A <b>configurable rule engine</b> seeded with a default rule of <b>20% of the final bill</b>. When multiple rules match, the <b>most specific wins</b> (doctor+scan-type &gt; doctor &gt; scan-type &gt; amount-range &gt; default). Reconciles the brief's "variable rate" intent with today's flat 20%.</div>
+  <div class="q resolved"><span class="qid">OQ-04 ○</span> <b>Report-ready notifications (SMS/email):</b> Deferred out of the MVP (remains UR-P-07 = Could).</div>
+  <div class="q resolved"><span class="qid">OQ-05 ✓</span> <b>Studies per appointment:</b> Multiple studies allowed per appointment; billed amount = sum of the studies' prices.</div>
+  <div class="q resolved"><span class="qid">OQ-06 ○</span> <b>Account provisioning:</b> Assumption — a seeded first admin creates staff and other admin accounts (UR-A-07).</div>
+
+  <!-- Appendix A -->
+  <h2 id="catalogue"><span class="n">A</span>Appendix — Service catalogue &amp; prices</h2>
+  <p>The ultrasound studies the clinic offers, with current prices. These feed the billed amount (UR-S-04)
+     and the referral calculation (UR-A-03). Prices are data, not code — the admin should be able to change them later.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Category</th><th>Study</th><th>Price (₹)</th></tr>
+    <tr><td>General</td><td>Ultrasound Abdomen &amp; Pelvis</td><td>1,000</td></tr>
+    <tr><td>General</td><td>Ultrasound Pelvis</td><td>1,000</td></tr>
+    <tr><td>General</td><td>Ultrasound Small Parts</td><td>1,000</td></tr>
+    <tr><td>General</td><td>Ultrasound Thyroid</td><td>1,500</td></tr>
+    <tr><td>General</td><td>Ultrasound Scrotum</td><td>1,500</td></tr>
+    <tr><td>General</td><td>Ultrasound Doppler</td><td>1,000</td></tr>
+    <tr><td>Obstetrics</td><td>NT Scan</td><td>1,000</td></tr>
+    <tr><td>Obstetrics</td><td>TIFFA Scan</td><td>2,000</td></tr>
+    <tr><td>Obstetrics</td><td>Growth &amp; Doppler Scan</td><td>2,000</td></tr>
+  </table></div>
+  <div class="callout why"><b>Modelling note for Phase 3.</b> Notice the shape: a <b>Service</b> has a <em>category</em>,
+     a <em>name</em>, and a <em>price</em>; an <b>Appointment</b> links to one or more Services; the <b>bill</b> is the
+     sum of those prices; and the <b>referral</b> is computed from the bill via the rule engine. That's the spine of the data model.</div>
+
+  <!-- 9 -->
+  <h2 id="glossary"><span class="n">9</span>Glossary</h2>
+  <dl class="gloss">
+    <dt>URD — User Requirements Document</dt><dd>This document: what users need, in the problem space.</dd>
+    <dt>PRD — Product Requirements Document</dt><dd>Next phase: translates these needs into product features, MVP boundary, and acceptance criteria.</dd>
+    <dt>NFR — Non-Functional Requirement</dt><dd>A quality the system must have (security, performance, usability) rather than a feature.</dd>
+    <dt>MVP — Minimum Viable Product</dt><dd>The smallest genuinely useful version we can ship and learn from.</dd>
+    <dt>MoSCoW</dt><dd>Prioritisation scheme: Must / Should / Could / Won't-have (now).</dd>
+    <dt>Referral rule</dt><dd>How a referring doctor's payout is computed — a percentage of the billed amount that can vary by doctor, scan type, or amount range.</dd>
+    <dt>Visit</dt><dd>A patient's attendance for a scan; carries the billed amount, referring doctor, status, and report.</dd>
+    <dt>PACS / DICOM</dt><dd>Standard systems/formats for storing and viewing medical images — explicitly out of scope.</dd>
+    <dt>Consent</dt><dd>The patient's explicit, recorded agreement to collect and process their data.</dd>
+  </dl>
+
+  <footer>
+    URD v0.1 (Draft) · Radiology Clinic Knowledge Base · Phase 1 of 10 ·
+    Traces forward to the PRD (Phase 2) and Architecture (Phase 3).
+  </footer>
+
+</div>
+</body>
+</html>
