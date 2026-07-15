@@ -119,6 +119,17 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<!--
+						Force the dev JVM to a timezone PostgreSQL's tzdata accepts.
+						Windows reports India Standard Time via the legacy Olson name
+						"Asia/Calcutta", which the pgjdbc driver forwards to the server
+						as a session TimeZone parameter; the slim PG16 container only
+						knows the modern "Asia/Kolkata" and rejects the old alias.
+						Pinning it here makes `mvn spring-boot:run` work without a flag.
+					-->
+					<jvmArguments>-Duser.timezone=Asia/Kolkata</jvmArguments>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
