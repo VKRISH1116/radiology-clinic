@@ -23,3 +23,12 @@ spring:
 
 server:
   port: 8080
+
+# App-specific settings (read by JwtService via @Value).
+app:
+  jwt:
+    # HS256 signing key. MUST be >= 32 bytes. Dev default is fine locally;
+    # in real deployments set the JWT_SECRET env var to a random secret.
+    secret: ${JWT_SECRET:dev-secret-please-change-me-this-must-be-at-least-32-bytes-long}
+    # Token lifetime in milliseconds (24h). After this the token is rejected.
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
