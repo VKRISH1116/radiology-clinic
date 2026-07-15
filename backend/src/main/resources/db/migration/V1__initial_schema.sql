@@ -3,7 +3,8 @@
 -- Traces to docs/Architecture.html section 4.
 -- Conventions:
 --   money      = NUMERIC(10,2)      (never float — avoids rounding errors)
---   timestamps = TIMESTAMPTZ        (timezone-aware)
+--   timestamps = TIMESTAMP WITH TIME ZONE  (ANSI-standard spelling of Postgres's
+--                                    TIMESTAMPTZ; portable so H2 dev DB accepts it too)
 --   enums      = TEXT + CHECK       (simple and portable)
 --   PKs        = BIGSERIAL          (auto-incrementing 64-bit id)
 -- ============================================================
@@ -14,7 +15,7 @@ CREATE TABLE users (
     email         TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,                 -- BCrypt hash, never plaintext
     role          TEXT NOT NULL CHECK (role IN ('PATIENT','STAFF','ADMIN')),
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 -- Patients (a walk-in registered by staff may have no login) ---
@@ -26,7 +27,7 @@ CREATE TABLE patients (
     dob        DATE,
     gender     TEXT CHECK (gender IN ('MALE','FEMALE','OTHER')),
     address    TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 -- Service catalogue (editable ultrasound studies — feature F8) --
@@ -49,7 +50,7 @@ CREATE TABLE referring_doctors (
 -- Bookable slots (15-min grid 09:00-21:00, capacity configurable)
 CREATE TABLE slots (
     id         BIGSERIAL PRIMARY KEY,
-    start_time TIMESTAMPTZ NOT NULL UNIQUE,
+    start_time TIMESTAMP WITH TIME ZONE NOT NULL UNIQUE,
     capacity   INT NOT NULL DEFAULT 1 CHECK (capacity > 0)
 );
 
@@ -62,7 +63,7 @@ CREATE TABLE appointments (
     status              TEXT NOT NULL DEFAULT 'BOOKED'
                         CHECK (status IN ('BOOKED','IN_PROGRESS','COMPLETED','CANCELLED')),
     billed_amount       NUMERIC(10,2) CHECK (billed_amount >= 0),  -- set by staff; defaults to sum of studies
-    created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     created_by          BIGINT REFERENCES users(id)
 );
 CREATE INDEX idx_appointments_slot    ON appointments(slot_id);
@@ -83,7 +84,7 @@ CREATE TABLE reports (
     appointment_id BIGINT NOT NULL UNIQUE REFERENCES appointments(id),
     file_path      TEXT NOT NULL,                -- file stored outside web root
     uploaded_by    BIGINT REFERENCES users(id),
-    uploaded_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    uploaded_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 -- Referral rules (the configurable engine — UR-A-03) ----------
@@ -106,7 +107,7 @@ CREATE TABLE referrals (
     rule_id             BIGINT REFERENCES referral_rules(id),     -- which rule applied
     amount              NUMERIC(10,2) NOT NULL CHECK (amount >= 0),
     status              TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING','PAID')),
-    computed_at         TIMESTAMPTZ NOT NULL DEFAULT now()
+    computed_at         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 -- Consent records (privacy gate — NFR-02) ---------------------
@@ -114,7 +115,7 @@ CREATE TABLE consent_records (
     id              BIGSERIAL PRIMARY KEY,
     patient_id      BIGINT NOT NULL REFERENCES patients(id),
     consent_version TEXT NOT NULL,
-    consented_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    consented_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 -- Audit log (accountability — NFR-03) -------------------------
@@ -124,5 +125,5 @@ CREATE TABLE audit_logs (
     action     TEXT NOT NULL,                    -- e.g. REPORT_DOWNLOAD, PAYOUT_UPDATE
     entity     TEXT,
     entity_id  BIGINT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );

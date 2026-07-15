@@ -1,0 +1,31 @@
+# ============================================================
+# 'h2' PROFILE — TEMPORARY in-memory database.
+# Use while Docker/PostgreSQL isn't available locally so backend
+# development can continue. This file only OVERRIDES the datasource;
+# everything else (Flyway, JPA validate, port) is inherited from
+# application.yml, so the same V1/V2 migrations build the schema.
+#
+# Run with:
+#   ./mvnw spring-boot:run "-Dspring-boot.run.profiles=h2"
+#
+# When Postgres is ready, just drop the flag — nothing here to undo.
+# ============================================================
+spring:
+  datasource:
+    # mem:radiology      -> in-memory DB named 'radiology' (gone when the app stops)
+    # DB_CLOSE_DELAY=-1  -> keep it alive for the JVM's lifetime (so the console can see it)
+    # MODE=PostgreSQL    -> emulate Postgres SQL so our real migrations run unchanged
+    # DATABASE_TO_LOWER  -> fold identifiers to lowercase, like Postgres
+    url: jdbc:h2:mem:radiology;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  # Web UI to browse the in-memory tables while the app runs.
+  h2:
+    console:
+      enabled: true
+      path: /h2-console   # open http://localhost:8080/h2-console  (JDBC URL: jdbc:h2:mem:radiology)
