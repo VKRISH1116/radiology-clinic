@@ -1,10 +1,12 @@
 package com.clinic.booking;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.clinic.consent.ConsentRecordRepository;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,14 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("h2")
 class BookingIntegrationTest {
 
+    private static final String ADMIN_EMAIL = "admin@clinic.local";
+    private static final String ADMIN_PASSWORD = "admin-dev-password";
+
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ConsentRecordRepository consentRecordRepository;
 
     @Test
     void slots_withoutToken_returns401() throws Exception {
@@ -230,7 +238,54 @@ class BookingIntegrationTest {
         reschedule(token, appointmentId, slotB).andExpect(status().isConflict());
     }
 
+    @Test
+    void selfBooking_recordsConsentForTheNewPatient() throws Exception {
+        String token = registerAndLogin("consent.pat@clinic.test");
+        long slotId = firstSlotId(token, "2034-01-01");
+        String body = book(token, slotId, "[1]")
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long patientId = ((Number) JsonPath.read(body, "$.patientId")).longValue();
+        assertTrue(consentRecordRepository.existsByPatientId(patientId));
+    }
+
+    @Test
+    void walkInBooking_byStaffOrAdmin_createsAnUnlinkedPatientWithConsent() throws Exception {
+        String admin = loginToken(ADMIN_EMAIL, ADMIN_PASSWORD);
+        long slotId = firstSlotId(admin, "2034-02-01");
+        String body = mockMvc.perform(post("/api/appointments/walk-in")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"slotId\":" + slotId + ",\"serviceIds\":[1],"
+                                + "\"patient\":{\"fullName\":\"Walk In\"}}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long patientId = ((Number) JsonPath.read(body, "$.patientId")).longValue();
+        assertTrue(consentRecordRepository.existsByPatientId(patientId));
+    }
+
+    @Test
+    void walkInBooking_byPatient_isForbidden() throws Exception {
+        String patient = registerAndLogin("walkin.pat@clinic.test");
+        long slotId = firstSlotId(patient, "2034-03-01");
+        mockMvc.perform(post("/api/appointments/walk-in")
+                        .header("Authorization", "Bearer " + patient)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"slotId\":" + slotId + ",\"serviceIds\":[1],"
+                                + "\"patient\":{\"fullName\":\"Nope\"}}"))
+                .andExpect(status().isForbidden());
+    }
+
     // --- helpers ---------------------------------------------------------
+
+    private String loginToken(String email, String password) throws Exception {
+        String body = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return JsonPath.read(body, "$.token");
+    }
 
     private org.springframework.test.web.servlet.ResultActions reschedule(
             String token, long appointmentId, long slotId) throws Exception {

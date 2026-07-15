@@ -1,5 +1,6 @@
 package com.clinic.referral;
 
+import com.clinic.audit.AuditService;
 import com.clinic.doctor.ReferringDoctorRepository;
 import com.clinic.referral.ReferralEngine.ReferralOutcome;
 import com.clinic.referral.dto.ReferralResponse;
@@ -27,14 +28,17 @@ public class ReferralService {
     private final ReferralEngine referralEngine;
     private final ReferralRepository referralRepository;
     private final ReferringDoctorRepository referringDoctorRepository;
+    private final AuditService auditService;
 
     public ReferralService(
             ReferralEngine referralEngine,
             ReferralRepository referralRepository,
-            ReferringDoctorRepository referringDoctorRepository) {
+            ReferringDoctorRepository referringDoctorRepository,
+            AuditService auditService) {
         this.referralEngine = referralEngine;
         this.referralRepository = referralRepository;
         this.referringDoctorRepository = referringDoctorRepository;
+        this.auditService = auditService;
     }
 
     /**
@@ -66,7 +70,7 @@ public class ReferralService {
 
     /** Mark a referral paid out (admin action). 409 if it was already paid. */
     @Transactional
-    public ReferralResponse markPaid(Long referralId) {
+    public ReferralResponse markPaid(Long referralId, String actorEmail) {
         Referral referral = referralRepository.findById(referralId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Referral not found"));
@@ -75,6 +79,7 @@ public class ReferralService {
         }
         referral.setStatus(ReferralStatus.PAID);
         referralRepository.save(referral);
+        auditService.record("PAYOUT_UPDATE", "referral", referral.getId(), actorEmail);
         return ReferralResponse.of(referral, doctorNames().get(referral.getReferringDoctorId()));
     }
 
