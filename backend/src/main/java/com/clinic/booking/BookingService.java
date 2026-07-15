@@ -137,7 +137,90 @@ public class BookingService {
         appointment.setBilledAmount(bill);
 
         appointmentRepository.save(appointment); // cascade persists the studies too
-        return toResponse(appointment, slot, servicesById);
+
+        Map<Long, String> serviceNames = new LinkedHashMap<>();
+        servicesById.forEach((id, service) -> serviceNames.put(id, service.getName()));
+        return toResponse(appointment, slot, serviceNames);
+    }
+
+    /** The current user's own appointments, newest first (empty if they've never booked). */
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> listMyAppointments(String userEmail) {
+        User user = requireUser(userEmail);
+        Patient patient = patientRepository.findByUserId(user.getId()).orElse(null);
+        if (patient == null) {
+            return List.of(); // no profile yet -> no appointments
+        }
+
+        List<Appointment> appointments =
+                appointmentRepository.findByPatientIdWithStudies(patient.getId());
+        if (appointments.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Slot> slotsById = new LinkedHashMap<>();
+        List<Long> slotIds = appointments.stream().map(Appointment::getSlotId).distinct().toList();
+        slotRepository.findAllById(slotIds).forEach(slot -> slotsById.put(slot.getId(), slot));
+
+        Map<Long, String> serviceNames = loadServiceNames(appointments);
+        return appointments.stream()
+                .map(appointment ->
+                        toResponse(appointment, slotsById.get(appointment.getSlotId()), serviceNames))
+                .toList();
+    }
+
+    /**
+     * Cancel one of the current user's own appointments. Cancelling is a status
+     * change (BOOKED -> CANCELLED), not a delete: the record stays for history, and
+     * the slot frees up automatically because availability ignores cancelled ones.
+     */
+    @Transactional
+    public AppointmentResponse cancelMyAppointment(Long appointmentId, String userEmail) {
+        User user = requireUser(userEmail);
+        // If the user has no profile they own no appointments; 404 like any missing one.
+        Patient patient = patientRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Appointment not found"));
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Appointment not found"));
+
+        // Only your own appointment. 404 (not 403) so we don't reveal that another
+        // user's appointment id exists.
+        if (!appointment.getPatientId().equals(patient.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Appointment not found");
+        }
+        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Only a booked appointment can be cancelled (current status: "
+                            + appointment.getStatus() + ")");
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment);
+
+        Slot slot = slotRepository.findById(appointment.getSlotId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
+        return toResponse(appointment, slot, loadServiceNames(List.of(appointment)));
+    }
+
+    private User requireUser(String userEmail) {
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unknown user"));
+    }
+
+    /** service id -> name, for every study across the given appointments (one query). */
+    private Map<Long, String> loadServiceNames(List<Appointment> appointments) {
+        List<Long> serviceIds = appointments.stream()
+                .flatMap(appointment -> appointment.getStudies().stream())
+                .map(AppointmentStudy::getServiceId)
+                .distinct()
+                .toList();
+        Map<Long, String> names = new LinkedHashMap<>();
+        serviceRepository.findAllById(serviceIds)
+                .forEach(service -> names.put(service.getId(), service.getName()));
+        return names;
     }
 
     /** Reuse the user's patient profile, or create one from the booking details. */
@@ -155,11 +238,11 @@ public class BookingService {
     }
 
     private AppointmentResponse toResponse(
-            Appointment appointment, Slot slot, Map<Long, Service> servicesById) {
+            Appointment appointment, Slot slot, Map<Long, String> serviceNames) {
         List<AppointmentResponse.StudyLine> lines = appointment.getStudies().stream()
                 .map(study -> new AppointmentResponse.StudyLine(
                         study.getServiceId(),
-                        servicesById.get(study.getServiceId()).getName(),
+                        serviceNames.get(study.getServiceId()),
                         study.getPriceSnapshot()))
                 .toList();
         return new AppointmentResponse(

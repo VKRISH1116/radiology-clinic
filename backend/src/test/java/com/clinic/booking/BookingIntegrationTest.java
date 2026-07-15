@@ -94,6 +94,86 @@ class BookingIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void myAppointments_withoutToken_returns401() throws Exception {
+        mockMvc.perform(get("/api/appointments/mine"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void myAppointments_neverBooked_returnsEmptyList() throws Exception {
+        String token = registerAndLogin("emptymine@clinic.test");
+        mockMvc.perform(get("/api/appointments/mine").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void myAppointments_afterBooking_listsIt() throws Exception {
+        String token = registerAndLogin("listmine@clinic.test");
+        long slotId = firstSlotId(token, "2030-06-01");
+        book(token, slotId, "[1]").andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/appointments/mine").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].status").value("BOOKED"));
+    }
+
+    @Test
+    void cancel_ownBookedAppointment_setsCancelledAndFreesSlot() throws Exception {
+        String token = registerAndLogin("canceller@clinic.test");
+        String date = "2030-07-01";
+        long slotId = firstSlotId(token, date);
+        long appointmentId = bookReturningId(token, slotId, "[1]");
+
+        // Slot is taken right after booking...
+        mockMvc.perform(get("/api/slots").param("date", date)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$[0].available").value(0));
+
+        cancel(token, appointmentId)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+
+        // ...and free again once cancelled.
+        mockMvc.perform(get("/api/slots").param("date", date)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$[0].available").value(1));
+    }
+
+    @Test
+    void cancel_alreadyCancelled_returns409() throws Exception {
+        String token = registerAndLogin("canceltwice@clinic.test");
+        long slotId = firstSlotId(token, "2030-08-01");
+        long appointmentId = bookReturningId(token, slotId, "[1]");
+
+        cancel(token, appointmentId).andExpect(status().isOk());
+        cancel(token, appointmentId).andExpect(status().isConflict());
+    }
+
+    @Test
+    void cancel_someoneElsesAppointment_returns404() throws Exception {
+        String owner = registerAndLogin("owner@clinic.test");
+        long slotId = firstSlotId(owner, "2030-09-01");
+        long appointmentId = bookReturningId(owner, slotId, "[1]");
+
+        String intruder = registerAndLogin("intruder@clinic.test");
+        cancel(intruder, appointmentId).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void cancel_unknownId_returns404() throws Exception {
+        String token = registerAndLogin("cancelunknown@clinic.test");
+        cancel(token, 999999L).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void cancel_withoutToken_returns401() throws Exception {
+        mockMvc.perform(post("/api/appointments/1/cancel"))
+                .andExpect(status().isUnauthorized());
+    }
+
     // --- helpers ---------------------------------------------------------
 
     private org.springframework.test.web.servlet.ResultActions book(
@@ -103,6 +183,19 @@ class BookingIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"slotId\":" + slotId + ",\"serviceIds\":" + serviceIdsJson + ","
                         + "\"patient\":{\"fullName\":\"Test Patient\"}}"));
+    }
+
+    private long bookReturningId(String token, long slotId, String serviceIdsJson) throws Exception {
+        String body = book(token, slotId, serviceIdsJson)
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        return ((Number) JsonPath.read(body, "$.id")).longValue();
+    }
+
+    private org.springframework.test.web.servlet.ResultActions cancel(String token, long id)
+            throws Exception {
+        return mockMvc.perform(post("/api/appointments/" + id + "/cancel")
+                .header("Authorization", "Bearer " + token));
     }
 
     /** Generate the day (via GET /api/slots) and return its first slot's id. */

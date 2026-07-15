@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,5 +46,21 @@ public class BookingController {
             @Valid @RequestBody BookAppointmentRequest request,
             Authentication authentication) {
         return bookingService.book(request, authentication.getName());
+    }
+
+    /** The caller's own appointments, newest first. */
+    @GetMapping("/api/appointments/mine")
+    public List<AppointmentResponse> myAppointments(Authentication authentication) {
+        return bookingService.listMyAppointments(authentication.getName());
+    }
+
+    /**
+     * Cancel one of the caller's own appointments. POST (not DELETE) because this
+     * is a status transition to CANCELLED, not a deletion of the record.
+     */
+    @PostMapping("/api/appointments/{id}/cancel")
+    public AppointmentResponse cancel(
+            @PathVariable Long id, Authentication authentication) {
+        return bookingService.cancelMyAppointment(id, authentication.getName());
     }
 }
