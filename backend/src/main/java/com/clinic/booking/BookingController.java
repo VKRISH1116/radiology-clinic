@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,5 +63,15 @@ public class BookingController {
     public AppointmentResponse cancel(
             @PathVariable Long id, Authentication authentication) {
         return bookingService.cancelMyAppointment(id, authentication.getName());
+    }
+
+    /**
+     * Mark an appointment completed — a staff/back-office action (patients can't
+     * complete their own visit). Triggers the referral payout calculation.
+     */
+    @PostMapping("/api/appointments/{id}/complete")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public AppointmentResponse complete(@PathVariable Long id) {
+        return bookingService.completeAppointment(id);
     }
 }

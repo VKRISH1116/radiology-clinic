@@ -15,6 +15,9 @@ import java.util.List;
 public record BookAppointmentRequest(
         @NotNull Long slotId,
         @NotEmpty List<Long> serviceIds,
+        // Optional: tag the visit with the doctor who referred the patient. Drives
+        // the referral payout when the appointment later completes.
+        Long referringDoctorId,
         @Valid @NotNull PatientDetails patient) {
 
     /**
