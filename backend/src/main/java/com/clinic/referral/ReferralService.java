@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Records referral payouts (when a referred visit completes) and reports on them.
@@ -60,6 +62,20 @@ public class ReferralService {
         referral.setStatus(ReferralStatus.PENDING);
         referral.setComputedAt(OffsetDateTime.now());
         return Optional.of(referralRepository.save(referral));
+    }
+
+    /** Mark a referral paid out (admin action). 409 if it was already paid. */
+    @Transactional
+    public ReferralResponse markPaid(Long referralId) {
+        Referral referral = referralRepository.findById(referralId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Referral not found"));
+        if (referral.getStatus() == ReferralStatus.PAID) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Referral already paid");
+        }
+        referral.setStatus(ReferralStatus.PAID);
+        referralRepository.save(referral);
+        return ReferralResponse.of(referral, doctorNames().get(referral.getReferringDoctorId()));
     }
 
     @Transactional(readOnly = true)

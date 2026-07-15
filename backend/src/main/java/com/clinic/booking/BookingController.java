@@ -2,6 +2,7 @@ package com.clinic.booking;
 
 import com.clinic.booking.dto.AppointmentResponse;
 import com.clinic.booking.dto.BookAppointmentRequest;
+import com.clinic.booking.dto.RescheduleRequest;
 import com.clinic.booking.dto.SlotAvailabilityResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -63,6 +64,15 @@ public class BookingController {
     public AppointmentResponse cancel(
             @PathVariable Long id, Authentication authentication) {
         return bookingService.cancelMyAppointment(id, authentication.getName());
+    }
+
+    /** Move one of the caller's own BOOKED appointments to a different slot. */
+    @PostMapping("/api/appointments/{id}/reschedule")
+    public AppointmentResponse reschedule(
+            @PathVariable Long id,
+            @Valid @RequestBody RescheduleRequest request,
+            Authentication authentication) {
+        return bookingService.rescheduleMyAppointment(id, request.slotId(), authentication.getName());
     }
 
     /**
