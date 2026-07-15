@@ -11,6 +11,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     long countBySlotIdAndStatusNot(Long slotId, AppointmentStatus status);
 
     /**
+     * A patient's appointments, newest first, with their studies eagerly fetched
+     * in one query (left join fetch) so building the response doesn't trigger an
+     * extra studies query per appointment (an N+1). distinct de-dupes the parent
+     * rows the join multiplies.
+     */
+    @Query("""
+            select distinct a from Appointment a
+            left join fetch a.studies
+            where a.patientId = :patientId
+            order by a.id desc
+            """)
+    List<Appointment> findByPatientIdWithStudies(@Param("patientId") Long patientId);
+
+    /**
      * Live appointment counts for many slots at once, as [slotId, count] rows.
      * One grouped query instead of one-per-slot (avoids an N+1 when listing a day).
      */
