@@ -30,5 +30,12 @@ app:
     # HS256 signing key. MUST be >= 32 bytes. Dev default is fine locally;
     # in real deployments set the JWT_SECRET env var to a random secret.
     secret: ${JWT_SECRET:dev-secret-please-change-me-this-must-be-at-least-32-bytes-long}
-    # Token lifetime in milliseconds (24h). After this the token is rejected.
-    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+    # Access-token lifetime in ms (15 min). Short-lived on purpose: clients use
+    # the refresh token to get new ones, so a leaked access token expires soon.
+    expiration-ms: ${JWT_EXPIRATION_MS:900000}
+    # Refresh-token lifetime in ms (30 days).
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}
+  # Initial admin, created at startup if absent. CHANGE THESE for real deploys.
+  bootstrap-admin:
+    email: ${BOOTSTRAP_ADMIN_EMAIL:admin@clinic.local}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:admin-dev-password}

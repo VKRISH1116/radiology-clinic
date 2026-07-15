@@ -1,5 +1,9 @@
 package com.clinic.auth.dto;
 
-/** Returned by a successful login: the bearer token plus who it belongs to. */
-public record AuthResponse(String token, String email, String role) {
+/**
+ * Returned by login and refresh: a short-lived access token (the JWT, field kept
+ * as "token"), a long-lived refresh token to obtain new access tokens, and who
+ * the tokens belong to.
+ */
+public record AuthResponse(String token, String refreshToken, String email, String role) {
 }

@@ -133,14 +133,37 @@ class ReferralIntegrationTest {
         return ((Number) JsonPath.read(body, "$[0].id")).longValue();
     }
 
+    // Matches application.yml app.bootstrap-admin.* dev defaults.
+    private static final String BOOTSTRAP_ADMIN_EMAIL = "admin@clinic.local";
+    private static final String BOOTSTRAP_ADMIN_PASSWORD = "admin-dev-password";
+
+    /**
+     * Create an account and return its access token. Patients (role == null) use
+     * public registration; STAFF/ADMIN are created via the admin endpoint, since
+     * public registration can no longer grant elevated roles.
+     */
     private String registerAndLogin(String email, String role) throws Exception {
-        String roleField = role == null ? "" : ",\"role\":\"" + role + "\"";
-        String json = "{\"email\":\"" + email + "\",\"password\":\"secret123\"" + roleField + "}";
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON).content(json))
-                .andExpect(status().isCreated());
+        if (role == null) {
+            mockMvc.perform(post("/api/auth/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"" + email + "\",\"password\":\"secret123\"}"))
+                    .andExpect(status().isCreated());
+        } else {
+            String adminToken = login(BOOTSTRAP_ADMIN_EMAIL, BOOTSTRAP_ADMIN_PASSWORD);
+            mockMvc.perform(post("/api/admin/users")
+                            .header("Authorization", "Bearer " + adminToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"" + email + "\",\"password\":\"secret123\","
+                                    + "\"role\":\"" + role + "\"}"))
+                    .andExpect(status().isCreated());
+        }
+        return login(email, "secret123");
+    }
+
+    private String login(String email, String password) throws Exception {
         String body = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(body, "$.token");
