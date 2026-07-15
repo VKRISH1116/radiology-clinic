@@ -1,0 +1,128 @@
+package com.clinic.booking;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+/**
+ * End-to-end booking flow on H2. Each test uses its own future date and its own
+ * user, so tests stay isolated on the shared in-memory database regardless of
+ * order (slots are keyed by a unique start_time, so distinct dates never clash).
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("h2")
+class BookingIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void slots_withoutToken_returns401() throws Exception {
+        mockMvc.perform(get("/api/slots").param("date", "2030-01-01"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void slots_withToken_returns48SlotsForTheDay() throws Exception {
+        String token = registerAndLogin("slots.reader@clinic.test");
+        mockMvc.perform(get("/api/slots").param("date", "2030-02-01")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(48))
+                .andExpect(jsonPath("$[0].available").value(1));
+    }
+
+    @Test
+    void book_validRequest_snapshotsPricesAndBillsTheSum() throws Exception {
+        String token = registerAndLogin("booker1@clinic.test");
+        long slotId = firstSlotId(token, "2030-03-01");
+
+        // Services 1 (Abdomen & Pelvis, 1000) + 4 (Thyroid, 1500) = 2500.
+        mockMvc.perform(post("/api/appointments")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"slotId\":" + slotId + ",\"serviceIds\":[1,4],"
+                                + "\"patient\":{\"fullName\":\"Asha Rao\",\"gender\":\"FEMALE\"}}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("BOOKED"))
+                .andExpect(jsonPath("$.billedAmount").value(2500.00))
+                .andExpect(jsonPath("$.studies.length()").value(2))
+                .andExpect(jsonPath("$.studies[0].priceSnapshot").value(1000.00))
+                .andExpect(jsonPath("$.studies[1].priceSnapshot").value(1500.00));
+    }
+
+    @Test
+    void book_sameSlotBeyondCapacity_returns409() throws Exception {
+        String token = registerAndLogin("booker2@clinic.test");
+        long slotId = firstSlotId(token, "2030-04-01");
+
+        book(token, slotId, "[1]").andExpect(status().isCreated());
+        // Default capacity is 1, so the second booking of the same slot is refused.
+        book(token, slotId, "[1]").andExpect(status().isConflict());
+    }
+
+    @Test
+    void book_unknownService_returns400() throws Exception {
+        String token = registerAndLogin("booker3@clinic.test");
+        long slotId = firstSlotId(token, "2030-05-01");
+        book(token, slotId, "[999]").andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void book_unknownSlot_returns404() throws Exception {
+        String token = registerAndLogin("booker4@clinic.test");
+        book(token, 999999L, "[1]").andExpect(status().isNotFound());
+    }
+
+    @Test
+    void book_withoutToken_returns401() throws Exception {
+        mockMvc.perform(post("/api/appointments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"slotId\":1,\"serviceIds\":[1],"
+                                + "\"patient\":{\"fullName\":\"X\"}}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // --- helpers ---------------------------------------------------------
+
+    private org.springframework.test.web.servlet.ResultActions book(
+            String token, long slotId, String serviceIdsJson) throws Exception {
+        return mockMvc.perform(post("/api/appointments")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"slotId\":" + slotId + ",\"serviceIds\":" + serviceIdsJson + ","
+                        + "\"patient\":{\"fullName\":\"Test Patient\"}}"));
+    }
+
+    /** Generate the day (via GET /api/slots) and return its first slot's id. */
+    private long firstSlotId(String token, String date) throws Exception {
+        String body = mockMvc.perform(get("/api/slots").param("date", date)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return ((Number) JsonPath.read(body, "$[0].id")).longValue();
+    }
+
+    private String registerAndLogin(String email) throws Exception {
+        String json = "{\"email\":\"" + email + "\",\"password\":\"secret123\"}";
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().isCreated());
+        String body = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return JsonPath.read(body, "$.token");
+    }
+}
