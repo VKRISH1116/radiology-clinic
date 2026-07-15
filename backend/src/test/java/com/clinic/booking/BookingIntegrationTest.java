@@ -174,7 +174,71 @@ class BookingIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void reschedule_movesToAnotherSlot_freeingTheOldOne() throws Exception {
+        String token = registerAndLogin("resched@clinic.test");
+        String dayA = "2032-01-01";
+        String dayB = "2032-01-02";
+        long slotA = firstSlotId(token, dayA);
+        long appointmentId = bookReturningId(token, slotA, "[1]");
+        long slotB = firstSlotId(token, dayB);
+
+        reschedule(token, appointmentId, slotB)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.slotId").value((int) slotB));
+
+        // Old slot free again, new slot taken.
+        mockMvc.perform(get("/api/slots").param("date", dayA)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$[0].available").value(1));
+        mockMvc.perform(get("/api/slots").param("date", dayB)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$[0].available").value(0));
+    }
+
+    @Test
+    void reschedule_toAFullSlot_returns409() throws Exception {
+        String other = registerAndLogin("resched.filler@clinic.test");
+        long fullSlot = firstSlotId(other, "2032-02-02");
+        book(other, fullSlot, "[1]").andExpect(status().isCreated()); // capacity 1 now used
+
+        String token = registerAndLogin("resched.mover@clinic.test");
+        long slotA = firstSlotId(token, "2032-02-01");
+        long appointmentId = bookReturningId(token, slotA, "[1]");
+        reschedule(token, appointmentId, fullSlot).andExpect(status().isConflict());
+    }
+
+    @Test
+    void reschedule_someoneElsesAppointment_returns404() throws Exception {
+        String owner = registerAndLogin("resched.owner@clinic.test");
+        long slotA = firstSlotId(owner, "2032-03-01");
+        long appointmentId = bookReturningId(owner, slotA, "[1]");
+        long slotB = firstSlotId(owner, "2032-03-02");
+
+        String intruder = registerAndLogin("resched.intruder@clinic.test");
+        reschedule(intruder, appointmentId, slotB).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void reschedule_aCancelledAppointment_returns409() throws Exception {
+        String token = registerAndLogin("resched.cancelled@clinic.test");
+        long slotA = firstSlotId(token, "2032-04-01");
+        long appointmentId = bookReturningId(token, slotA, "[1]");
+        cancel(token, appointmentId).andExpect(status().isOk());
+
+        long slotB = firstSlotId(token, "2032-04-02");
+        reschedule(token, appointmentId, slotB).andExpect(status().isConflict());
+    }
+
     // --- helpers ---------------------------------------------------------
+
+    private org.springframework.test.web.servlet.ResultActions reschedule(
+            String token, long appointmentId, long slotId) throws Exception {
+        return mockMvc.perform(post("/api/appointments/" + appointmentId + "/reschedule")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"slotId\":" + slotId + "}"));
+    }
 
     private org.springframework.test.web.servlet.ResultActions book(
             String token, long slotId, String serviceIdsJson) throws Exception {

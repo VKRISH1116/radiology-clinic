@@ -35,7 +35,7 @@ class ServiceCatalogIntegrationTest {
 
     @Test
     void listServices_withToken_returnsSeededCatalogue() throws Exception {
-        String token = registerAndLogin();
+        String token = registerAndLogin("catalog.reader@clinic.test");
 
         mockMvc.perform(get("/api/services").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -49,14 +49,77 @@ class ServiceCatalogIntegrationTest {
                 .andExpect(jsonPath("$[0].active").doesNotExist());
     }
 
+    @Test
+    void adminCreatesService_thenItIsBookable() throws Exception {
+        String admin = adminToken();
+        String created = mockMvc.perform(post("/api/services")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"category\":\"General\",\"name\":\"Ultrasound Knee\","
+                                + "\"price\":1200}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Ultrasound Knee"))
+                .andReturn().getResponse().getContentAsString();
+        long id = ((Number) JsonPath.read(created, "$.id")).longValue();
+
+        // It now shows up in the active catalogue any user can read.
+        String patient = registerAndLogin("cat.reader2@clinic.test");
+        mockMvc.perform(get("/api/services").header("Authorization", "Bearer " + patient))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + id + ")].name").value("Ultrasound Knee"));
+    }
+
+    @Test
+    void createService_byNonAdmin_isForbidden() throws Exception {
+        String patient = registerAndLogin("cat.nonadmin@clinic.test");
+        mockMvc.perform(post("/api/services")
+                        .header("Authorization", "Bearer " + patient)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"category\":\"General\",\"name\":\"X\",\"price\":100}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deactivatedService_dropsOutOfTheActiveCatalogue() throws Exception {
+        String admin = adminToken();
+        String created = mockMvc.perform(post("/api/services")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"category\":\"General\",\"name\":\"Ultrasound Elbow\","
+                                + "\"price\":900}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long id = ((Number) JsonPath.read(created, "$.id")).longValue();
+
+        mockMvc.perform(post("/api/services/" + id + "/deactivate")
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk());
+
+        String patient = registerAndLogin("cat.reader3@clinic.test");
+        mockMvc.perform(get("/api/services").header("Authorization", "Bearer " + patient))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + id + ")]").isEmpty());
+    }
+
+    // --- helpers ---------------------------------------------------------
+
     /** Any authenticated user may read the catalogue; register a patient to get a token. */
-    private String registerAndLogin() throws Exception {
-        String json = "{\"email\":\"catalog.reader@clinic.test\",\"password\":\"secret123\"}";
+    private String registerAndLogin(String email) throws Exception {
+        String json = "{\"email\":\"" + email + "\",\"password\":\"secret123\"}";
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated());
+        return loginToken(json);
+    }
+
+    private String adminToken() throws Exception {
+        // The bootstrap ADMIN (application.yml dev defaults).
+        return loginToken("{\"email\":\"admin@clinic.local\",\"password\":\"admin-dev-password\"}");
+    }
+
+    private String loginToken(String credentialsJson) throws Exception {
         String body = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                        .contentType(MediaType.APPLICATION_JSON).content(credentialsJson))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(body, "$.token");

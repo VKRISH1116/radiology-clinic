@@ -3,6 +3,7 @@ package com.clinic.referral;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
@@ -100,7 +101,45 @@ class ReferralIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void referral_markedPaid_byAdmin_andRepayReturns409() throws Exception {
+        String patient = registerAndLogin("pay.pat@clinic.test", null);
+        String staff = registerAndLogin("pay.staff@clinic.test", "STAFF");
+        String admin = registerAndLogin("pay.admin@clinic.test", "ADMIN");
+
+        long slotId = firstSlotId(patient, "2033-01-01");
+        long appointmentId = bookReturningId(patient, slotId, "[1]", 1L);
+        complete(staff, appointmentId).andExpect(status().isOk());
+        long referralId = referralIdFor(staff, appointmentId);
+
+        mockMvc.perform(post("/api/referrals/" + referralId + "/pay")
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PAID"));
+
+        mockMvc.perform(post("/api/referrals/" + referralId + "/pay")
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void referral_pay_byNonAdmin_isForbidden() throws Exception {
+        String staff = registerAndLogin("pay.nonadmin@clinic.test", "STAFF");
+        mockMvc.perform(post("/api/referrals/1/pay")
+                        .header("Authorization", "Bearer " + staff))
+                .andExpect(status().isForbidden());
+    }
+
     // --- helpers ---------------------------------------------------------
+
+    private long referralIdFor(String token, long appointmentId) throws Exception {
+        String body = mockMvc.perform(get("/api/referrals")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<Object> ids = JsonPath.read(body, "$[?(@.appointmentId == " + appointmentId + ")].id");
+        return ((Number) ids.get(0)).longValue();
+    }
 
     private ResultActions book(String token, long slotId, String serviceIdsJson, Long doctorId)
             throws Exception {

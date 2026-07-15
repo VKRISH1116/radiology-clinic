@@ -216,6 +216,52 @@ public class BookingService {
         return toResponse(appointment, slot, loadServiceNames(List.of(appointment)));
     }
 
+    /**
+     * Move one of the current user's own BOOKED appointments to another slot. The
+     * new slot is locked and capacity-checked exactly like a fresh booking; the old
+     * slot frees automatically (availability keys off slot_id). Studies, prices and
+     * the bill are untouched — only the time changes.
+     */
+    @Transactional
+    public AppointmentResponse rescheduleMyAppointment(
+            Long appointmentId, Long newSlotId, String userEmail) {
+        User user = requireUser(userEmail);
+        Patient patient = patientRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Appointment not found"));
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Appointment not found"));
+        if (!appointment.getPatientId().equals(patient.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Appointment not found");
+        }
+        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Only a booked appointment can be rescheduled (current status: "
+                            + appointment.getStatus() + ")");
+        }
+
+        // Moving to the same slot is a no-op (and would wrongly count itself as full).
+        if (appointment.getSlotId().equals(newSlotId)) {
+            Slot sameSlot = slotRepository.findById(newSlotId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
+            return toResponse(appointment, sameSlot, loadServiceNames(List.of(appointment)));
+        }
+
+        Slot newSlot = slotRepository.findByIdForUpdate(newSlotId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
+        long alreadyBooked = appointmentRepository
+                .countBySlotIdAndStatusNot(newSlot.getId(), AppointmentStatus.CANCELLED);
+        if (alreadyBooked >= newSlot.getCapacity()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot is fully booked");
+        }
+
+        appointment.setSlotId(newSlot.getId());
+        appointmentRepository.save(appointment);
+        return toResponse(appointment, newSlot, loadServiceNames(List.of(appointment)));
+    }
+
     private User requireUser(String userEmail) {
         return userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unknown user"));
