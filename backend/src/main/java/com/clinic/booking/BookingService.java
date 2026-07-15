@@ -5,8 +5,10 @@ import com.clinic.booking.dto.BookAppointmentRequest;
 import com.clinic.booking.dto.SlotAvailabilityResponse;
 import com.clinic.catalog.Service;
 import com.clinic.catalog.ServiceRepository;
+import com.clinic.doctor.ReferringDoctorRepository;
 import com.clinic.patient.Patient;
 import com.clinic.patient.PatientRepository;
+import com.clinic.referral.ReferralService;
 import com.clinic.slot.Slot;
 import com.clinic.slot.SlotRepository;
 import com.clinic.slot.SlotService;
@@ -19,6 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,6 +43,8 @@ public class BookingService {
     private final PatientRepository patientRepository;
     private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
+    private final ReferringDoctorRepository referringDoctorRepository;
+    private final ReferralService referralService;
 
     public BookingService(
             SlotService slotService,
@@ -46,13 +52,17 @@ public class BookingService {
             AppointmentRepository appointmentRepository,
             PatientRepository patientRepository,
             ServiceRepository serviceRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ReferringDoctorRepository referringDoctorRepository,
+            ReferralService referralService) {
         this.slotService = slotService;
         this.slotRepository = slotRepository;
         this.appointmentRepository = appointmentRepository;
         this.patientRepository = patientRepository;
         this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
+        this.referringDoctorRepository = referringDoctorRepository;
+        this.referralService = referralService;
     }
 
     /** A day's slots with remaining availability (generating the day if needed). */
@@ -118,6 +128,7 @@ public class BookingService {
         appointment.setStatus(AppointmentStatus.BOOKED);
         appointment.setCreatedAt(OffsetDateTime.now());
         appointment.setCreatedBy(user.getId());
+        appointment.setReferringDoctorId(resolveReferringDoctorId(request.referringDoctorId()));
 
         BigDecimal bill = BigDecimal.ZERO;
         for (Long serviceId : serviceIds) {
@@ -252,6 +263,51 @@ public class BookingService {
                 slot.getStartTime(),
                 appointment.getStatus().name(),
                 appointment.getBilledAmount(),
+                appointment.getReferringDoctorId(),
                 lines);
+    }
+
+    /** Validate the (optional) chosen referring doctor exists and is active. */
+    private Long resolveReferringDoctorId(Long referringDoctorId) {
+        if (referringDoctorId == null) {
+            return null;
+        }
+        return referringDoctorRepository.findByIdAndActiveTrue(referringDoctorId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Unknown or inactive referring doctor"))
+                .getId();
+    }
+
+    /**
+     * Mark a BOOKED appointment COMPLETED (a staff/back-office action). On
+     * completion, if the visit was referred, the referral engine computes and
+     * records the doctor's payout (idempotent, so completing is safe to retry).
+     */
+    @Transactional
+    public AppointmentResponse completeAppointment(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Appointment not found"));
+        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Only a booked appointment can be completed (current status: "
+                            + appointment.getStatus() + ")");
+        }
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.save(appointment);
+
+        Set<Long> serviceIds = appointment.getStudies().stream()
+                .map(AppointmentStudy::getServiceId)
+                .collect(Collectors.toSet());
+        referralService.recordFor(
+                appointment.getId(),
+                appointment.getReferringDoctorId(),
+                serviceIds,
+                appointment.getBilledAmount());
+
+        Slot slot = slotRepository.findById(appointment.getSlotId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
+        return toResponse(appointment, slot, loadServiceNames(List.of(appointment)));
     }
 }

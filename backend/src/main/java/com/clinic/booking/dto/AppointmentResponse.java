@@ -12,6 +12,7 @@ public record AppointmentResponse(
         OffsetDateTime slotStartTime,
         String status,
         BigDecimal billedAmount,
+        Long referringDoctorId,
         List<StudyLine> studies) {
 
     /** One booked study, showing the price captured at booking time. */
