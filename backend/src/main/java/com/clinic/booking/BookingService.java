@@ -5,6 +5,8 @@ import com.clinic.booking.dto.BookAppointmentRequest;
 import com.clinic.booking.dto.SlotAvailabilityResponse;
 import com.clinic.catalog.Service;
 import com.clinic.catalog.ServiceRepository;
+import com.clinic.consent.ConsentRecord;
+import com.clinic.consent.ConsentRecordRepository;
 import com.clinic.doctor.ReferringDoctorRepository;
 import com.clinic.patient.Patient;
 import com.clinic.patient.PatientRepository;
@@ -45,6 +47,9 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ReferringDoctorRepository referringDoctorRepository;
     private final ReferralService referralService;
+    private final ChangeCutoffPolicy changeCutoffPolicy;
+    private final ConsentRecordRepository consentRecordRepository;
+    private final String consentVersion;
 
     public BookingService(
             SlotService slotService,
@@ -54,7 +59,11 @@ public class BookingService {
             ServiceRepository serviceRepository,
             UserRepository userRepository,
             ReferringDoctorRepository referringDoctorRepository,
-            ReferralService referralService) {
+            ReferralService referralService,
+            ChangeCutoffPolicy changeCutoffPolicy,
+            ConsentRecordRepository consentRecordRepository,
+            @org.springframework.beans.factory.annotation.Value("${app.consent.current-version}")
+                    String consentVersion) {
         this.slotService = slotService;
         this.slotRepository = slotRepository;
         this.appointmentRepository = appointmentRepository;
@@ -63,6 +72,9 @@ public class BookingService {
         this.userRepository = userRepository;
         this.referringDoctorRepository = referringDoctorRepository;
         this.referralService = referralService;
+        this.changeCutoffPolicy = changeCutoffPolicy;
+        this.consentRecordRepository = consentRecordRepository;
+        this.consentVersion = consentVersion;
     }
 
     /** A day's slots with remaining availability (generating the day if needed). */
@@ -90,19 +102,30 @@ public class BookingService {
     }
 
     /**
-     * Book a slot for one or more studies. Snapshots each study's current price,
-     * bills their sum, and refuses to exceed the slot's capacity.
-     *
-     * @param userEmail the authenticated user (from the JWT subject) booking for themselves
+     * Book a slot for one or more studies, for the authenticated patient. Snapshots
+     * each study's current price, bills their sum, and refuses to exceed capacity.
      */
     @Transactional
     public AppointmentResponse book(BookAppointmentRequest request, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED, "Unknown user"));
-
+        User user = requireUser(userEmail);
         Patient patient = findOrCreatePatient(user, request.patient());
+        return createAppointment(patient, request, user.getId());
+    }
 
+    /**
+     * Staff/back-office booking for a WALK-IN patient with no login account: a fresh
+     * patient record (user_id null) is created from the supplied details.
+     */
+    @Transactional
+    public AppointmentResponse bookWalkIn(BookAppointmentRequest request, String staffEmail) {
+        User staff = requireUser(staffEmail);
+        Patient patient = persistPatientWithConsent(newPatient(null, request.patient()));
+        return createAppointment(patient, request, staff.getId());
+    }
+
+    /** Shared booking core: lock the slot, check capacity, snapshot prices, save. */
+    private AppointmentResponse createAppointment(
+            Patient patient, BookAppointmentRequest request, Long creatorUserId) {
         // Lock the slot row for this transaction so concurrent bookings on the same
         // slot are serialized — this is what makes the capacity check race-free.
         Slot slot = slotRepository.findByIdForUpdate(request.slotId())
@@ -127,7 +150,7 @@ public class BookingService {
         appointment.setSlotId(slot.getId());
         appointment.setStatus(AppointmentStatus.BOOKED);
         appointment.setCreatedAt(OffsetDateTime.now());
-        appointment.setCreatedBy(user.getId());
+        appointment.setCreatedBy(creatorUserId);
         appointment.setReferringDoctorId(resolveReferringDoctorId(request.referringDoctorId()));
 
         BigDecimal bill = BigDecimal.ZERO;
@@ -208,11 +231,12 @@ public class BookingService {
                             + appointment.getStatus() + ")");
         }
 
-        appointment.setStatus(AppointmentStatus.CANCELLED);
-        appointmentRepository.save(appointment);
-
         Slot slot = slotRepository.findById(appointment.getSlotId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
+        changeCutoffPolicy.check(slot.getStartTime());
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment);
         return toResponse(appointment, slot, loadServiceNames(List.of(appointment)));
     }
 
@@ -242,11 +266,14 @@ public class BookingService {
                             + appointment.getStatus() + ")");
         }
 
+        // Can't change an appointment that's already inside the cutoff window.
+        Slot currentSlot = slotRepository.findById(appointment.getSlotId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
+        changeCutoffPolicy.check(currentSlot.getStartTime());
+
         // Moving to the same slot is a no-op (and would wrongly count itself as full).
         if (appointment.getSlotId().equals(newSlotId)) {
-            Slot sameSlot = slotRepository.findById(newSlotId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Slot not found"));
-            return toResponse(appointment, sameSlot, loadServiceNames(List.of(appointment)));
+            return toResponse(appointment, currentSlot, loadServiceNames(List.of(appointment)));
         }
 
         Slot newSlot = slotRepository.findByIdForUpdate(newSlotId)
@@ -280,18 +307,29 @@ public class BookingService {
         return names;
     }
 
-    /** Reuse the user's patient profile, or create one from the booking details. */
+    /** Reuse the user's patient profile, or create one (with consent) on first booking. */
     private Patient findOrCreatePatient(User user, BookAppointmentRequest.PatientDetails details) {
-        return patientRepository.findByUserId(user.getId()).orElseGet(() -> {
-            Patient patient = new Patient();
-            patient.setUserId(user.getId());
-            patient.setFullName(details.fullName());
-            patient.setPhone(details.phone());
-            patient.setDob(details.dob());
-            patient.setGender(details.gender());
-            patient.setCreatedAt(OffsetDateTime.now());
-            return patientRepository.save(patient);
-        });
+        return patientRepository.findByUserId(user.getId())
+                .orElseGet(() -> persistPatientWithConsent(newPatient(user.getId(), details)));
+    }
+
+    private Patient newPatient(Long userId, BookAppointmentRequest.PatientDetails details) {
+        Patient patient = new Patient();
+        patient.setUserId(userId);
+        patient.setFullName(details.fullName());
+        patient.setPhone(details.phone());
+        patient.setDob(details.dob());
+        patient.setGender(details.gender());
+        patient.setCreatedAt(OffsetDateTime.now());
+        return patient;
+    }
+
+    /** Persist a new patient and capture their consent (NFR-02) in the same step. */
+    private Patient persistPatientWithConsent(Patient patient) {
+        Patient saved = patientRepository.save(patient);
+        consentRecordRepository.save(
+                new ConsentRecord(saved.getId(), consentVersion, OffsetDateTime.now()));
+        return saved;
     }
 
     private AppointmentResponse toResponse(

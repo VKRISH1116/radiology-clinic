@@ -50,6 +50,19 @@ public class BookingController {
         return bookingService.book(request, authentication.getName());
     }
 
+    /**
+     * Staff/back-office booking for a walk-in patient (no login account). Same body
+     * as a normal booking; the patient details create a fresh unlinked patient.
+     */
+    @PostMapping("/api/appointments/walk-in")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AppointmentResponse bookWalkIn(
+            @Valid @RequestBody BookAppointmentRequest request,
+            Authentication authentication) {
+        return bookingService.bookWalkIn(request, authentication.getName());
+    }
+
     /** The caller's own appointments, newest first. */
     @GetMapping("/api/appointments/mine")
     public List<AppointmentResponse> myAppointments(Authentication authentication) {

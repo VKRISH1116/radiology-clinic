@@ -51,8 +51,9 @@ public class ReferralController {
     /** Mark a referral paid out (ADMIN). */
     @PostMapping("/referrals/{id}/pay")
     @PreAuthorize("hasRole('ADMIN')")
-    public ReferralResponse pay(@PathVariable Long id) {
-        return referralService.markPaid(id);
+    public ReferralResponse pay(
+            @PathVariable Long id, org.springframework.security.core.Authentication authentication) {
+        return referralService.markPaid(id, authentication.getName());
     }
 
     @GetMapping("/referral-rules")

@@ -130,6 +130,36 @@ class ReferralIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void payingAReferral_writesAPayoutAuditEntry() throws Exception {
+        String patient = registerAndLogin("audit.pat@clinic.test", null);
+        String staff = registerAndLogin("audit.staff@clinic.test", "STAFF");
+        String admin = registerAndLogin("audit.admin@clinic.test", "ADMIN");
+
+        long slotId = firstSlotId(patient, "2033-06-01");
+        long appointmentId = bookReturningId(patient, slotId, "[1]", 1L);
+        complete(staff, appointmentId).andExpect(status().isOk());
+        long referralId = referralIdFor(staff, appointmentId);
+        mockMvc.perform(post("/api/referrals/" + referralId + "/pay")
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk());
+
+        String logs = mockMvc.perform(get("/api/audit-logs")
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<Object> hits = JsonPath.read(logs,
+                "$[?(@.action == 'PAYOUT_UPDATE' && @.entityId == " + referralId + ")]");
+        org.junit.jupiter.api.Assertions.assertFalse(hits.isEmpty(), "expected a PAYOUT_UPDATE audit row");
+    }
+
+    @Test
+    void auditLog_isForbiddenForNonAdmins() throws Exception {
+        String staff = registerAndLogin("audit.staffonly@clinic.test", "STAFF");
+        mockMvc.perform(get("/api/audit-logs").header("Authorization", "Bearer " + staff))
+                .andExpect(status().isForbidden());
+    }
+
     // --- helpers ---------------------------------------------------------
 
     private long referralIdFor(String token, long appointmentId) throws Exception {

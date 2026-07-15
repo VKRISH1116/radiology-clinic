@@ -2,6 +2,12 @@ spring:
   application:
     name: radiology-clinic-backend
 
+  # Report uploads are PDFs; cap the multipart size (service also re-checks 20MB).
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
   # Connects to the PostgreSQL started by docker-compose.yml.
   # Values fall back to the dev defaults but can be overridden by env vars.
   datasource:
@@ -39,3 +45,12 @@ app:
   bootstrap-admin:
     email: ${BOOTSTRAP_ADMIN_EMAIL:admin@clinic.local}
     password: ${BOOTSTRAP_ADMIN_PASSWORD:admin-dev-password}
+  booking:
+    # Patients may self-cancel/reschedule only up to this many hours before the slot.
+    change-cutoff-hours: ${BOOKING_CHANGE_CUTOFF_HOURS:2}
+  consent:
+    # The consent/privacy terms version captured when a patient profile is created.
+    current-version: ${CONSENT_VERSION:v1}
+  reports:
+    # Where uploaded report PDFs are stored (kept OUTSIDE any web root).
+    dir: ${REPORTS_DIR:./data/reports}

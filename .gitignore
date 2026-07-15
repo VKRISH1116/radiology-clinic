@@ -47,3 +47,7 @@ desktop.ini
 # ───────────────────────── Build/temp ─────────────────────────
 *.tmp
 *.bak
+
+# Uploaded report files (local dev storage)
+backend/data/
+data/reports/
