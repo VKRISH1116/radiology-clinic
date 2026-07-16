@@ -57,20 +57,28 @@ export interface Referral {
 /** A configurable referral-engine rule (null scope column = "any"). */
 export interface ReferralRule {
   id: number;
-  doctorName: string | null;
-  serviceName: string | null;
+  referringDoctorId: number | null;
+  serviceId: number | null;
   minAmount: number | null;
+  maxAmount: number | null;
   percentage: number;
   active: boolean;
 }
 
-/** One audit-trail entry. */
+/** A referring doctor (for tagging bookings / rule scoping). */
+export interface ReferringDoctor {
+  id: number;
+  name: string;
+  phone: string | null;
+}
+
+/** One audit-trail entry (userId is the acting user, null for anonymous). */
 export interface AuditEntry {
   id: number;
   action: string;
   entity: string | null;
   entityId: number | null;
-  actor: string | null;
+  userId: number | null;
   createdAt: string;
 }
 

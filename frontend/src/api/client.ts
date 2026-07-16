@@ -84,3 +84,35 @@ export async function request<T>(path: string, opts: RequestOptions = {}): Promi
   const text = await res.text();
   return (text ? JSON.parse(text) : undefined) as T;
 }
+
+/**
+ * Multipart file upload (reports). Uses FormData, so we must NOT set a
+ * Content-Type header — the browser adds it with the correct multipart boundary.
+ * Same Bearer + refresh-on-401 behaviour as request().
+ */
+export async function upload(path: string, file: File): Promise<void> {
+  const session = getSession();
+
+  const doUpload = (token: string | null) => {
+    const form = new FormData();
+    form.append('file', file);
+    return fetch(`${BASE_URL}${path}`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+  };
+
+  let res = await doUpload(session?.token ?? null);
+  if (res.status === 401 && session?.refreshToken) {
+    const refreshed = await tryRefresh(session);
+    if (refreshed) {
+      res = await doUpload(refreshed.token);
+    } else {
+      clearSession();
+    }
+  }
+  if (!res.ok) {
+    throw new ApiError(res.status, await messageFrom(res));
+  }
+}

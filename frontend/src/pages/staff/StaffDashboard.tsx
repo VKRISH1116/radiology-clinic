@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { mockApi } from '../../mock/api';
+import { api } from '../../api/api';
 import type { Appointment } from '../../types';
 import { formatDateTime, formatINR } from '../../util/format';
 import styles from './StaffDashboard.module.css';
@@ -51,7 +51,7 @@ export function StaffDashboard() {
 
   useEffect(() => {
     let active = true;
-    mockApi.listSchedule().then((s) => {
+    api.listSchedule().then((s) => {
       if (!active) return;
       setSchedule(s);
       setLoading(false);
@@ -61,15 +61,12 @@ export function StaffDashboard() {
     };
   }, []);
 
-  // Replace one row with a fresh object so React re-renders just that card.
-  function patch(updated: Appointment) {
-    setSchedule((prev) => prev.map((a) => (a.id === updated.id ? { ...updated } : a)));
-  }
-
   async function complete(id: number) {
     setBusyId(id);
     try {
-      patch(await mockApi.completeAppointment(id));
+      await api.completeAppointment(id);
+      // Patch just the status locally (keeps patient name / report on the row).
+      setSchedule((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'COMPLETED' } : a)));
     } finally {
       setBusyId(null);
     }
@@ -82,7 +79,9 @@ export function StaffDashboard() {
     }
     setBusyId(id);
     try {
-      patch(await mockApi.uploadReport(id, file.name));
+      await api.uploadReport(id, file);
+      // Show the name the user just uploaded (the server stores a random name).
+      setSchedule((prev) => prev.map((a) => (a.id === id ? { ...a, reportFileName: file.name } : a)));
     } finally {
       setBusyId(null);
     }

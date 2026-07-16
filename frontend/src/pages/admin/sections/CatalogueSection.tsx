@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { mockApi } from '../../../mock/api';
+import { api } from '../../../api/api';
 import type { AdminService } from '../../../types';
 import styles from '../Admin.module.css';
 
@@ -18,7 +18,7 @@ function CatalogRow({
   async function savePrice() {
     setBusy(true);
     try {
-      onChanged(await mockApi.updateServicePrice(svc.id, Number(price)));
+      onChanged(await api.updateService({ ...svc, price: Number(price) }));
     } finally {
       setBusy(false);
     }
@@ -26,7 +26,7 @@ function CatalogRow({
   async function toggle() {
     setBusy(true);
     try {
-      onChanged(await mockApi.setServiceActive(svc.id, !svc.active));
+      onChanged(await api.updateService({ ...svc, active: !svc.active }));
     } finally {
       setBusy(false);
     }
@@ -74,7 +74,7 @@ export function CatalogueSection() {
 
   useEffect(() => {
     let active = true;
-    mockApi.listCatalog().then((list) => {
+    api.listCatalog().then((list) => {
       if (!active) return;
       setItems([...list]);
       setLoading(false);
@@ -96,7 +96,7 @@ export function CatalogueSection() {
       setError('Enter a name and a valid price');
       return;
     }
-    const created = await mockApi.createService(category, name.trim(), p);
+    const created = await api.createService(category, name.trim(), p);
     setItems((prev) => [...prev, created]);
     setName('');
     setPrice('');

@@ -1,36 +1,46 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { mockApi } from '../../../mock/api';
-import type { ReferralRule } from '../../../types';
+import { api } from '../../../api/api';
+import type { ReferralRule, ReferringDoctor, Service } from '../../../types';
 import styles from '../Admin.module.css';
-
-function scopeLabel(r: ReferralRule): string {
-  const parts: string[] = [];
-  if (r.doctorName) parts.push(r.doctorName);
-  if (r.serviceName) parts.push(r.serviceName);
-  if (r.minAmount != null) parts.push(`≥ ₹${r.minAmount}`);
-  return parts.length ? parts.join(' · ') : 'Any (default)';
-}
 
 export function RulesSection() {
   const [rules, setRules] = useState<ReferralRule[]>([]);
+  const [doctors, setDoctors] = useState<ReferringDoctor[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [doctor, setDoctor] = useState('');
-  const [service, setService] = useState('');
+  const [doctorId, setDoctorId] = useState('');
+  const [serviceId, setServiceId] = useState('');
   const [minAmount, setMinAmount] = useState('');
   const [percentage, setPercentage] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Load rules plus the doctors/services needed to show names for their ids.
   useEffect(() => {
     let active = true;
-    mockApi.listRules().then((r) => {
-      if (!active) return;
-      setRules([...r]);
-      setLoading(false);
-    });
+    Promise.all([api.listRules(), api.listReferringDoctors(), api.listServices()]).then(
+      ([r, d, s]) => {
+        if (!active) return;
+        setRules([...r]);
+        setDoctors(d);
+        setServices(s);
+        setLoading(false);
+      },
+    );
     return () => {
       active = false;
     };
   }, []);
+
+  const doctorName = (id: number | null) => doctors.find((d) => d.id === id)?.name ?? `#${id}`;
+  const serviceName = (id: number | null) => services.find((s) => s.id === id)?.name ?? `#${id}`;
+
+  function scopeLabel(r: ReferralRule): string {
+    const parts: string[] = [];
+    if (r.referringDoctorId != null) parts.push(doctorName(r.referringDoctorId));
+    if (r.serviceId != null) parts.push(serviceName(r.serviceId));
+    if (r.minAmount != null) parts.push(`≥ ₹${r.minAmount}`);
+    return parts.length ? parts.join(' · ') : 'Any (default)';
+  }
 
   async function add(e: FormEvent) {
     e.preventDefault();
@@ -40,15 +50,16 @@ export function RulesSection() {
       setError('Percentage must be 0–100');
       return;
     }
-    const created = await mockApi.addRule({
-      doctorName: doctor.trim() || null,
-      serviceName: service.trim() || null,
+    const created = await api.addRule({
+      referringDoctorId: doctorId ? Number(doctorId) : null,
+      serviceId: serviceId ? Number(serviceId) : null,
       minAmount: minAmount ? Number(minAmount) : null,
+      maxAmount: null,
       percentage: pct,
     });
     setRules((prev) => [...prev, created]);
-    setDoctor('');
-    setService('');
+    setDoctorId('');
+    setServiceId('');
     setMinAmount('');
     setPercentage('');
   }
@@ -63,12 +74,26 @@ export function RulesSection() {
       </p>
       <form className={styles.form} onSubmit={add}>
         <div className={styles.field}>
-          <label>Doctor (opt)</label>
-          <input value={doctor} onChange={(e) => setDoctor(e.target.value)} />
+          <label>Doctor</label>
+          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
+            <option value="">Any</option>
+            {doctors.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className={styles.field}>
-          <label>Study (opt)</label>
-          <input value={service} onChange={(e) => setService(e.target.value)} />
+          <label>Study</label>
+          <select value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
+            <option value="">Any</option>
+            {services.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className={styles.field}>
           <label>Min ₹ (opt)</label>

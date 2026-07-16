@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SlotPicker } from '../../components/SlotPicker';
-import { mockApi } from '../../mock/api';
+import { api } from '../../api/api';
 import type { Service, SlotAvailability } from '../../types';
 import { formatINR } from '../../util/format';
 // Reuse the patient booking page's layout styles — same two-column shape.
@@ -18,7 +18,7 @@ export function StaffWalkInPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    mockApi.listServices().then(setServices);
+    api.listServices().then(setServices);
   }, []);
 
   function toggleStudy(id: number) {
@@ -44,7 +44,7 @@ export function StaffWalkInPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await mockApi.walkInBook(name.trim(), slot, selectedStudies);
+      await api.walkInBook(name.trim(), slot, selectedStudies);
       navigate('/staff', { replace: true, state: { walkedIn: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Booking failed');
