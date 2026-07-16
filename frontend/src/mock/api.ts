@@ -95,4 +95,33 @@ export const mockApi = {
     mockAppointments.unshift(appointment); // newest first
     return appointment;
   },
+
+  async cancel(appointmentId: number): Promise<Appointment> {
+    await delay();
+    const appt = mockAppointments.find((a) => a.id === appointmentId);
+    if (!appt) throw new Error('Appointment not found');
+    if (appt.status !== 'BOOKED') {
+      throw new Error('Only a booked appointment can be cancelled');
+    }
+    appt.status = 'CANCELLED';
+    bookedSlotIds.delete(appt.slotId); // cancelling frees the slot
+    return appt;
+  },
+
+  async reschedule(appointmentId: number, slot: SlotAvailability): Promise<Appointment> {
+    await delay();
+    const appt = mockAppointments.find((a) => a.id === appointmentId);
+    if (!appt) throw new Error('Appointment not found');
+    if (appt.status !== 'BOOKED') {
+      throw new Error('Only a booked appointment can be rescheduled');
+    }
+    if (slot.id !== appt.slotId && bookedSlotIds.has(slot.id)) {
+      throw new Error('That slot is already taken');
+    }
+    bookedSlotIds.delete(appt.slotId); // free the old slot
+    appt.slotId = slot.id;
+    appt.slotStartTime = slot.startTime;
+    bookedSlotIds.add(slot.id);
+    return appt;
+  },
 };

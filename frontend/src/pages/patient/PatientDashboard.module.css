@@ -77,6 +77,19 @@
   margin-top: 6px;
   font-weight: 700;
 }
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.actions button {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+.danger {
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 35%, var(--line));
+}
 
 .group {
   margin-bottom: 18px;

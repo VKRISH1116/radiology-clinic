@@ -1,0 +1,20 @@
+.muted {
+  color: var(--ink-soft);
+}
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.slot {
+  padding: 8px 0;
+  font-size: 13px;
+  text-align: center;
+}
+.slotOn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+  font-weight: 600;
+}

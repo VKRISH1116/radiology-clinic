@@ -17,10 +17,11 @@ export function PatientDashboard() {
   const { session } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const justBooked = (location.state as { booked?: boolean } | null)?.booked;
+  const flash = location.state as { booked?: boolean; rescheduled?: boolean } | null;
   const [services, setServices] = useState<Service[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   // Fetch both lists once when the screen mounts. The `active` flag avoids setting
   // state if the component unmounts before the (async) data arrives.
@@ -38,6 +39,17 @@ export function PatientDashboard() {
       active = false;
     };
   }, []);
+
+  async function handleCancel(id: number) {
+    setCancellingId(id);
+    try {
+      const updated = await mockApi.cancel(id);
+      // Replace that appointment with a fresh object so React re-renders the row.
+      setAppointments((prev) => prev.map((a) => (a.id === id ? { ...updated } : a)));
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
   if (loading) {
     return <p className={styles.muted}>Loading…</p>;
@@ -61,7 +73,8 @@ export function PatientDashboard() {
         </button>
       </div>
 
-      {justBooked && <div className={styles.banner}>✓ Appointment booked.</div>}
+      {flash?.booked && <div className={styles.banner}>✓ Appointment booked.</div>}
+      {flash?.rescheduled && <div className={styles.banner}>✓ Appointment rescheduled.</div>}
 
       <h2 className={styles.h2}>My appointments</h2>
       {appointments.length === 0 ? (
@@ -78,6 +91,22 @@ export function PatientDashboard() {
                 {a.studies.map((s) => s.name).join(' · ')}
               </div>
               <div className={styles.bill}>{formatINR(a.billedAmount)}</div>
+              {a.status === 'BOOKED' && (
+                <div className={styles.actions}>
+                  <button
+                    onClick={() => navigate(`/patient/appointments/${a.id}/reschedule`)}
+                  >
+                    Reschedule
+                  </button>
+                  <button
+                    className={styles.danger}
+                    disabled={cancellingId === a.id}
+                    onClick={() => handleCancel(a.id)}
+                  >
+                    {cancellingId === a.id ? 'Cancelling…' : 'Cancel'}
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

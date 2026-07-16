@@ -8,6 +8,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { LoginPage } from './pages/LoginPage';
 import { BookingPage } from './pages/patient/BookingPage';
 import { PatientDashboard } from './pages/patient/PatientDashboard';
+import { ReschedulePage } from './pages/patient/ReschedulePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { StaffDashboard } from './pages/staff/StaffDashboard';
 import { HomeRedirect } from './routes/HomeRedirect';
@@ -26,6 +27,10 @@ export default function App() {
           <Route element={<ProtectedRoute allow={['PATIENT']} />}>
             <Route path="/patient" element={<PatientDashboard />} />
             <Route path="/patient/book" element={<BookingPage />} />
+            <Route
+              path="/patient/appointments/:id/reschedule"
+              element={<ReschedulePage />}
+            />
           </Route>
           <Route element={<ProtectedRoute allow={['STAFF', 'ADMIN']} />}>
             <Route path="/staff" element={<StaffDashboard />} />
