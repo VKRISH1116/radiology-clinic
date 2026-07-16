@@ -59,6 +59,7 @@ public class SecurityConfig {
                         // that throws (400/401/409) gets re-checked here and masked as 403.
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/health").permitAll()        // public: uptime monitoring
                         .requestMatchers("/h2-console/**").permitAll() // dev DB console (h2 profile)
                         .anyRequest().authenticated())
                 // Missing/invalid token -> 401 Unauthorized (the default here would be 403).
