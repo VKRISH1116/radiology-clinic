@@ -24,6 +24,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """)
     List<Appointment> findByPatientIdWithStudies(@Param("patientId") Long patientId);
 
+    /** Every appointment with its studies fetched — the staff schedule (small clinic). */
+    @Query("""
+            select distinct a from Appointment a
+            left join fetch a.studies
+            order by a.slotId
+            """)
+    List<Appointment> findAllWithStudies();
+
     /**
      * Live appointment counts for many slots at once, as [slotId, count] rows.
      * One grouped query instead of one-per-slot (avoids an N+1 when listing a day).

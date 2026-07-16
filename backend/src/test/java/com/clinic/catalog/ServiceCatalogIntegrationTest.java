@@ -45,8 +45,8 @@ class ServiceCatalogIntegrationTest {
                 .andExpect(jsonPath("$[0].category").value("General"))
                 .andExpect(jsonPath("$[0].name").value("Ultrasound Abdomen & Pelvis"))
                 .andExpect(jsonPath("$[0].price").value(1000.00))
-                // The internal "active" flag is not exposed in the response.
-                .andExpect(jsonPath("$[0].active").doesNotExist());
+                // active is exposed and true for the public (active-only) list.
+                .andExpect(jsonPath("$[0].active").value(true));
     }
 
     @Test
