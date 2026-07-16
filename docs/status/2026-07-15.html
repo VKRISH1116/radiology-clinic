@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Status — 2026-07-15</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--green:#16a34a;--amber:#d97706;
+    --red:#dc2626;--red-soft:#fdecec;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--green:#4ade80;--amber:#fbbf24;
+    --red:#f87171;--red-soft:#2a1a1e;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 60px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:820px;margin:0 auto}
+  header{padding:38px 0 20px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+    background:var(--accent-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:26px;margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--ink-soft);margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:13px;color:var(--ink-faint)}
+  .meta b{color:var(--ink-soft)}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+    margin:30px 0 12px;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:6px 22px;box-shadow:var(--shadow)}
+  ul{margin:14px 0;padding-left:4px;list-style:none}
+  li{position:relative;padding:6px 0 6px 28px;border-bottom:1px solid var(--line)}
+  li:last-child{border-bottom:none}
+  li::before{content:"✓";position:absolute;left:2px;top:6px;color:var(--green);font-weight:700}
+  li.learn::before{content:"💡";left:0}
+  li.next::before{content:"→";color:var(--amber);font-weight:700;left:4px}
+  li.fix::before{content:"🔒";left:0}
+  li b{color:var(--ink)}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:13px}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0;font-size:13px}
+  .chip{background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);
+    padding:4px 10px;border-radius:8px;font-weight:600}
+  .arrow{color:var(--ink-faint)}
+  .tests{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+  .stat{flex:1 1 150px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow)}
+  .stat .n{font-size:22px;font-weight:700;color:var(--green)}
+  .stat .l{font-size:12px;color:var(--ink-faint);margin-top:2px}
+  .callout{background:var(--red-soft);border:1px solid var(--line);border-left:3px solid var(--red);
+    border-radius:10px;padding:2px 18px;margin:16px 0}
+  .callout h3{font-size:14px;margin:14px 0 4px;color:var(--ink)}
+  footer{margin-top:34px;font-size:12px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">● Daily Status · For mentor review</span>
+    <h1>Day 3 — Backend Build, end to end (Phase 4 complete)</h1>
+    <p class="sub">Radiology Clinic Website · Learning-first full-stack build</p>
+    <div class="meta">
+      <span><b>Date:</b> 2026-07-15</span>
+      <span><b>Phase:</b> 4 — Backend build · <b>COMPLETE</b></span>
+      <span><b>Commits:</b> 9</span>
+      <span><b>Tests:</b> 73 / 73 green</span>
+      <span><b>Stack:</b> Java 21 · Spring Boot 4.1 · PostgreSQL 16</span>
+    </div>
+  </header>
+
+  <div class="tests">
+    <div class="stat"><div class="n">18</div><div class="l">Auth &amp; security<br>(JWT · refresh · roles)</div></div>
+    <div class="stat"><div class="n">22</div><div class="l">Booking &amp; scheduling<br>(slots · cancel · reschedule)</div></div>
+    <div class="stat"><div class="n">18</div><div class="l">Referral engine &amp; payouts</div></div>
+    <div class="stat"><div class="n">15</div><div class="l">Catalogue · reports · consent · cutoff</div></div>
+  </div>
+
+  <h2>The big unblock — real PostgreSQL</h2>
+  <div class="card">
+    <ul>
+      <li><b>Docker installed &amp; the database is real now.</b> After a reboot, brought up <b>PostgreSQL 16</b> in a container (<code>docker compose up -d</code>) and moved the backend off the temporary in-memory H2 onto the real DB. The same Flyway migrations build the schema on both — H2 stays as the fast offline dev option.</li>
+      <li><b>Debugged two production-style environment bugs</b> before anything would run:
+        a stray <b>native PostgreSQL 17</b> on the machine was silently stealing port 5432 (symptom: "password authentication failed") — stopped &amp; disabled it;
+        and Windows reports India time as the legacy name <code>Asia/Calcutta</code>, which the slim Postgres image rejects — pinned the JVM to <code>Asia/Kolkata</code>.</li>
+      <li><b>Verified data now persists</b> across restarts (the whole point of a real DB): registered a user, restarted the server, logged back in.</li>
+    </ul>
+  </div>
+
+  <h2>Feature slices shipped</h2>
+  <div class="card">
+    <p style="color:var(--ink-soft)">Each feature was built as a full vertical slice — entity → repository → service → REST endpoint → tests — and checked against the running server before I trusted it.</p>
+    <ul>
+      <li><b>Service catalogue</b> — <code>GET /api/services</code> lists the 9 bookable scans; later, ADMIN create / edit / deactivate (feature F8).</li>
+      <li><b>Booking</b> — <code>GET /api/slots?date=</code> shows a day's 15-minute slots with live availability; <code>POST /api/appointments</code> books one or more studies, <b>snapshots each price</b>, bills the sum, and refuses to double-book a slot.</li>
+      <li><b>My appointments</b> — patients can <b>list</b>, <b>cancel</b>, and <b>reschedule</b> their own bookings (cancel/reschedule free the slot automatically).</li>
+      <li><b>Referral engine</b> — the headline deliverable (details below).</li>
+      <li><b>Staff / back-office</b> — mark an appointment <b>complete</b> (triggers the payout), book <b>walk-in</b> patients who have no login, and <b>upload/download report PDFs</b>.</li>
+    </ul>
+    <div class="flow">
+      <span class="chip">pick slot</span><span class="arrow">→</span>
+      <span class="chip">choose studies</span><span class="arrow">→</span>
+      <span class="chip">book (price snapshot)</span><span class="arrow">→</span>
+      <span class="chip">complete</span><span class="arrow">→</span>
+      <span class="chip">referral payout</span>
+    </div>
+  </div>
+
+  <h2>The referral-calculation engine</h2>
+  <div class="card">
+    <ul>
+      <li><b>Built the configurable rule engine</b> from the Phase-3 design. Rules are scoped by doctor, study, and/or bill amount; when several match, the <b>most specific one wins</b> — scored <code>doctor +4</code>, <code>service +2</code>, <code>amount-range +1</code>.</li>
+      <li><b>Proved the subtle rule:</b> "most specific wins" beats "highest percentage" — a 15% Thyroid-specific rule correctly out-ranks the 20% default. On completion of a referred visit the payout is written once to a ledger (idempotent), and admins can view <b>per-doctor totals</b> (the top-referrers report) and mark payouts <b>PAID</b>.</li>
+      <li>The scoring logic is a <b>pure function</b>, so it's unit-tested (8 cases) with no database — fast and precise.</li>
+    </ul>
+  </div>
+
+  <h2>Security hardening</h2>
+  <div class="callout">
+    <h3>🔒 Closed a privilege-escalation hole</h3>
+    <p style="color:var(--ink-soft);margin:2px 0 12px">Public registration used to accept a <code>role</code> field — meaning anyone could sign themselves up as ADMIN. I found this while reviewing the day's work and fixed it.</p>
+    <ul>
+      <li class="fix"><b>Public <code>/register</code> now always creates a PATIENT</b> — the role field is gone. STAFF/ADMIN accounts can only be created by an existing admin via <code>POST /api/admin/users</code>, and an initial admin is provisioned at startup.</li>
+      <li class="fix"><b>Role-based access everywhere:</b> completing visits &amp; viewing payouts are STAFF/ADMIN; catalogue edits, rule config, user creation &amp; audit logs are ADMIN-only.</li>
+      <li class="fix"><b>Refresh tokens + real logout:</b> login now returns a short-lived (15 min) access token plus a long-lived, <b>revocable</b> refresh token (only its hash is stored). Refreshing rotates it; logout revokes it — genuine logout despite otherwise stateless tokens.</li>
+      <li class="fix"><b>Report downloads are scoped:</b> a patient can fetch only their own report; others get a 404 (never a 403), so appointment ids can't be probed. Every upload/download and payout is <b>audit-logged</b>.</li>
+    </ul>
+  </div>
+
+  <h2>What I learned</h2>
+  <div class="card">
+    <ul>
+      <li class="learn"><b>"It compiles" proves nothing:</b> the port clash, the timezone rejection, and the privilege hole were all invisible to the compiler — only running the real thing (and reviewing it) surfaced them.</li>
+      <li class="learn"><b>Snapshot money at the moment of the transaction:</b> copying each study's price onto the appointment means a later catalogue price change never rewrites an old bill. Same idea as an invoice freezing its line items.</li>
+      <li class="learn"><b>Concurrency needs a lock, not just a check:</b> "count bookings, then insert" has a race — two people could grab the last slot. A row lock on the slot serialises them, so capacity holds under load.</li>
+      <li class="learn"><b>Cancel is a state change, not a delete:</b> flipping status to CANCELLED keeps the history and frees the slot, where deleting the row would lose the audit trail.</li>
+      <li class="learn"><b>Never trust the client's file label:</b> report uploads are checked by both declared type <em>and</em> the <code>%PDF</code> magic bytes, size-capped, and stored with a random name outside any web root.</li>
+      <li class="learn"><b>Least privilege by default:</b> the safest role to hand out on self-signup is the weakest one; anything stronger must be granted deliberately by someone who already has it.</li>
+      <li class="learn"><b>Push design decisions back to the business:</b> "how close to an appointment can a patient still cancel?" isn't a coding question — I surfaced it and we set a configurable 2-hour rule.</li>
+    </ul>
+  </div>
+
+  <h2>Decisions locked today</h2>
+  <div class="card">
+    <ul>
+      <li><b>Cancel/reschedule cutoff:</b> patients may self-change up to <b>2 hours</b> before the slot (configurable); closer than that they call the clinic.</li>
+      <li><b>Report storage:</b> <b>PDF only</b>, ≤20 MB, on local disk outside the web root; upload = staff/admin, download = owning patient + staff/admin; every access audited.</li>
+      <li><b>Access tokens are short-lived (15 min)</b> with 30-day revocable refresh tokens.</li>
+      <li><b>Consent is captured</b> the moment a patient profile is created (self-booking or walk-in), with a recorded version.</li>
+    </ul>
+  </div>
+
+  <h2>Next up</h2>
+  <div class="card">
+    <ul>
+      <li class="next"><b>Backend review with mentor</b> — walk the full REST surface + the referral engine, and confirm the security fixes.</li>
+      <li class="next"><b>Phase 5 — Frontend (React)</b>: patient / staff / admin screens, forms and routing, first against mock data then wired to this API.</li>
+      <li class="next"><b>Optional polish</b> noted for later: pagination on list endpoints, virus-scan on uploads, orphaned-file cleanup on report re-upload.</li>
+    </ul>
+  </div>
+
+  <footer>Generated as part of the daily learning log · Phase 4 (Backend) complete — running on PostgreSQL, 73 tests green</footer>
+</div>
+</body>
+</html>
