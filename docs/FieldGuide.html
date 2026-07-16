@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Full-Stack Web Development — A Field Guide</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--green:#16a34a;--amber:#d97706;
+    --red:#dc2626;--red-soft:#fdecec;--codebg:#f2f4fb;--jargon:#0891b2;--jargon-soft:#e0f5fa;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--green:#4ade80;--amber:#fbbf24;
+    --red:#f87171;--red-soft:#2a1a1e;--codebg:#12161f;--jargon:#22d3ee;--jargon-soft:#0c2731;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 80px;
+    font:15px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto}
+  header{padding:38px 0 20px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+    background:var(--accent-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--ink-soft);margin:0}
+  h2{font-size:20px;margin:44px 0 6px;letter-spacing:-.01em;scroll-margin-top:16px}
+  h2 .hash{color:var(--ink-faint);font-weight:400}
+  h3{font-size:16px;margin:24px 0 4px}
+  .lead{color:var(--ink-soft);margin:6px 0 14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;box-shadow:var(--shadow);margin:14px 0}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px}
+  pre{background:var(--codebg);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;overflow-x:auto;margin:14px 0;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px;line-height:1.5}
+  pre .c{color:var(--ink-faint)}
+  pre .k{color:var(--accent);font-weight:600}
+  pre .g{color:var(--green);font-weight:600}
+  a{color:var(--accent)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;box-shadow:var(--shadow);margin:22px 0;columns:2;column-gap:26px}
+  nav.toc a{display:block;padding:3px 0;font-size:13.5px;text-decoration:none;color:var(--ink-soft);break-inside:avoid}
+  nav.toc a:hover{color:var(--accent)}
+  nav.toc .grp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);
+    font-weight:700;margin:10px 0 2px;break-inside:avoid}
+  @media(max-width:640px){nav.toc{columns:1}}
+  .concept{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);
+    box-shadow:var(--shadow);margin:18px 0;overflow:hidden}
+  .concept>.top{padding:14px 20px 6px;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+  .concept>.top h3{margin:0;font-size:17px}
+  .concept>.top .tag{font-size:11px;color:var(--ink-faint);font-weight:600}
+  .concept .body{padding:6px 20px 16px}
+  .concept .q{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);
+    font-weight:700;margin:14px 0 2px}
+  .concept .q.plain{color:var(--ink-faint)}
+  .concept p{margin:2px 0}
+  .concept .analogy{color:var(--ink-soft);font-style:italic}
+  .concept .iv{background:var(--codebg);border-left:3px solid var(--green);border-radius:0 8px 8px 0;
+    padding:8px 14px;margin:6px 0}
+  ul{margin:8px 0;padding-left:22px}
+  li{padding:3px 0}
+  .jargon{background:var(--jargon-soft);border:1px solid var(--line);border-left:3px solid var(--jargon);
+    border-radius:0 10px 10px 0;padding:2px 16px;margin:14px 0}
+  .jargon h4{font-size:13.5px;margin:12px 0 4px;color:var(--jargon)}
+  .jargon h4::before{content:"❓ ";}
+  .jargon p{margin:4px 0 12px;font-size:14px;color:var(--ink-soft)}
+  .review{background:transparent;border:1px dashed var(--accent);border-radius:var(--radius);
+    padding:4px 20px;margin:18px 0}
+  .review h4{color:var(--accent);font-size:13px;letter-spacing:.05em;text-transform:uppercase;margin:14px 0 4px}
+  .review ol{margin:8px 0 14px;padding-left:22px}
+  .review li{padding:4px 0;color:var(--ink-soft)}
+  .scroll{overflow-x:auto;margin:14px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  td.m{font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:nowrap}
+  .callout{background:var(--red-soft);border:1px solid var(--line);border-left:3px solid var(--amber);
+    border-radius:10px;padding:2px 18px;margin:16px 0}
+  .callout h4{margin:14px 0 4px;font-size:14px}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);margin:0 2px}
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">📚 Field Guide · Modern Full-Stack Web Development</span>
+    <h1>Full-Stack Web Development — A Field Guide</h1>
+    <p class="sub">A ground-up tour of the technologies behind a typical modern web application — for someone who can code but has never shipped a production app. General knowledge, not tied to any one project.</p>
+  </header>
+
+  <div class="card">
+    <b>How to read this guide.</b> Every major technology is taught with the same 8-part frame:
+    <ol>
+      <li><b>What is it?</b> — one sentence.</li>
+      <li><b>Why is it used?</b> — the problem it solves.</li>
+      <li><b>Analogy</b> — an everyday comparison.</li>
+      <li><b>How it's used</b> — where it sits in a real stack.</li>
+      <li><b>Remove it?</b> — the consequences of doing without.</li>
+      <li><b>Interview answer</b> — a confident 30-second reply.</li>
+      <li><b>Beginner mistakes</b> — the classic misunderstandings.</li>
+      <li><b>Advanced</b> — what seniors know beyond the basics.</li>
+    </ol>
+    Blue <span style="color:var(--jargon)">❓ boxes</span> define a jargon word the moment it appears. Dashed boxes are <b>review questions</b> — answer them out loud before moving on. Where several tools compete (e.g. Maven vs Gradle, Render vs Railway vs Vercel), the guide compares them so you can choose.
+  </div>
+
+  <nav class="toc">
+    <div class="grp">Foundations</div>
+    <a href="#bigpicture">The big picture</a>
+    <a href="#threetier">Three-tier architecture</a>
+    <a href="#flow">A request, end to end</a>
+    <div class="grp">Frontend</div>
+    <a href="#html">HTML</a><a href="#css">CSS</a>
+    <a href="#js">JavaScript</a><a href="#ts">TypeScript</a>
+    <a href="#react">React</a><a href="#tailwind">Tailwind / styling options</a>
+    <a href="#vite">Vite, npm &amp; the build</a>
+    <div class="grp">Backend</div>
+    <a href="#java">Java</a><a href="#spring">Spring Boot (Web + Security)</a>
+    <a href="#layers">Controllers · Services · Repositories</a>
+    <a href="#di">Dependency Injection</a>
+    <a href="#orm">ORM / JPA</a>
+    <a href="#rest">REST &amp; JSON</a>
+    <a href="#buildtools">Maven vs Gradle</a>
+    <div class="grp">Database</div>
+    <a href="#sql">SQL &amp; relational databases</a>
+    <a href="#keys">Keys, indexes &amp; constraints</a>
+    <a href="#migrations">Migrations</a>
+    <div class="grp">Networking &amp; Auth</div>
+    <a href="#http">HTTP / HTTPS / DNS</a>
+    <a href="#cors">CORS &amp; allowed origins</a>
+    <a href="#proxy">Reverse proxy</a>
+    <a href="#auth">Auth: sessions, tokens, JWT</a>
+    <div class="grp">Infra &amp; Deploy</div>
+    <a href="#docker">Docker</a><a href="#compose">Docker Compose</a>
+    <a href="#platforms">Render · Railway · Vercel · Netlify</a>
+    <a href="#envs">Environments &amp; env vars</a>
+    <a href="#git">Git &amp; GitHub</a><a href="#cicd">CI/CD</a>
+    <div class="grp">Reference</div>
+    <a href="#structure">Typical project structure</a>
+    <a href="#configfiles">Config files</a>
+    <a href="#glossary">Glossary</a><a href="#cheatsheet">Cheat sheet</a>
+    <a href="#interview">Interview questions</a>
+    <a href="#presentation">10-min presentation</a>
+    <a href="#ceo">CEO explanation</a>
+  </nav>
+
+  <!-- ═══════ FOUNDATIONS ═══════ -->
+  <h2 id="bigpicture"><span class="hash">1 · </span>The big picture</h2>
+  <p class="lead">A "web app" is software you use through a browser. It always has two halves that talk over the internet: a <b>frontend</b> (runs in the browser, draws the screen) and a <b>backend</b> (runs on a server, holds the real data and rules). Between them sits a <b>database</b> that stores information permanently. Wrapping all of it is <b>infrastructure</b> (where the code runs) and <b>deployment</b> (how it gets there).</p>
+  <div class="jargon">
+    <h4>Frontend vs Backend vs Database?</h4>
+    <p><b>Frontend</b> = what you see and click (browser). <b>Backend</b> = the program on a server that enforces the rules and guards the data. <b>Database</b> = the permanent, organised store of that data. The frontend never touches the database directly; it always asks the backend.</p>
+    <h4>What is a "server"?</h4>
+    <p>Just a computer that runs your backend program and answers requests over the network, day and night. In production it's usually a rented cloud machine, not a box in your office.</p>
+  </div>
+
+  <h2 id="threetier"><span class="hash">2 · </span>Three-tier architecture</h2>
+  <p class="lead">Almost every serious web app is organised into three <b>tiers</b>, each with one job, each talking only to its neighbour:</p>
+<pre>   ┌─────────────────────┐
+   │  Presentation tier  │   Browser · React frontend · draws UI
+   └──────────┬──────────┘
+              │  HTTP + JSON (a REST API)
+   ┌──────────▼──────────┐
+   │  Application tier    │   Backend · business rules · auth
+   └──────────┬──────────┘
+              │  SQL (via a driver/ORM)
+   ┌──────────▼──────────┐
+   │  Data tier           │   Database · permanent storage
+   └─────────────────────┘</pre>
+  <p>Separating tiers means you can change the UI without touching the database, scale each part independently, and reason about one layer at a time. It's the backbone idea the rest of this guide hangs off.</p>
+
+  <h2 id="flow"><span class="hash">3 · </span>A request, end to end</h2>
+  <p class="lead">Follow one action — a user submitting a form — through every layer. This single story touches most of the technologies in this guide.</p>
+  <div class="card">
+    <ol>
+      <li><b>Click.</b> The browser holds the form's data in memory (managed by the frontend framework). A click handler fires.</li>
+      <li><b>HTTP request.</b> The frontend sends e.g. <code>POST /api/orders</code> with a <b>JSON</b> body and an <code>Authorization</code> header proving who's logged in.</li>
+      <li><b>Network.</b> The request travels over HTTPS. If the frontend and backend are on different origins, the browser first sends a <b>CORS preflight</b> to check it's allowed.</li>
+      <li><b>Auth.</b> The backend verifies the token/session — who is this, and may they do this? If not: <code>401/403</code>.</li>
+      <li><b>Controller.</b> The backend's web layer receives the request and <b>deserializes</b> the JSON into an object.</li>
+      <li><b>Service.</b> Business rules run inside a database <b>transaction</b>.</li>
+      <li><b>Repository → DB.</b> The data layer issues <b>SQL</b>; the database writes rows, enforces constraints, commits.</li>
+      <li><b>Response.</b> The result is <b>serialized</b> back to JSON with a status code (<code>201 Created</code>) and returned.</li>
+      <li><b>Re-render.</b> The frontend updates its state and redraws just the changed part of the screen — no full reload.</li>
+    </ol>
+  </div>
+  <div class="jargon">
+    <h4>Serialize / Deserialize?</h4>
+    <p><b>Serialize</b> = turn an in-memory object into text (JSON) to send over the network. <b>Deserialize</b> = turn received text back into an object. Frameworks do this automatically at the API boundary.</p>
+    <h4>Transaction?</h4>
+    <p>A group of database changes that must all succeed or all be undone — never half-done. It's what stops you from charging a card but failing to record the order.</p>
+  </div>
+
+  <!-- ═══════ FRONTEND ═══════ -->
+  <h2 id="html"><span class="hash">Frontend · </span>HTML</h2>
+  <div class="concept">
+    <div class="top"><h3>HTML</h3><span class="tag">structure</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>The markup language that defines the <b>structure and content</b> of a web page — headings, paragraphs, forms, buttons.</p>
+      <p class="q">2 · Why used?</p><p>The browser needs a description of <em>what</em> is on the page. HTML is that description; everything else (styling, behaviour) attaches to it.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">The skeleton and organs of a body — the structure everything else is built on.</p>
+      <p class="q">4 · How it's used</p><p>In modern apps you rarely hand-write much HTML; frameworks like React <em>generate</em> it from components. But it's what ultimately reaches the browser.</p>
+      <p class="q">5 · Remove it?</p><p>There is no web page — HTML is the base layer the browser renders.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"HTML is the structural layer of the web — semantic elements that describe content. Frameworks generate it, but it's what the browser ultimately renders and what accessibility and SEO depend on."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Using <code>&lt;div&gt;</code> for everything instead of semantic tags; ignoring accessibility (labels, alt text); confusing HTML (structure) with CSS (looks).</p>
+      <p class="q">8 · Advanced</p><p>Semantic HTML for accessibility/SEO, the accessibility tree, and how the browser parses HTML into the DOM.</p>
+    </div>
+  </div>
+
+  <h2 id="css"><span class="hash">Frontend · </span>CSS</h2>
+  <div class="concept">
+    <div class="top"><h3>CSS</h3><span class="tag">styling</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>The language that controls how HTML <b>looks</b> — colours, spacing, fonts, layout, responsiveness.</p>
+      <p class="q">2 · Why used?</p><p>Structure alone is ugly and unusable on phones. CSS makes it presentable and adapts it to any screen size.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">Clothing, paint, and interior design applied to the bare structure of a building.</p>
+      <p class="q">4 · How it's used</p><p>Via global stylesheets, component-scoped <b>CSS Modules</b>, utility frameworks like <b>Tailwind</b>, or CSS-in-JS. Layout is done with Flexbox and Grid; theming with custom properties (variables).</p>
+      <p class="q">5 · Remove it?</p><p>Everything renders as unstyled black-on-white text stacked vertically — technically working, practically unusable.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"CSS is the presentation layer. Modern approaches scope it to avoid global collisions — CSS Modules, Tailwind utilities, or CSS-in-JS — and use Flexbox/Grid for layout and custom properties for theming."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Global class-name collisions; fighting the cascade/specificity; fixed pixel layouts that break on mobile; overusing <code>!important</code>.</p>
+      <p class="q">8 · Advanced</p><p>The cascade and specificity model, container queries, <code>prefers-color-scheme</code> for dark mode, and design-system tokens.</p>
+    </div>
+  </div>
+
+  <h2 id="js"><span class="hash">Frontend · </span>JavaScript</h2>
+  <div class="concept">
+    <div class="top"><h3>JavaScript</h3><span class="tag">language · behaviour</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>The programming language browsers run — it makes pages <b>interactive</b> (respond to clicks, fetch data, update the screen).</p>
+      <p class="q">2 · Why used?</p><p>It's the only language browsers execute natively, so every frontend behaviour ultimately runs as JavaScript. It also runs on servers via <b>Node.js</b>.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">The muscles and nervous system — what makes the structured, styled body actually move and react.</p>
+      <p class="q">4 · How it's used</p><p>Directly, or (more often) authored in TypeScript/React and compiled down to JavaScript. Node.js lets the same language power backends and build tools.</p>
+      <p class="q">5 · Remove it?</p><p>Pages become static documents — no interactivity, no dynamic data, no single-page apps.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"JavaScript is the language of the browser and, via Node, of much tooling and many backends. It's single-threaded with an event loop and async model, which is why non-blocking I/O is central to it."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Confusing JavaScript with Java (unrelated); misunderstanding async/promises; unexpected type coercion (<code>==</code> vs <code>===</code>); <code>this</code> binding.</p>
+      <p class="q">8 · Advanced</p><p>The event loop, closures, prototypes, microtasks vs macrotasks, and the module system.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>What is Node.js?</h4>
+    <p>A runtime that runs JavaScript <em>outside</em> the browser — on servers and command lines. It's what powers npm, build tools like Vite, and JavaScript backends (Express, NestJS).</p>
+  </div>
+
+  <h2 id="ts"><span class="hash">Frontend · </span>TypeScript</h2>
+  <div class="concept">
+    <div class="top"><h3>TypeScript</h3><span class="tag">language · JS + types</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>JavaScript with a <b>static type system</b> added — you declare the shape of your data and a checker catches mismatches before the code runs.</p>
+      <p class="q">2 · Why used?</p><p>Large codebases break in subtle ways when data shapes drift. Types catch those bugs at build time and document the code, making refactoring safe.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">Labelled boxes when moving house — you catch "wrong box" before it smashes, not after.</p>
+      <p class="q">4 · How it's used</p><p>Written like JavaScript with type annotations; a compiler (<code>tsc</code>) checks and <em>erases</em> the types, emitting plain JS the browser runs.</p>
+      <p class="q">5 · Remove it?</p><p>Plain JS still runs, but a whole class of bugs moves from build-time to your users, and large refactors get riskier.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"TypeScript adds compile-time type safety to JavaScript. It catches shape mismatches early, self-documents the domain, and makes refactoring safe. Types are erased at compile time — the browser still runs JavaScript."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Thinking types exist at runtime (they don't); leaning on <code>any</code>; expecting TS to make code faster (it prevents bugs, not slowness).</p>
+      <p class="q">8 · Advanced</p><p>Generics, discriminated unions, narrowing, and encoding invariants so illegal states won't compile.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Compile-time vs run-time?</h4>
+    <p><b>Compile-time</b> = while you build the app (type checks, bundling). <b>Run-time</b> = while a user is actually using it. Catching a bug at compile-time is cheap; at run-time it's a user-facing failure.</p>
+  </div>
+
+  <h2 id="react"><span class="hash">Frontend · </span>React (and its alternatives)</h2>
+  <div class="concept">
+    <div class="top"><h3>React</h3><span class="tag">UI library</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A JavaScript library for building UIs from reusable <b>components</b> whose output automatically stays in sync with their data (<b>state</b>).</p>
+      <p class="q">2 · Why used?</p><p>Interactive UIs are hard to keep consistent by hand. React lets you declare "what the screen looks like for this state" and re-renders the right parts when state changes.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A spreadsheet: write a formula once, and dependent cells update themselves when inputs change.</p>
+      <p class="q">4 · How it's used</p><p>Components hold state via hooks (<code>useState</code>, <code>useEffect</code>); they compose into pages. Alternatives: <b>Vue</b>, <b>Angular</b>, <b>Svelte</b>. Meta-frameworks like <b>Next.js</b> add routing + server rendering on top of React.</p>
+      <p class="q">5 · Remove it?</p><p>You'd manipulate the DOM by hand — huge, fragile code to keep UI matching data.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"React is a declarative, component-based UI library: UI as a function of state, with efficient re-rendering. It's just the view layer, so routing and data-fetching are separate choices."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Mutating state directly instead of via setters; missing dependency arrays in effects; thinking React is a full framework or that it talks to the DB (it calls an API).</p>
+      <p class="q">8 · Advanced</p><p>The render/reconciliation cycle, memoisation, rules of hooks, and server components / SSR trade-offs.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Component / State / DOM / SPA?</h4>
+    <p><b>Component</b> = a reusable piece of UI. <b>State</b> = data a component remembers between renders. <b>DOM</b> = the browser's live tree of page elements. <b>SPA (Single-Page App)</b> = a site that loads once and rewrites the screen with JS as you navigate — no full reloads.</p>
+  </div>
+
+  <h2 id="tailwind"><span class="hash">Frontend · </span>Tailwind &amp; the styling spectrum</h2>
+  <div class="concept">
+    <div class="top"><h3>Tailwind CSS</h3><span class="tag">utility-first styling</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A CSS framework where you style by composing tiny <b>utility classes</b> in your markup (<code>class="flex gap-4 p-6 rounded-lg"</code>) instead of writing separate CSS files.</p>
+      <p class="q">2 · Why used?</p><p>It keeps styles co-located with markup, enforces a consistent design scale (spacing, colours), and removes the naming burden of traditional CSS — teams ship UI fast.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">Lego bricks: small standard pieces you snap together, rather than sculpting each shape from scratch.</p>
+      <p class="q">4 · How it's used</p><p>Add Tailwind to the build; it scans your files and generates only the utilities you used. <b>Alternatives:</b> plain CSS, <b>CSS Modules</b> (scoped files), CSS-in-JS (styled-components), or component libraries (<b>MUI</b>, shadcn/ui).</p>
+      <p class="q">5 · Remove it?</p><p>Nothing breaks — you'd style another way. It's a productivity/consistency choice, not a requirement.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Tailwind is a utility-first CSS framework — you compose styling from small classes in the markup, with a build step that purges unused utilities. It trades some markup verbosity for speed and design consistency; CSS Modules or CSS-in-JS are common alternatives."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Thinking Tailwind is required for React (it isn't); duplicating long class strings instead of extracting components; forgetting the build must scan your files to include classes.</p>
+      <p class="q">8 · Advanced</p><p>Design tokens via the config, <code>@apply</code> for extraction, and when a component library beats hand-rolled utilities.</p>
+    </div>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Styling approach</th><th>One-liner · when to reach for it</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Plain / global CSS</td><td>Simplest; fine for small sites; collisions grow with size.</td></tr>
+      <tr><td class="m">CSS Modules</td><td>Scoped-per-component plain CSS; no naming collisions, no framework.</td></tr>
+      <tr><td class="m">Tailwind</td><td>Utility classes in markup; fast, consistent, popular on teams.</td></tr>
+      <tr><td class="m">CSS-in-JS</td><td>Styles as JS (styled-components/emotion); dynamic, co-located.</td></tr>
+      <tr><td class="m">Component library</td><td>MUI / Ant / shadcn; pre-built components, less custom design.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2 id="vite"><span class="hash">Frontend · </span>Vite, npm &amp; the build process</h2>
+  <div class="concept">
+    <div class="top"><h3>Build tools (Vite / Webpack) · npm</h3><span class="tag">tooling · build</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A <b>build tool</b> (Vite, Webpack) runs a dev server and <b>bundles</b> your source into optimised static files. <b>npm</b> is the package manager that installs the libraries it all needs.</p>
+      <p class="q">2 · Why used?</p><p>Browsers can't run TypeScript or hundreds of source files efficiently. The build <b>transpiles</b> and <b>bundles</b> everything into a few small files a browser loads fast.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A print shop turning a messy manuscript into a compact, finished, readable book.</p>
+      <p class="q">4 · How it's used</p><p><code>npm install</code> reads <code>package.json</code> and downloads dependencies. <code>npm run dev</code> starts a hot-reloading dev server; <code>npm run build</code> emits a <code>dist/</code> folder of static assets — that's what you deploy.</p>
+      <p class="q">5 · Remove it?</p><p>No dev server, no TS→JS step, no bundling — you'd ship source the browser can't run.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Vite is a frontend build tool and dev server; it transpiles TypeScript and bundles the app into optimised static assets. npm manages dependencies from package.json. Users get the built bundle, never the dev server."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Confusing dev server (live tool) with build output (static files); committing <code>node_modules/</code> or <code>dist/</code>; thinking prod runs <code>npm run dev</code>.</p>
+      <p class="q">8 · Advanced</p><p>Code-splitting, tree-shaking, hashed filenames for cache-busting, and that <code>VITE_</code>-prefixed env vars are inlined at build (not secret).</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Transpile / Compile / Bundle / Build artifact?</h4>
+    <p><b>Transpile</b> = translate one language to another (TS→JS). <b>Compile</b> = turn source into a runnable form. <b>Bundle</b> = combine many files into few. A <b>build artifact</b> is the finished output (a <code>dist/</code> folder, a <code>.jar</code>) — what you deploy, not your source.</p>
+    <h4>package.json / package-lock.json?</h4>
+    <p><code>package.json</code> lists dependencies and scripts. <code>package-lock.json</code> pins exact versions so every machine installs identically. npm downloads them into <code>node_modules/</code>.</p>
+  </div>
+
+  <div class="review">
+    <h4>Review — frontend</h4>
+    <ol>
+      <li>Separate the jobs of HTML, CSS, and JavaScript in one sentence each.</li>
+      <li>Why do TypeScript types disappear before the browser runs the code?</li>
+      <li>What problem does a component-based library like React solve versus hand-writing DOM updates?</li>
+      <li>Name three ways to style a React app and one trade-off of each.</li>
+      <li>What's the difference between <code>npm run dev</code> and <code>npm run build</code>, and which do users receive?</li>
+    </ol>
+  </div>
+
+  <!-- ═══════ BACKEND ═══════ -->
+  <h2 id="java"><span class="hash">Backend · </span>Java (and backend language choices)</h2>
+  <div class="concept">
+    <div class="top"><h3>Java</h3><span class="tag">language · backend</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A mature, statically-typed, compiled language that runs on the <b>JVM</b>, long favoured for reliable server applications.</p>
+      <p class="q">2 · Why used?</p><p>Its strong typing, huge ecosystem, and first-class transaction/database tooling suit systems where correctness matters (finance, healthcare, enterprise).</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A diesel truck — not flashy, but dependable for heavy, important loads over years.</p>
+      <p class="q">4 · How it's used</p><p>Usually with the <b>Spring</b> framework, compiled to a runnable <code>.jar</code>. <b>Alternatives:</b> C#/.NET, Node.js/TypeScript, Python (Django/FastAPI), Go, Ruby, PHP — each with its own sweet spot.</p>
+      <p class="q">5 · Remove it?</p><p>You simply pick a different backend language; the architectural ideas here transfer.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Java on the JVM is a mature, strongly-typed backend choice with excellent transactional and framework support via Spring. It shines where reliability and a large ecosystem matter more than raw novelty."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Confusing Java with JavaScript; confusing the JDK (build) with the JRE (run); thinking it's interpreted (it compiles to bytecode).</p>
+      <p class="q">8 · Advanced</p><p>JVM memory/GC tuning, records and pattern matching, and virtual threads for high-concurrency I/O.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>JVM / bytecode / jar / JDK / JRE?</h4>
+    <p>The <b>JVM</b> runs Java. Java compiles to <b>bytecode</b> the JVM executes. A <b>jar</b> is a runnable package of that bytecode. <b>JDK</b> = kit to <em>build</em> Java; <b>JRE</b> = smaller runtime to just <em>run</em> it.</p>
+    <h4>What is a "runtime"?</h4>
+    <p>The environment that executes a program (the JVM for Java; Node or the browser for JS). "At runtime" = while the program is running.</p>
+  </div>
+
+  <h2 id="spring"><span class="hash">Backend · </span>Spring Boot (Web + Security)</h2>
+  <div class="concept">
+    <div class="top"><h3>Spring Boot</h3><span class="tag">backend framework</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A framework that turns Java into a ready-to-run web app with sensible defaults, an embedded server, and modules for web, security, and data.</p>
+      <p class="q">2 · Why used?</p><p>It provides — nearly for free — an HTTP server (<b>Spring Web</b>), JSON handling, database integration, transactions, and a security layer (<b>Spring Security</b>), so you write business logic instead of plumbing.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A fully-fitted commercial kitchen versus a bare room — ovens and plumbing already installed.</p>
+      <p class="q">4 · How it's used</p><p>You declare "starters" (web, security, data-jpa, validation) and Spring auto-configures them; it boots an embedded server and manages your objects. <b>Alternatives:</b> Express/NestJS (Node), Django/FastAPI (Python), ASP.NET (C#).</p>
+      <p class="q">5 · Remove it?</p><p>You'd hand-assemble a server, JSON, DB pooling, transactions, and security — weeks of fragile setup.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Spring Boot gives an embedded server, auto-configuration, dependency injection, and starters for security and persistence. Spring Web handles REST endpoints; Spring Security handles authentication and authorization. It packages to one runnable jar."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Thinking Spring Boot is a language; fighting its conventions; not realising the web server is embedded inside the jar.</p>
+      <p class="q">8 · Advanced</p><p>Auto-configuration internals, profiles for per-environment config, actuator/observability, and reactive (WebFlux) vs servlet stacks.</p>
+    </div>
+  </div>
+
+  <h2 id="layers"><span class="hash">Backend · </span>Controllers · Services · Repositories</h2>
+  <div class="concept">
+    <div class="top"><h3>The layered pattern</h3><span class="tag">architecture</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A convention splitting each backend feature into a <b>Controller</b> (HTTP), a <b>Service</b> (business rules), and a <b>Repository</b> (database access).</p>
+      <p class="q">2 · Why used?</p><p>Separated concerns are testable and maintainable: the controller doesn't know SQL, the service doesn't know HTTP, the repository doesn't know rules.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A restaurant: waiter (controller) takes the order, chef (service) applies recipes, pantry keeper (repository) fetches/stores ingredients.</p>
+      <p class="q">4 · How it's used</p><p>Controllers speak in <b>DTOs</b> and status codes; services own transactions and rules; repositories are thin data-access interfaces.</p>
+      <p class="q">5 · Remove it?</p><p>"Fat controllers" mixing HTTP, logic, and SQL — untestable and unmaintainable as they grow.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"I separate controller, service, and repository so HTTP, business logic, and persistence stay decoupled. Rules live in services and are unit-tested independently of the web and database layers."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Business logic in controllers; returning DB entities straight to the client instead of DTOs; transactions in the wrong layer.</p>
+      <p class="q">8 · Advanced</p><p>Transaction boundaries at the service layer; the repository as a swappable port; hexagonal/clean architecture variants.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>DTO? Middleware/Filter?</h4>
+    <p><b>DTO</b> (Data Transfer Object) = an object shaped exactly for the API boundary, keeping public JSON separate from internal entities. <b>Middleware/Filter</b> = code that runs <em>around</em> every request (e.g. authentication, logging) before/after your main handler.</p>
+  </div>
+
+  <h2 id="di"><span class="hash">Backend · </span>Dependency Injection</h2>
+  <div class="concept">
+    <div class="top"><h3>Dependency Injection (DI)</h3><span class="tag">pattern</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>Instead of an object creating what it needs, the framework <b>supplies</b> its dependencies — you declare them and get them handed in.</p>
+      <p class="q">2 · Why used?</p><p>It wires large object graphs automatically and lets you swap real dependencies for fakes in tests — the key to testable code.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A hospital assigning you a nurse and equipment rather than making every patient bring their own.</p>
+      <p class="q">4 · How it's used</p><p>Classes are registered (Spring "beans", NestJS providers) and injected via constructors wherever needed. It's an example of <b>Inversion of Control</b>.</p>
+      <p class="q">5 · Remove it?</p><p>You'd construct and pass every object by hand — tangled wiring, and near-impossible to substitute test doubles.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"DI inverts control: the container constructs objects and injects their dependencies, usually via constructors. It decouples classes and makes them trivial to unit-test with mocks."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Treating DI as magic globals; field injection over constructor injection; not knowing beans are singletons by default; circular dependencies.</p>
+      <p class="q">8 · Advanced</p><p>Bean scopes/lifecycles, the IoC container, and composition-root design.</p>
+    </div>
+  </div>
+
+  <h2 id="orm"><span class="hash">Backend · </span>ORM / JPA / Hibernate</h2>
+  <div class="concept">
+    <div class="top"><h3>ORM (JPA · Hibernate)</h3><span class="tag">persistence</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>An <b>Object-Relational Mapper</b> maps classes to database tables so you work with objects and it generates the SQL. JPA is Java's standard; Hibernate implements it.</p>
+      <p class="q">2 · Why used?</p><p>It removes mountains of hand-written SQL and result-mapping code, while still allowing custom queries where performance demands.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A bilingual translator between two parties who don't share a language — objects on one side, table rows on the other.</p>
+      <p class="q">4 · How it's used</p><p>Entity classes map to tables; repository interfaces provide CRUD + derived queries. <b>Alternatives:</b> query builders (jOOQ, Prisma, Drizzle) or raw SQL. Many teams keep the schema in <b>migrations</b> and let the ORM only <em>validate</em> against it.</p>
+      <p class="q">5 · Remove it?</p><p>Raw database access everywhere: manual SQL, manual mapping, manual connections — far more code and bugs.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"An ORM maps objects to tables and generates SQL, cutting persistence boilerplate. I keep migrations as the source of schema truth and use the ORM in validate mode, dropping to custom queries for hot paths."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>The N+1 query problem; letting the ORM auto-create the production schema; storing money as floating-point instead of a decimal type.</p>
+      <p class="q">8 · Advanced</p><p>Lazy vs eager loading, the persistence context/cache, optimistic vs pessimistic locking, and transaction propagation.</p>
+    </div>
+  </div>
+
+  <h2 id="rest"><span class="hash">Backend · </span>REST &amp; JSON (and API styles)</h2>
+  <div class="concept">
+    <div class="top"><h3>REST API over HTTP + JSON</h3><span class="tag">API style</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p><b>REST</b> is a convention for web APIs built around resources and HTTP verbs; <b>JSON</b> is the text format the data travels in.</p>
+      <p class="q">2 · Why used?</p><p>The frontend and backend are separate programs needing an agreed contract. REST + JSON is the universal, well-tooled way for them to talk.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A standard restaurant menu — everyone knows how to read it and order; you don't invent a new ritual per table.</p>
+      <p class="q">4 · How it's used</p><p>Nouns are resources (<code>/api/orders</code>); verbs are methods — <b>GET</b> read, <b>POST</b> create, <b>PUT/PATCH</b> update, <b>DELETE</b> remove. Status codes carry meaning: <code>200/201</code> success, <code>400</code> bad input, <code>401</code> not logged in, <code>403</code> forbidden, <code>404</code> not found, <code>409</code> conflict, <code>500</code> server error. <b>Alternatives:</b> GraphQL, gRPC.</p>
+      <p class="q">5 · Remove it?</p><p>The two halves couldn't communicate without some agreed contract; you'd reinvent an ad-hoc one and lose shared tooling.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"REST models resources as URLs and actions as HTTP verbs, with status codes conveying outcomes. JSON is the payload format. It's stateless and conventional; GraphQL or gRPC fit other needs like flexible querying or high-performance RPC."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Returning <code>200</code> for errors; verbs in URLs (<code>/getOrders</code>); ignoring idempotency; leaking internal fields instead of using DTOs.</p>
+      <p class="q">8 · Advanced</p><p>HTTP caching/ETags, pagination, versioning, HATEOAS, and idempotency keys.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>What is an API / endpoint / JSON?</h4>
+    <p>An <b>API</b> is the menu of operations a program exposes. An <b>endpoint</b> is one address+verb it answers (<code>POST /api/orders</code>). <b>JSON</b> is human-readable text of key/value pairs and lists, e.g. <code>{"status":"paid","total":2500}</code>.</p>
+  </div>
+
+  <h2 id="buildtools"><span class="hash">Backend · </span>Maven vs Gradle</h2>
+  <div class="concept">
+    <div class="top"><h3>Build tools for the JVM</h3><span class="tag">build · dependencies</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>Tools that download libraries, compile code, run tests, and package a JVM app. <b>Maven</b> and <b>Gradle</b> are the two dominant ones.</p>
+      <p class="q">2 · Why used?</p><p>Real apps need many coordinated libraries at matching versions plus a repeatable build. These tools automate all of it from a config file.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A recipe plus a shopping-and-cooking service — the config lists ingredients; the tool fetches them and cooks the dish (the jar).</p>
+      <p class="q">4 · How it's used</p><p><b>Maven</b> uses XML (<code>pom.xml</code>) and a fixed lifecycle — verbose but predictable. <b>Gradle</b> uses a Groovy/Kotlin script (<code>build.gradle</code>) — more flexible and often faster (incremental builds, caching). Both produce a runnable jar; both resolve dependencies from central repositories.</p>
+      <p class="q">5 · Remove it?</p><p>You'd download dozens of correctly-versioned jars and invoke the compiler by hand — unmanageable.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Maven and Gradle are JVM build tools. Maven is declarative XML with a rigid lifecycle; Gradle is a programmable build with incremental compilation and better caching. Both manage dependencies and package the app; the choice is largely team preference."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Confusing the two; not understanding dependency <em>scopes</em> (compile/runtime/test); committing build output (<code>target/</code>, <code>build/</code>).</p>
+      <p class="q">8 · Advanced</p><p>Transitive dependency resolution and conflicts, build caching, and multi-module/monorepo builds.</p>
+    </div>
+  </div>
+
+  <div class="review">
+    <h4>Review — backend</h4>
+    <ol>
+      <li>Trace a request through the three layers; say what each layer must <em>not</em> know.</li>
+      <li>Why does dependency injection make code easier to unit-test?</li>
+      <li>What does an ORM do, and why do many teams keep the schema in migrations instead?</li>
+      <li>Match the status code: taken resource → ?, not logged in → ?, forbidden → ?</li>
+      <li>Give one concrete difference between Maven and Gradle.</li>
+    </ol>
+  </div>
+
+  <!-- ═══════ DATABASE ═══════ -->
+  <h2 id="sql"><span class="hash">Database · </span>SQL &amp; relational databases</h2>
+  <div class="concept">
+    <div class="top"><h3>SQL databases (PostgreSQL, MySQL…)</h3><span class="tag">data tier</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A <b>relational database</b> stores data in tables of rows and columns with enforced relationships; <b>SQL</b> is the language to query and change it.</p>
+      <p class="q">2 · Why used?</p><p>Most business data is relational and needs consistency, transactions, and constraints. Relational DBs guarantee those (ACID) — vital for money and records.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A meticulous set of cross-referenced ledgers where every entry must reconcile.</p>
+      <p class="q">4 · How it's used</p><p>Popular engines: <b>PostgreSQL</b> (feature-rich, default choice for many), <b>MySQL/MariaDB</b>, <b>SQLite</b> (embedded), <b>SQL Server</b>. <b>NoSQL</b> alternatives (MongoDB, Redis, DynamoDB) trade strict relations for flexibility/scale in specific cases.</p>
+      <p class="q">5 · Remove it?</p><p>No durable, consistent source of truth; flat files or a mismatched store would corrupt under concurrent use.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"I default to a relational database like PostgreSQL because most domains are relational and need ACID transactions and constraints for integrity. NoSQL fits specific access patterns — caching, documents, huge scale — not as a blanket default."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Storing money as floating-point; skipping foreign keys; no indexes then slow queries; confusing the database (Postgres) with the language (SQL); reaching for NoSQL without a reason.</p>
+      <p class="q">8 · Advanced</p><p>ACID and isolation levels, query planning/EXPLAIN, connection pooling, replication, and sharding.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Tables, rows, columns? SQL vs NoSQL?</h4>
+    <p>A <b>table</b> holds records of one kind (e.g. Users); each <b>row</b> is one record, each <b>column</b> a field. <b>SQL/relational</b> = structured tables with relationships and transactions. <b>NoSQL</b> = looser structures (documents, key-value) for flexibility or scale, usually with weaker guarantees.</p>
+  </div>
+
+  <h2 id="keys"><span class="hash">Database · </span>Keys, indexes &amp; constraints</h2>
+  <div class="concept">
+    <div class="top"><h3>Primary/foreign keys · indexes · constraints</h3><span class="tag">data integrity</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>Mechanisms that keep data correct and fast: <b>keys</b> identify and link rows, <b>constraints</b> enforce rules, <b>indexes</b> speed lookups.</p>
+      <p class="q">2 · Why used?</p><p>They push correctness into the database itself, so bad data can't be written even if application code has a bug.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A library: the catalogue number (primary key), cross-references between books (foreign keys), and the index at the back (index) that makes finding a topic instant.</p>
+      <p class="q">4 · How it's used</p><p>A <b>primary key</b> uniquely identifies each row; a <b>foreign key</b> forces a column to point at a real row in another table; <b>unique/check</b> constraints enforce rules; an <b>index</b> makes searching a column fast.</p>
+      <p class="q">5 · Remove it?</p><p>Orphaned/duplicate/invalid data creeps in, and queries slow to a crawl as tables grow.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Primary keys identify rows, foreign keys enforce valid relationships, unique/check constraints enforce rules, and indexes speed reads at a small write cost. I put integrity rules in the database so they hold regardless of app bugs."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>No foreign keys "for simplicity"; indexing nothing (slow) or everything (slow writes); assuming an index is free.</p>
+      <p class="q">8 · Advanced</p><p>Composite/covering indexes, B-tree vs hash vs GIN, index selectivity, and reading query plans.</p>
+    </div>
+  </div>
+
+  <h2 id="migrations"><span class="hash">Database · </span>Migrations</h2>
+  <div class="concept">
+    <div class="top"><h3>Schema migrations (Flyway · Liquibase · Prisma…)</h3><span class="tag">schema versioning</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>Ordered, versioned scripts that build and evolve the database schema, tracked so each runs exactly once.</p>
+      <p class="q">2 · Why used?</p><p>The schema must be identical and reproducible across every environment. Migrations make it <em>code in the repo</em>, not manual clicks someone forgets.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">Stamped, numbered renovation permits — replay them in order and anyone rebuilds the exact same structure.</p>
+      <p class="q">4 · How it's used</p><p>Tools like <b>Flyway</b> or <b>Liquibase</b> (JVM), or <b>Prisma/Drizzle/Rails</b> migrations, run pending scripts on startup or deploy. The ORM then only <em>validates</em> against the resulting schema.</p>
+      <p class="q">5 · Remove it?</p><p>Schema drift: environments diverge, "works on my machine" bugs appear, and there's no reliable rebuild path.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Migrations version the schema as ordered scripts in the repo, applied automatically so every environment converges. They're the single source of schema truth; the ORM stays in validate mode."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Editing an already-applied migration (never — add a new one); letting the ORM auto-generate the prod schema; non-portable SQL across engines.</p>
+      <p class="q">8 · Advanced</p><p>Backward-compatible (expand/contract) changes for zero-downtime deploys, checksums, and data migrations vs schema migrations.</p>
+    </div>
+  </div>
+
+  <div class="review">
+    <h4>Review — database</h4>
+    <ol>
+      <li>Why store money as a decimal type, never floating-point?</li>
+      <li>What does a foreign key prevent that app code alone might miss?</li>
+      <li>What does an index buy you, and what does it cost?</li>
+      <li>Why is editing an already-applied migration a cardinal sin?</li>
+      <li>Give one situation where NoSQL is a better fit than a relational DB.</li>
+    </ol>
+  </div>
+
+  <!-- ═══════ NETWORKING & AUTH ═══════ -->
+  <h2 id="http"><span class="hash">Networking · </span>HTTP, HTTPS &amp; DNS</h2>
+  <div class="concept">
+    <div class="top"><h3>HTTP / HTTPS / DNS / domains</h3><span class="tag">how the web talks</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p><b>HTTP</b> is the request/response protocol browsers and servers speak; <b>HTTPS</b> is HTTP encrypted with TLS; <b>DNS</b> translates a domain name into a server's IP address.</p>
+      <p class="q">2 · Why used?</p><p>They're the plumbing of the web: HTTP carries every API call, HTTPS keeps it private and tamper-proof, DNS lets humans use names instead of numbers.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">DNS is the phone book (name → number); HTTP is the conversation; HTTPS is speaking in a sealed, private line no one can eavesdrop.</p>
+      <p class="q">4 · How it's used</p><p>A request has a method, URL, headers, and body; a response has a status code, headers, and body. A <b>domain</b> (yourapp.com) resolves via DNS to your host; certificates enable HTTPS.</p>
+      <p class="q">5 · Remove it?</p><p>No HTTP, no web communication. No HTTPS, and traffic (including passwords) is readable by anyone on the network.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"HTTP is the stateless request/response protocol of the web; HTTPS adds TLS encryption; DNS resolves domains to IPs. Every API call is an HTTP request with a method, headers, and body, answered with a status code."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Serving anything real over plain HTTP; confusing a domain (name) with hosting (the server); not understanding HTTP is stateless (hence tokens/sessions).</p>
+      <p class="q">8 · Advanced</p><p>HTTP/2 &amp; HTTP/3, TLS handshakes and certificates, caching headers, and CDNs.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Port / localhost / IP address?</h4>
+    <p>An <b>IP address</b> identifies a machine on a network. A <b>port</b> is a numbered door on that machine so many programs can share one address (web 80/443, dev servers 3000/5173/8080, Postgres 5432). <b>localhost</b> is your own machine addressing itself.</p>
+  </div>
+
+  <h2 id="cors"><span class="hash">Networking · </span>CORS &amp; allowed origins</h2>
+  <div class="concept">
+    <div class="top"><h3>CORS (Cross-Origin Resource Sharing)</h3><span class="tag">browser security</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A browser security rule that blocks a page on one <b>origin</b> from calling an API on a different origin unless that API explicitly allows it.</p>
+      <p class="q">2 · Why used?</p><p>It stops a malicious site from silently using your logged-in session on another site. The API must opt-in by naming which origins may call it.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A guest list at a private venue: the door only admits callers the host put on the list.</p>
+      <p class="q">4 · How it's used</p><p>When frontend and backend are on different origins, the backend sets an <b>allowed-origins</b> list. Before a real cross-origin call, the browser sends an automatic <b>preflight OPTIONS</b> request; if the origin isn't allowed, it fails (often 403) and the real call never happens — the classic symptom is a vague "Failed to fetch".</p>
+      <p class="q">5 · Remove it?</p><p>Either the browser blocks all cross-origin calls (broken app), or a careless <code>*</code> weakens a real protection.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"CORS is a browser-enforced policy for cross-origin requests. If the frontend and backend are separate origins, the backend must allow-list the frontend's origin; otherwise the preflight fails and the request is blocked. It's a browser mechanism, not a server-side authorization control."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Thinking it's a backend bug (curl/Postman ignore CORS — only browsers enforce it); trailing-slash/scheme mismatches; using <code>*</code> in production.</p>
+      <p class="q">8 · Advanced</p><p>Preflight caching, credentialed requests, and why CORS is not a substitute for real authorization.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>What is an "origin"? A "preflight"?</h4>
+    <p>An <b>origin</b> is scheme + host + port together (<code>https://app.com:443</code>). Two URLs are same-origin only if all three match. A <b>preflight</b> is the browser's automatic <code>OPTIONS</code> "may I?" request before certain cross-origin calls.</p>
+  </div>
+
+  <h2 id="proxy"><span class="hash">Networking · </span>Reverse proxy</h2>
+  <div class="concept">
+    <div class="top"><h3>Reverse proxy (nginx, etc.)</h3><span class="tag">infra</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A server that sits in front of your app, receiving all requests and forwarding them to the right backend — and often serving static files itself.</p>
+      <p class="q">2 · Why used?</p><p>It gives one public entry point: it can serve the frontend and route <code>/api</code> to the backend so the browser sees a <b>single origin</b> (no CORS), terminate HTTPS, cache, compress, and load-balance.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A building receptionist — visitors talk only to the front desk, which routes them internally.</p>
+      <p class="q">4 · How it's used</p><p><b>nginx</b>, Caddy, or a cloud load balancer serves the built SPA (with an <code>index.html</code> fallback for client routes) and reverse-proxies API paths to the backend.</p>
+      <p class="q">5 · Remove it?</p><p>You expose the backend directly and serve the SPA separately — reintroducing cross-origin concerns and losing central TLS/caching.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"A reverse proxy is the single front door: it serves static assets, proxies API paths to the backend for a same-origin setup, terminates TLS, and can cache and load-balance. nginx is the common choice."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Forgetting the SPA history fallback (deep-link refresh 404s); confusing a reverse proxy (in front of servers) with a forward proxy (in front of clients).</p>
+      <p class="q">8 · Advanced</p><p>Load-balancing strategies, TLS termination, gzip/brotli, rate limiting, and health checks.</p>
+    </div>
+  </div>
+
+  <h2 id="auth"><span class="hash">Auth · </span>Authentication, sessions, tokens &amp; JWT</h2>
+  <div class="concept">
+    <div class="top"><h3>Auth: sessions vs tokens vs JWT</h3><span class="tag">who you are · what you may do</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p><b>Authentication</b> proves who you are (login); <b>authorization</b> decides what you may do. Since HTTP is stateless, apps prove identity on each request with a <b>session</b> or a <b>token</b>.</p>
+      <p class="q">2 · Why used?</p><p>Without it, anyone could read or change anyone's data. Auth gates every protected request.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A festival: the ID check at entry (authentication) plus a wristband (session/token) the gates check for each stage you enter (authorization).</p>
+      <p class="q">4 · How it's used</p><p><b>Session-based:</b> the server stores a session and gives the browser a cookie ID; easy to revoke, needs server state. <b>Token-based (JWT):</b> the server issues a <em>signed, self-contained</em> token the client sends in an <code>Authorization: Bearer</code> header; stateless and cross-origin-friendly. A common pattern: <b>short-lived access JWT + long-lived refresh token</b> (stored hashed so it's revocable). Passwords are always stored <b>hashed</b> (BCrypt/argon2). <b>OAuth/OIDC</b> handles "log in with Google".</p>
+      <p class="q">5 · Remove it?</p><p>An open system: no privacy, no accountability, no way to restrict actions.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Authentication proves identity; authorization gates actions. I use short-lived JWT access tokens plus revocable, hashed refresh tokens — stateless and cross-origin friendly. Passwords are hashed with BCrypt. Sessions are the stateful alternative when server-side revocation is a priority."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Confusing authentication with authorization; thinking a JWT is <em>encrypted</em> (it's only signed — readable, so no secrets inside); storing plaintext passwords; long-lived tokens with no revocation.</p>
+      <p class="q">8 · Advanced</p><p>Token rotation/replay detection, HS256 vs RS256, the stateless-vs-revocable trade-off, secure cookie flags, and OAuth2/OIDC flows.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Hashing? Cookie? Bearer token?</h4>
+    <p><b>Hashing</b> = a one-way scramble so the DB never stores the real password. A <b>cookie</b> is a small value the browser stores and sends back automatically (used for sessions). A <b>Bearer token</b> is a credential sent in the <code>Authorization</code> header — "whoever bears it, gets access", so protect it.</p>
+  </div>
+
+  <div class="review">
+    <h4>Review — networking &amp; auth</h4>
+    <ol>
+      <li>Why does HTTP being "stateless" force us to use sessions or tokens?</li>
+      <li>Why does a CORS error appear in the browser but not in Postman?</li>
+      <li>How does a reverse proxy turn a two-origin setup into a single origin?</li>
+      <li>Why must you never put secret data inside a JWT?</li>
+      <li>Give one advantage of session-based auth and one of token-based auth.</li>
+    </ol>
+  </div>
+
+  <!-- ═══════ INFRA & DEPLOY ═══════ -->
+  <h2 id="docker"><span class="hash">Infra · </span>Docker (images, containers, volumes)</h2>
+  <div class="concept">
+    <div class="top"><h3>Docker</h3><span class="tag">containerisation</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A tool that packages an app <em>with</em> everything it needs into a portable <b>image</b>, which runs as an isolated <b>container</b> identically anywhere.</p>
+      <p class="q">2 · Why used?</p><p>It kills "works on my machine": the same image runs on your laptop, a teammate's, CI, and production — no fiddly per-machine setup.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A shipping container — pack once, and any ship, port, or truck handles it identically regardless of contents.</p>
+      <p class="q">4 · How it's used</p><p>A <b>Dockerfile</b> (recipe) builds an <b>image</b>; running it gives a <b>container</b>. <b>Multi-stage builds</b> compile in a fat toolchain image, then ship only the artifact on a slim runtime image. <b>Volumes</b> persist data outside containers; <b>networks</b> let containers talk; <b>ports</b> are published to the host.</p>
+      <p class="q">5 · Remove it?</p><p>Every machine needs the exact tools installed and matched by hand; deploys become bespoke and fragile.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Docker containerises an app with its dependencies into an image that runs identically everywhere. I use multi-stage builds to keep final images small and run as a non-root user. Volumes persist stateful data outside the container."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Confusing an image (template) with a container (running instance); shipping the build toolchain in the final image; running as root; assuming container data persists without a volume.</p>
+      <p class="q">8 · Advanced</p><p>Layer caching, image size/attack surface, <code>.dockerignore</code>, and orchestration (Kubernetes).</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Image vs container vs Dockerfile vs volume?</h4>
+    <p><b>Dockerfile</b> = recipe. <b>Image</b> = frozen template built from it. <b>Container</b> = a live, isolated instance of an image (one image → many containers). <b>Volume</b> = storage that lives outside the container so data survives restarts/rebuilds.</p>
+  </div>
+
+  <h2 id="compose"><span class="hash">Infra · </span>Docker Compose</h2>
+  <div class="concept">
+    <div class="top"><h3>Docker Compose</h3><span class="tag">multi-container orchestration (dev)</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>A tool to define and run a set of containers together from one <code>docker-compose.yml</code>.</p>
+      <p class="q">2 · Why used?</p><p>A typical app is several cooperating containers (db + backend + frontend). Compose starts them on a shared network, in order, with one command.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A stage manager cueing the whole cast to enter in the right order.</p>
+      <p class="q">4 · How it's used</p><p>Each service names its image/build, ports, env, and volumes; containers reach each other by <b>service name</b> on a private network. Healthchecks and <code>depends_on</code> order startup.</p>
+      <p class="q">5 · Remove it?</p><p>You'd start, network, and order each container by hand every time.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Compose orchestrates a local multi-container stack from one file — networking, dependency ordering, healthchecks, and volumes. It's ideal for dev and single-host; production scale uses Kubernetes or a PaaS."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Using <code>localhost</code> between containers (they address by service name); not waiting for the DB to be healthy; wiping volumes with <code>down -v</code> unintentionally.</p>
+      <p class="q">8 · Advanced</p><p>Profiles for optional services, override files per environment, and the step up to Kubernetes for multi-host scaling.</p>
+    </div>
+  </div>
+
+  <h2 id="platforms"><span class="hash">Deploy · </span>Where apps run: Render · Railway · Vercel · Netlify · the cloud</h2>
+  <div class="concept">
+    <div class="top"><h3>Hosting &amp; PaaS platforms</h3><span class="tag">deployment</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p>Platforms that run your app on rented cloud machines so you don't operate servers yourself — you push code or a config file and they host it.</p>
+      <p class="q">2 · Why used?</p><p>Provisioning servers, networking, TLS, and databases by hand is a lot. A <b>PaaS</b> handles it, so a small team can ship to the internet fast, often free to start.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">Renting a serviced apartment (PaaS) vs building a house (raw cloud servers) — you move in and live; the landlord maintains the building.</p>
+      <p class="q">4 · How it's used</p><p>Pick by workload — see the table. Full-stack PaaS (Render/Railway/Fly) can run backends + managed databases; frontend-focused hosts (Vercel/Netlify) excel at static sites and serverless functions; raw cloud (AWS/GCP/Azure) gives maximum control via IaaS.</p>
+      <p class="q">5 · Remove it?</p><p>You'd provision and operate servers, TLS, and databases yourself — far more to learn and maintain for an MVP.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"I deploy on a PaaS described declaratively (e.g. Render's blueprint or a Railway/Vercel config): managed database, a containerised or buildpack backend, and a static frontend. The platform injects secrets and handles TLS. Raw AWS is the option when you need full control."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Expecting local same-origin behaviour in prod (CORS surfaces); ignoring free-tier limits (cold starts, no persistent disk); setting build-time vars but forgetting to rebuild.</p>
+      <p class="q">8 · Advanced</p><p>The PaaS↔IaaS spectrum, blue-green/rolling deploys, secrets management, autoscaling, and moving stateful bits to managed services (S3, RDS).</p>
+    </div>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Platform</th><th>Best at · notes</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Vercel</td><td>Frontend/Next.js + serverless functions; superb DX for React; not for long-running backends.</td></tr>
+      <tr><td class="m">Netlify</td><td>Static sites + functions; similar niche to Vercel.</td></tr>
+      <tr><td class="m">Render</td><td>Full-stack PaaS: web services, static sites, managed Postgres, cron; blueprint file.</td></tr>
+      <tr><td class="m">Railway</td><td>Full-stack PaaS with a slick UX; databases + services; usage-based.</td></tr>
+      <tr><td class="m">Fly.io</td><td>Run containers close to users globally; good for backends.</td></tr>
+      <tr><td class="m">AWS / GCP / Azure</td><td>Raw cloud (IaaS/PaaS mix): maximum power and complexity; the long-term "grow into it" option.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2 id="envs"><span class="hash">Deploy · </span>Environments &amp; environment variables</h2>
+  <div class="concept">
+    <div class="top"><h3>Dev vs Prod · env vars · secrets</h3><span class="tag">configuration</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p><b>Environments</b> are separate copies of your app (development, staging, production). <b>Environment variables</b> are config values supplied from outside the code so the same build behaves differently in each.</p>
+      <p class="q">2 · Why used?</p><p>URLs, database credentials, and secrets differ per environment and must never be hard-coded or committed. Env vars keep code identical and config external.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">The same appliance with a voltage switch — one device, adapted to the country it's plugged into.</p>
+      <p class="q">4 · How it's used</p><p>Set in a git-ignored <code>.env</code> locally and in the platform's dashboard in prod. Key distinction: <b>build-time</b> vars are frozen into the artifact (e.g. a frontend API URL — changing needs a rebuild); <b>run-time</b> vars are read at startup (e.g. DB password, signing key — a restart suffices).</p>
+      <p class="q">5 · Remove it?</p><p>You'd hard-code secrets and URLs, leaking credentials into git and breaking every time you move environments.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Config lives in environment variables, not code — different values per environment, secrets injected by the platform and kept out of git. I'm careful about build-time vs run-time vars: the former are baked into the build and need a rebuild to change."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Committing <code>.env</code> with secrets; assuming a changed build-time var takes effect without rebuilding; mixing up dev and prod credentials.</p>
+      <p class="q">8 · Advanced</p><p>Secret managers (Vault, AWS Secrets Manager), config precedence, and the twelve-factor config principle.</p>
+    </div>
+  </div>
+
+  <h2 id="git"><span class="hash">Dev · </span>Git &amp; GitHub</h2>
+  <div class="concept">
+    <div class="top"><h3>Git · GitHub</h3><span class="tag">version control</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p><b>Git</b> records your code's full history as <b>commits</b>; <b>GitHub</b> hosts that repository online for collaboration.</p>
+      <p class="q">2 · Why used?</p><p>You get a safe, revertible history, parallel work via <b>branches</b>, and a review workflow via <b>pull requests</b> — the foundation of team development.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">A document's full track-changes history with named save points you can jump back to.</p>
+      <p class="q">4 · How it's used</p><p>You <b>commit</b> snapshots on a <b>branch</b>, <b>push</b> them to GitHub, and open a <b>pull request</b> to merge — where teammates review and automated checks run before it lands on <code>main</code>.</p>
+      <p class="q">5 · Remove it?</p><p>No history, no safe rollback, no collaboration — a single fragile copy of the code.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"Git is distributed version control; GitHub hosts it and adds pull requests and CI. I work on branches, commit small logical changes, and merge via reviewed PRs with required checks so main stays releasable."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Committing straight to <code>main</code> for risky work; committing secrets or build output; confusing a <b>commit</b> (local save) with a <b>push</b> (upload); giant unfocused commits.</p>
+      <p class="q">8 · Advanced</p><p>Rebase vs merge, branch protection, trunk-based vs GitFlow, and bisecting to find regressions.</p>
+    </div>
+  </div>
+  <div class="jargon">
+    <h4>Commit / branch / push / pull request?</h4>
+    <p><b>Commit</b> = a saved snapshot with a message. <b>Branch</b> = an independent line of work. <b>Push</b> = upload commits to GitHub. <b>Pull request (PR)</b> = a proposal to merge a branch, where it's reviewed and CI-checked first.</p>
+  </div>
+
+  <h2 id="cicd"><span class="hash">Dev · </span>CI/CD</h2>
+  <div class="concept">
+    <div class="top"><h3>CI/CD (GitHub Actions, etc.)</h3><span class="tag">automation</span></div>
+    <div class="body">
+      <p class="q">1 · What is it?</p><p><b>Continuous Integration</b> automatically builds and tests every change; <b>Continuous Delivery/Deployment</b> automatically ships it onward once it's green.</p>
+      <p class="q">2 · Why used?</p><p>It catches broken changes in minutes instead of in production and makes releases repeatable instead of manual and error-prone.</p>
+      <p class="q analogy">3 · Analogy</p><p class="analogy">An automatic proofreader-and-publisher that checks every draft the moment you submit it, then prints it if it passes.</p>
+      <p class="q">4 · How it's used</p><p>A pipeline file (e.g. <code>.github/workflows/ci.yml</code>) defines jobs that run on every push/PR: install, build, run tests, and optionally deploy. Tools: <b>GitHub Actions</b>, GitLab CI, CircleCI, Jenkins.</p>
+      <p class="q">5 · Remove it?</p><p>No automated safety net: regressions slip through and deploys become manual and inconsistent.</p>
+      <div class="iv"><p class="q plain">6 · Interview answer</p><p>"CI runs the build and test suites on every push so regressions are caught before merge; CD automates the release once checks pass. I keep main always releasable behind required status checks."</p></div>
+      <p class="q">7 · Beginner mistakes</p><p>Thinking CI auto-deploys by default (it tests; deploy is a separate step); flaky tests eroding trust; no caching so pipelines crawl.</p>
+      <p class="q">8 · Advanced</p><p>Build caching, matrix builds, environment-scoped deploys, required checks + branch protection, and progressive delivery.</p>
+    </div>
+  </div>
+
+  <div class="review">
+    <h4>Review — infra &amp; deploy</h4>
+    <ol>
+      <li>Explain image vs container in one sentence each.</li>
+      <li>What would be lost if a database container ran without a volume?</li>
+      <li>When would you pick Vercel, and when a full-stack PaaS like Render/Railway?</li>
+      <li>Which is build-time and which is run-time: a frontend API URL vs a backend DB password? Why does it matter?</li>
+      <li>What does CI check on every push, and what does it <em>not</em> automatically do?</li>
+    </ol>
+  </div>
+
+  <!-- ═══════ STRUCTURE ═══════ -->
+  <h2 id="structure"><span class="hash">Reference · </span>A typical project structure</h2>
+  <p class="lead">Names signal intent. A representative full-stack layout:</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Path</th><th>What belongs here</th></tr></thead>
+    <tbody>
+      <tr><td class="m">frontend/</td><td>The browser app.</td></tr>
+      <tr><td class="m">frontend/src/pages/</td><td>Full screens, often grouped by feature or role.</td></tr>
+      <tr><td class="m">frontend/src/components/</td><td>Reusable UI pieces shared across pages.</td></tr>
+      <tr><td class="m">frontend/src/api/ (services/)</td><td>The HTTP layer that talks to the backend.</td></tr>
+      <tr><td class="m">frontend/src/types/</td><td>Shared TypeScript types mirroring API shapes.</td></tr>
+      <tr><td class="m">backend/</td><td>The server app.</td></tr>
+      <tr><td class="m">backend/.../controllers/</td><td>HTTP entry points (routes).</td></tr>
+      <tr><td class="m">backend/.../services/</td><td>Business logic + transactions.</td></tr>
+      <tr><td class="m">backend/.../repositories/</td><td>Database access.</td></tr>
+      <tr><td class="m">backend/.../config/</td><td>Cross-cutting setup (security, CORS).</td></tr>
+      <tr><td class="m">backend/.../db/migration/</td><td>Versioned schema scripts.</td></tr>
+      <tr><td class="m">tests/ · src/test/</td><td>Automated tests.</td></tr>
+      <tr><td class="m">.github/workflows/</td><td>CI pipeline definitions.</td></tr>
+      <tr><td class="m">docker-compose.yml · Dockerfile(s)</td><td>Local orchestration + image recipes.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="lead" style="margin-top:12px"><b>Note:</b> backend code is organised either <b>by layer</b> (all controllers together, all services together) or <b>by feature</b> (each feature folder holds its own controller/service/repository). Feature-based scales better as an app grows.</p>
+
+  <!-- ═══════ CONFIG FILES ═══════ -->
+  <h2 id="configfiles"><span class="hash">Reference · </span>Config files you'll meet</h2>
+  <p class="lead">For each: why it exists · who reads it · when · what breaks if it's missing.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>File</th><th>Why · who · when · if missing</th></tr></thead>
+    <tbody>
+      <tr><td class="m">package.json</td><td>Frontend deps + scripts · npm/Vite · install &amp; build · nothing installs or builds.</td></tr>
+      <tr><td class="m">package-lock.json</td><td>Pins exact versions · <code>npm ci</code> · install · builds become non-reproducible.</td></tr>
+      <tr><td class="m">vite.config.* / webpack.config.*</td><td>Build/dev-server settings · the bundler · dev/build/test · build misconfigured.</td></tr>
+      <tr><td class="m">tsconfig.json</td><td>TypeScript rules · <code>tsc</code>/editor · type-check/build · no type safety; build breaks.</td></tr>
+      <tr><td class="m">pom.xml (Maven)</td><td>Backend deps + build · Maven · compile/test/package · backend can't build.</td></tr>
+      <tr><td class="m">build.gradle (Gradle)</td><td>Same role, Gradle syntax · Gradle · build · backend can't build.</td></tr>
+      <tr><td class="m">application.yml / .properties</td><td>Backend config (DB, security, ports) · Spring · startup · app can't find settings.</td></tr>
+      <tr><td class="m">Dockerfile</td><td>Recipe to build an image · Docker · image build · can't containerise.</td></tr>
+      <tr><td class="m">docker-compose.yml</td><td>Define/run local stack · Compose · local up · start each container by hand.</td></tr>
+      <tr><td class="m">nginx.conf</td><td>Serve SPA + proxy /api · nginx · runtime · deep links 404, no API proxy.</td></tr>
+      <tr><td class="m">.env / .env.example</td><td>Secrets/overrides; example documents keys · app/platform · run · defaults apply (unsafe in prod). Real <code>.env</code> is git-ignored.</td></tr>
+      <tr><td class="m">.gitignore</td><td>What git must not track · git · always · you commit secrets/build junk.</td></tr>
+      <tr><td class="m">ci.yml (GitHub Actions)</td><td>Automated pipeline · GitHub Actions · every push/PR · no automated safety net.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ═══════ GLOSSARY ═══════ -->
+  <h2 id="glossary"><span class="hash">Reference · </span>Glossary</h2>
+  <div class="card">
+    <ul style="columns:2;column-gap:28px;list-style:none;padding:0">
+      <li style="break-inside:avoid;padding:5px 0"><b>Frontend / Backend</b> — browser UI / server program.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>API / Endpoint</b> — a program's operation menu / one address+verb.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>SPA</b> — single-page app; JS rewrites screen, no reloads.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Component / State / DOM</b> — reusable UI / remembered data / browser element tree.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Transpile / Compile / Bundle</b> — translate / make runnable / combine files.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Build artifact</b> — a build's deployable output.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Runtime</b> — environment that executes a program.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Node.js</b> — JS runtime outside the browser.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>JVM / bytecode / jar</b> — Java's runtime / instructions / package.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>DI</b> — framework supplies an object's dependencies.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>DTO</b> — object shaped for the API boundary.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>ORM / Entity</b> — object↔table mapper / a mapped class.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Migration</b> — versioned schema-change script.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Primary/Foreign key</b> — row ID / link to another table.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Index</b> — structure that speeds lookups.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Transaction</b> — all-or-nothing DB change group.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>SQL / NoSQL</b> — relational tables / looser stores.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Authentication / Authorization</b> — who you are / what you may do.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Session / Token / JWT</b> — server-stored / client-held / signed self-contained token.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Hashing</b> — one-way scramble (passwords).</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>REST / JSON</b> — resource API convention / text data format.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>HTTP / HTTPS / DNS</b> — web protocol / encrypted / name→IP.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Origin / CORS / Preflight</b> — scheme+host+port / cross-origin rule / OPTIONS check.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Reverse proxy</b> — front server routing to backends.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Port / localhost</b> — numbered door / your own machine.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Image / Container / Volume</b> — template / instance / persistent storage.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>PaaS / IaaS</b> — platform runs your app / you run the servers.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>CI/CD</b> — auto build+test / auto ship.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Env var</b> — external config value; build-time vs run-time.</li>
+      <li style="break-inside:avoid;padding:5px 0"><b>Commit / Branch / PR</b> — snapshot / work line / merge proposal.</li>
+    </ul>
+  </div>
+
+  <!-- ═══════ CHEAT SHEET ═══════ -->
+  <h2 id="cheatsheet"><span class="hash">Reference · </span>One-line cheat sheet</h2>
+  <div class="card">
+    <ul>
+      <li><b>HTML / CSS / JS</b> — structure / style / behaviour.</li>
+      <li><b>TypeScript</b> — JS + compile-time type safety.</li>
+      <li><b>React</b> — declarative component UI, re-renders on state change.</li>
+      <li><b>Tailwind</b> — utility-class styling; CSS Modules / CSS-in-JS are alternatives.</li>
+      <li><b>Vite / npm</b> — build tool + dev server / package manager; emits <code>dist/</code>.</li>
+      <li><b>Java / Spring Boot</b> — typed backend + batteries-included web framework.</li>
+      <li><b>Controller→Service→Repository</b> — HTTP / rules / data, cleanly split.</li>
+      <li><b>DI</b> — framework wires objects; enables testing.</li>
+      <li><b>ORM/JPA</b> — objects↔tables; migrations own the schema.</li>
+      <li><b>REST + JSON</b> — resources, verbs, status codes.</li>
+      <li><b>Maven / Gradle</b> — JVM build tools (XML vs programmable).</li>
+      <li><b>PostgreSQL / SQL</b> — relational, transactional source of truth.</li>
+      <li><b>Migrations</b> — versioned SQL = reproducible schema.</li>
+      <li><b>HTTP/HTTPS/DNS</b> — web protocol / encrypted / name resolution.</li>
+      <li><b>Auth (JWT/sessions)</b> — prove identity per stateless request.</li>
+      <li><b>CORS</b> — backend allow-lists the frontend origin.</li>
+      <li><b>Reverse proxy</b> — single front door; serves SPA + proxies API.</li>
+      <li><b>Docker / Compose</b> — same image everywhere / multi-container dev stack.</li>
+      <li><b>PaaS (Render/Railway/Vercel)</b> — platforms that host your app.</li>
+      <li><b>Git / CI/CD</b> — history + automated build/test/ship.</li>
+    </ul>
+  </div>
+
+  <!-- ═══════ INTERVIEW ═══════ -->
+  <h2 id="interview"><span class="hash">Reference · </span>Common interview questions</h2>
+  <div class="card">
+    <ol>
+      <li>Walk me through what happens when a user submits a form, from click to database and back.</li>
+      <li>Frontend vs backend vs database — what does each own, and why can't the frontend hit the DB directly?</li>
+      <li>SQL vs NoSQL — how do you choose?</li>
+      <li>Explain authentication vs authorization, and sessions vs JWT.</li>
+      <li>What is CORS, why does it exist, and how do you resolve a CORS error?</li>
+      <li>Image vs container — and why multi-stage Docker builds?</li>
+      <li>What's the difference between build-time and run-time configuration?</li>
+      <li>Who should own the database schema — the ORM or migrations — and why?</li>
+      <li>What does your CI pipeline do, and what keeps <code>main</code> releasable?</li>
+      <li>REST vs GraphQL vs gRPC — when would you reach for each?</li>
+      <li>How do you keep secrets out of your codebase?</li>
+      <li>Maven vs Gradle; Render vs Vercel — how would you decide?</li>
+    </ol>
+  </div>
+
+  <!-- ═══════ PRESENTATION ═══════ -->
+  <h2 id="presentation"><span class="hash">Reference · </span>Mock 10-minute technical presentation</h2>
+  <div class="card">
+    <p><b>[0:00 – Shape]</b> "A modern web app is three tiers: a browser frontend, a server backend, and a database — connected by an HTTP+JSON API. Each tier has one job and talks only to its neighbour."</p>
+    <p><b>[1:30 – Frontend]</b> "The frontend is a single-page app, typically React + TypeScript, built by a tool like Vite into static assets. It holds UI state, renders declaratively, and calls the backend over HTTP — it never touches the database."</p>
+    <p><b>[3:00 – Backend]</b> "The backend — say Spring Boot on Java, or Express on Node — exposes a REST API. Internally it's layered: controllers handle HTTP, services hold business rules and transactions, repositories talk to the database, usually through an ORM. Dependency injection wires it together and makes it testable."</p>
+    <p><b>[4:30 – Data]</b> "State lives in a relational database like PostgreSQL, chosen for ACID transactions and integrity via keys and constraints. The schema is versioned as migrations in the repo, so every environment is reproducible."</p>
+    <p><b>[6:00 – Security &amp; networking]</b> "Auth proves identity per request — commonly short-lived JWTs plus refresh tokens, with hashed passwords. Everything runs over HTTPS. When frontend and backend are separate origins, CORS must allow-list the frontend; a reverse proxy can instead present a single origin."</p>
+    <p><b>[7:30 – Delivery]</b> "The app is containerised with Docker so it runs identically everywhere; Compose orchestrates it locally. In production a PaaS like Render, Railway, or Vercel hosts it, with secrets injected as environment variables. CI/CD runs tests on every push and ships green builds."</p>
+    <p><b>[9:00 – Judgement]</b> "The interesting decisions are trade-offs: SQL vs NoSQL, sessions vs tokens, single-origin proxy vs CORS, PaaS vs raw cloud. Knowing <em>why</em> you chose each — not just that it works — is what separates shipping from understanding."</p>
+  </div>
+
+  <!-- ═══════ CEO ═══════ -->
+  <h2 id="ceo"><span class="hash">Reference · </span>The "CEO explanation" (zero jargon)</h2>
+  <div class="card">
+    <p>"Think of a web app as a <b>shop with three parts</b>.</p>
+    <p>The <b>shopfront</b> is what customers see and touch in their browser — the buttons, forms, and pages. It's designed to be pleasant and responsive, but it doesn't actually hold anything valuable.</p>
+    <p>Behind it is the <b>back office</b> — a program running on rented computers in the cloud. It enforces all the rules ("only this customer can see their own order"), does the real work, and is the only part allowed to open the safe.</p>
+    <p>The <b>safe</b> is the database: a secure, highly-organised store of all the important information — customers, orders, records — kept consistent so nothing is ever lost or contradictory.</p>
+    <p>Between the shopfront and back office runs a constant, private, encrypted conversation. Guards on the door check ID so only the right people get in, and only to the areas they're allowed.</p>
+    <p>We build all this in small, reversible steps that are automatically checked for mistakes before going live, and it runs on rented cloud computers so there's no hardware to maintain and it can grow as demand grows.</p>
+    <p>In one line: <b>a friendly shopfront, a rule-enforcing back office, and a secure safe — connected privately, guarded carefully, and shipped in safe, automated steps.</b>"</p>
+  </div>
+
+  <p style="margin-top:30px;font-size:12px"><a href="index.html">← Back to the knowledge-base home</a></p>
+  <footer>A general field guide to modern full-stack web development · Foundations · Frontend · Backend · Database · Networking · Auth · Infra · Deploy · Kept in the learning-first knowledge base in <code>docs/</code></footer>
+</div>
+</body>
+</html>
