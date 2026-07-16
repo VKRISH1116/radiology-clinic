@@ -22,6 +22,14 @@ export interface Service {
   price: number;
 }
 
+/** One slot in a day's grid with remaining availability (from /api/slots?date=). */
+export interface SlotAvailability {
+  id: number;
+  startTime: string; // ISO-8601 instant
+  capacity: number;
+  available: number;
+}
+
 /** One priced line item on an appointment. */
 export interface StudyLine {
   serviceId: number;
