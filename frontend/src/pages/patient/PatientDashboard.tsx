@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { mockApi } from '../../mock/api';
 import type { Appointment, Service } from '../../types';
@@ -14,6 +15,9 @@ const STATUS_CLASS: Record<Appointment['status'], string> = {
 
 export function PatientDashboard() {
   const { session } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const justBooked = (location.state as { booked?: boolean } | null)?.booked;
   const [services, setServices] = useState<Service[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,8 +51,17 @@ export function PatientDashboard() {
 
   return (
     <div>
-      <h1 className={styles.h1}>Welcome back</h1>
-      <p className={styles.muted}>{session?.email}</p>
+      <div className={styles.headRow}>
+        <div>
+          <h1 className={styles.h1}>Welcome back</h1>
+          <p className={styles.muted}>{session?.email}</p>
+        </div>
+        <button className="btn-primary" onClick={() => navigate('/patient/book')}>
+          + Book a scan
+        </button>
+      </div>
+
+      {justBooked && <div className={styles.banner}>✓ Appointment booked.</div>}
 
       <h2 className={styles.h2}>My appointments</h2>
       {appointments.length === 0 ? (
@@ -79,7 +92,7 @@ export function PatientDashboard() {
               <div key={s.id} className={`card ${styles.svc}`}>
                 <div className={styles.svcName}>{s.name}</div>
                 <div className={styles.svcPrice}>{formatINR(s.price)}</div>
-                <button disabled title="Booking arrives in the next slice">
+                <button onClick={() => navigate('/patient/book', { state: { serviceId: s.id } })}>
                   Book
                 </button>
               </div>

@@ -6,6 +6,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { LoginPage } from './pages/LoginPage';
+import { BookingPage } from './pages/patient/BookingPage';
 import { PatientDashboard } from './pages/patient/PatientDashboard';
 import { RegisterPage } from './pages/RegisterPage';
 import { StaffDashboard } from './pages/staff/StaffDashboard';
@@ -24,6 +25,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute allow={['PATIENT']} />}>
             <Route path="/patient" element={<PatientDashboard />} />
+            <Route path="/patient/book" element={<BookingPage />} />
           </Route>
           <Route element={<ProtectedRoute allow={['STAFF', 'ADMIN']} />}>
             <Route path="/staff" element={<StaffDashboard />} />
