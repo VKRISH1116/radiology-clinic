@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UAT & Test Traceability — Radiology Clinic</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--teal:#0d9488;--amber:#d97706;
+    --green:#16a34a;--red:#dc2626;--shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--teal:#2dd4bf;--amber:#fbbf24;
+    --green:#4ade80;--red:#f87171;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 70px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto}
+  header.top{padding:38px 0 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .lede{color:var(--ink-soft);margin:0;max-width:740px}
+  .docctl{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px;font-size:13px;color:var(--ink-faint)}
+  .docctl b{color:var(--ink-soft)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;margin:24px 0;box-shadow:var(--shadow);font-size:14px}
+  nav.toc b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  nav.toc a{color:var(--accent);text-decoration:none;margin-right:16px;line-height:2;white-space:nowrap}
+  h2{font-size:20px;margin:38px 0 10px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font-weight:700;margin-right:8px}
+  h3{font-size:16px;margin:22px 0 6px}
+  p{color:var(--ink-soft)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 20px;box-shadow:var(--shadow);margin:14px 0}
+  .callout{border-left:4px solid var(--teal);background:var(--accent-soft);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:16px 0;font-size:14px;color:var(--ink-soft)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .tablewrap{overflow-x:auto}
+  .trace{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--accent)}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .acid{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--teal);white-space:nowrap}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:6px;text-transform:uppercase;white-space:nowrap}
+  .pass{background:rgba(22,163,74,.14);color:var(--green)}
+  .partial{background:rgba(217,119,6,.16);color:var(--amber)}
+  .gap{background:rgba(220,38,38,.14);color:var(--red)}
+  .defer{background:rgba(138,147,168,.16);color:var(--ink-faint)}
+  .metrics{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}
+  .metric{flex:1 1 150px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow)}
+  .metric .big{font-size:26px;font-weight:700;letter-spacing:-.02em}
+  .metric .lbl{font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em}
+  ul,ol{color:var(--ink-soft)}li{margin:5px 0}
+  ol.script{counter-reset:step;list-style:none;padding-left:0}
+  ol.script>li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:0 10px 10px 0;padding:10px 14px 10px 44px;margin:8px 0;position:relative;font-size:13.5px}
+  ol.script>li::before{counter-increment:step;content:counter(step);position:absolute;left:12px;top:10px;
+    width:22px;height:22px;background:var(--accent-soft);color:var(--accent);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  footer{margin-top:44px;font-size:12px;color:var(--ink-faint);text-align:center;border-top:1px solid var(--line);padding-top:18px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">● Phase 7 · SDLC Artifact</span>
+    <h1>UAT &amp; Test Traceability</h1>
+    <p class="lede">Does the built system actually satisfy every acceptance criterion we signed off in the PRD?
+      This page traces each AC to the automated test(s) that prove it, records the manual User-Acceptance
+      walkthrough, and — honestly — flags the criteria the MVP build does <em>not</em> yet meet.</p>
+    <div class="docctl">
+      <span><b>Version:</b> 0.1</span>
+      <span><b>Date:</b> 2026-07-16</span>
+      <span><b>Author:</b> Yatin Krishna</span>
+      <span><b>Traces from:</b> PRD v0.2 (AC-F1-1 … AC-F8-2)</span>
+      <span><b>Phase:</b> 7 · Testing</span>
+    </div>
+  </header>
+
+  <div class="callout"><b>What UAT is, and why this page exists.</b> Unit and integration tests answer
+    <em>"did I build the thing right?"</em> — small, developer-facing checks. <b>User-Acceptance Testing</b> answers a
+    different question: <em>"did I build the right thing?"</em> — measured against the acceptance criteria the business
+    signed off in the PRD, not against the code. The PRD promised that its Given/When/Then criteria "become the test
+    cases in Phase 7" — so this page closes that loop. A <b>traceability matrix</b> maps every promise to its proof (or
+    its absence), so nothing is silently dropped and "done" is demonstrated, not asserted.</div>
+
+  <nav class="toc">
+    <b>Contents</b>
+    <a href="#coverage">1 · Test coverage</a>
+    <a href="#matrix">2 · Traceability matrix</a>
+    <a href="#script">3 · Manual UAT script</a>
+    <a href="#gaps">4 · Gaps &amp; decisions</a>
+    <a href="#how">5 · How to run the tests</a>
+  </nav>
+
+  <!-- 1 -->
+  <h2 id="coverage"><span class="n">1</span>Test coverage today</h2>
+  <p>Three layers of automated tests back this release, plus a manual walkthrough. Each layer catches a different
+     class of defect, which is why we keep all three rather than relying on one.</p>
+  <div class="metrics">
+    <div class="metric"><div class="big">73</div><div class="lbl">Backend tests</div></div>
+    <div class="metric"><div class="big">18</div><div class="lbl">Frontend tests</div></div>
+    <div class="metric"><div class="big">1</div><div class="lbl">E2E (browser)</div></div>
+    <div class="metric"><div class="big">92</div><div class="lbl">Automated total</div></div>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Layer</th><th>Tooling</th><th>What it proves</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td><b>Backend</b> (unit + integration)</td><td>JUnit 5, Spring MockMvc, H2 profile</td>
+        <td>REST contracts, auth/role gates, the referral engine's maths, DB rules (price snapshot, no double-booking).</td>
+        <td><span class="trace">backend/src/test</span></td></tr>
+      <tr><td><b>Frontend</b> (component)</td><td>Vitest, React Testing Library, jsdom</td>
+        <td>Form validation, conditional UI (buttons enable/disable), the fetch client's Bearer + refresh logic — API mocked.</td>
+        <td><span class="trace">frontend/src/**/*.test.tsx</span></td></tr>
+      <tr><td><b>End-to-end</b></td><td>Playwright (system Edge)</td>
+        <td>One real user journey through a real browser against the running SPA + backend + Postgres.</td>
+        <td><span class="trace">frontend/e2e</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><b>Why the pyramid shape (many backend, fewer E2E).</b> Backend tests are fast and precise —
+    they pin down exact status codes and money maths, so we write lots. E2E tests are slow and brittle (they spin up a
+    browser and a whole stack) but are the only ones that prove the pieces actually talk to each other — so we keep a
+    thin layer of the highest-value journeys. This is the standard "test pyramid".</div>
+
+  <!-- 2 -->
+  <h2 id="matrix"><span class="n">2</span>Traceability matrix</h2>
+  <p>Every PRD acceptance criterion, mapped to the automated evidence that proves it. Verdict legend:
+     <span class="pill pass">Pass</span> fully automated &amp; green ·
+     <span class="pill partial">Partial</span> core proven, some part manual/UI-only ·
+     <span class="pill gap">Gap</span> criterion not met by the MVP build ·
+     <span class="pill defer">Deferred</span> consciously out of MVP scope.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>AC</th><th>Criterion (abridged)</th><th>Evidence</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td class="acid">AC-F1-1</td><td>Register unique email + valid password (+ consent) → account created &amp; logged in.</td>
+        <td>BE <code>register_createsPatient_returns201</code>, <code>register_shortPassword_returns400</code>; FE <code>RegisterPage</code> (valid input calls register; short/mismatch/no-consent blocked).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F1-2</td><td>A PATIENT calling a staff/admin endpoint is denied (403).</td>
+        <td>BE <code>complete_byPatient_isForbidden</code>, <code>upload_byPatient_isForbidden</code>, <code>walkInBooking_byPatient_isForbidden</code>, <code>createUser_byNonAdmin_isForbidden</code>, <code>referralsLedger_patientForbidden_staffAllowed</code>; FE <code>ProtectedRoute</code> (redirects without/with role).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F1-3</td><td>Password-reset link is emailed and usable once.</td>
+        <td>Not built — no reset endpoint, no email transport in MVP.</td>
+        <td><span class="pill defer">Deferred</span></td></tr>
+      <tr><td class="acid">AC-F2-1</td><td>A slot at capacity is not offered / booking rejected.</td>
+        <td>BE <code>book_sameSlotBeyondCapacity_returns409</code>, <code>slots_withToken_returns48SlotsForTheDay</code>; FE <code>BookingPage</code> (fully-booked slot rendered disabled).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F2-2</td><td>Two studies → one appointment, bill = sum (₹2,000).</td>
+        <td>BE <code>book_validRequest_snapshotsPricesAndBillsTheSum</code>; FE <code>BookingPage</code> (live bill updates as studies toggle).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F2-3</td><td>Reschedule frees the old slot and reserves the new one.</td>
+        <td>BE <code>reschedule_movesToAnotherSlot_freeingTheOldOne</code>, <code>reschedule_toAFullSlot_returns409</code>; FE <code>ReschedulePage</code> (Confirm gated on slot, calls reschedule); E2E book→cancel journey.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F3-1</td><td>Consent box unticked → submission blocked, nothing stored.</td>
+        <td>FE <code>RegisterPage</code> (unticked consent shows an error and does <em>not</em> call the API; ticking it lets a valid form through); E2E ticks the notice before registering. Backend then stores the consent record (AC-F3-2).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F3-2</td><td>Consent given → consent record saved with timestamp + version.</td>
+        <td>BE <code>selfBooking_recordsConsentForTheNewPatient</code>, <code>walkInBooking_byStaffOrAdmin_createsAnUnlinkedPatientWithConsent</code>. (Recorded when the patient profile is created.)</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F4-1</td><td>Completed visit with report → owner sees Download &amp; gets the file.</td>
+        <td>BE <code>staffUploads_thenOwningPatientCanDownload</code>, <code>download_whenNoReportUploaded_returns404</code>, <code>upload_nonPdf_isRejected</code>.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F4-2</td><td>Patient B requesting A's report → denied &amp; the attempt logged.</td>
+        <td>BE <code>anotherPatient_cannotDownloadSomeoneElsesReport</code>; access audited (<code>REPORT_DOWNLOAD</code> audit rows; <code>auditLog_isForbiddenForNonAdmins</code>).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F5-1</td><td>Billed amount defaults to the study sum and is <em>editable</em> by staff.</td>
+        <td>BE proves the default sum (<code>book_validRequest_snapshotsPricesAndBillsTheSum</code>). Staff <em>editing</em> the bill is not implemented — bill is computed &amp; fixed in MVP.</td>
+        <td><span class="pill partial">Partial</span></td></tr>
+      <tr><td class="acid">AC-F5-2</td><td>Staff mark Completed → visible to patient &amp; eligible for referral.</td>
+        <td>BE <code>complete_byStaff_computesReferralByMostSpecificRule</code>, <code>completing_anAlreadyCompletedAppointment_returns409</code>, <code>complete_byPatient_isForbidden</code>.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F6-1</td><td>Default rule 20% → ₹2,000 visit = ₹400 referral.</td>
+        <td>BE <code>onlyDefaultMatches_usesDefaultPercentage</code>, <code>payout_isRoundedHalfUpToTwoDecimals</code>.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F6-2</td><td>Doctor rule (25%) beats the default — most-specific wins → ₹500.</td>
+        <td>BE <code>doctorRule_beatsDefault</code>, <code>doctorPlusServiceRule_beatsDoctorOnly</code>, <code>serviceRule_beatsDefault_evenThoughItsPercentageIsLower</code>, <code>amountRangeRule_appliesWithinBounds</code>.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F6-3</td><td>Doctor summary: patients referred, total billed, owed, paid/pending.</td>
+        <td>BE <code>/referrals/summary</code> endpoint exists + pay flow tested (<code>payingAReferral_writesAPayoutAuditEntry</code>, <code>referral_markedPaid_byAdmin_andRepayReturns409</code>). The aggregated summary shape itself is exercised manually via the admin Referrals tab (no dedicated assertion yet).</td>
+        <td><span class="pill partial">Partial</span></td></tr>
+      <tr><td class="acid">AC-F7-1</td><td>Admin dashboard shows today's appt count, total patients, reports pending vs delivered, top-5 referrers.</td>
+        <td>Admin console has Referrals (top referrers) + per-tab lists, but no consolidated "counts" dashboard endpoint/tiles. The KPI header is not built.</td>
+        <td><span class="pill gap">Gap</span></td></tr>
+      <tr><td class="acid">AC-F8-1</td><td>Change a study's price → new bookings use it, existing appointments keep the snapshot.</td>
+        <td>BE <code>adminCreatesService_thenItIsBookable</code> + snapshot proof <code>book_validRequest_snapshotsPricesAndBillsTheSum</code> (BR-9); FE <code>CatalogueSection</code> (Save appears only when price is dirty, PUTs the new price).</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+      <tr><td class="acid">AC-F8-2</td><td>A deactivated service is not offered when booking.</td>
+        <td>BE <code>deactivatedService_dropsOutOfTheActiveCatalogue</code>, <code>createService_byNonAdmin_isForbidden</code>.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:13px;color:var(--ink-faint)"><b>Tally:</b> 13 Pass · 2 Partial · 1 Gap · 1 Deferred, across 17 acceptance criteria.
+     BE = backend test, FE = frontend test, E2E = Playwright.</p>
+
+  <!-- 3 -->
+  <h2 id="script"><span class="n">3</span>Manual UAT script</h2>
+  <p>The walkthrough a human runs (or shows the mentor) to sign off the release by hand — the automated tests prove the
+     rules, this proves the <em>experience</em>. Pre-req: backend on <code>:8080</code>, Postgres up, SPA on
+     <code>:5173</code>. Seeded admin: <code>admin@clinic.local</code>.</p>
+  <ol class="script">
+    <li><b>Register &amp; land.</b> Open the SPA → Register with a fresh email + an 8+ char password → expect to be logged in and dropped on the patient dashboard. <span class="acid">AC-F1-1</span></li>
+    <li><b>Book two studies.</b> Book a scan → tick two studies → confirm the running bill equals their sum → pick a free slot → Confirm → the new appointment shows as BOOKED. <span class="acid">AC-F2-2</span></li>
+    <li><b>Capacity.</b> On a busy date, confirm fully-booked slots render greyed/disabled and can't be selected. <span class="acid">AC-F2-1</span></li>
+    <li><b>Reschedule &amp; cancel.</b> Reschedule the appointment to another slot (old time is released) → then cancel it → row shows CANCELLED. <span class="acid">AC-F2-3</span></li>
+    <li><b>Role gate.</b> While logged in as the patient, try to reach <code>/staff</code> or <code>/admin</code> → you are redirected away. <span class="acid">AC-F1-2</span></li>
+    <li><b>Staff completes &amp; uploads.</b> Log in as staff → open today's schedule → Mark complete a booked visit → upload a PDF report (try a non-PDF first: rejected). <span class="acid">AC-F4-1 / AC-F5-2</span></li>
+    <li><b>Report privacy.</b> Back as the owning patient, download the report. As a <em>different</em> patient, confirm you cannot. <span class="acid">AC-F4-2</span></li>
+    <li><b>Referral maths.</b> As admin, open Referrals → confirm a completed referred visit shows the expected payout (default 20%, or the doctor's specific rate if a rule applies) → Mark paid → status flips to PAID. <span class="acid">AC-F6-1/2/3</span></li>
+    <li><b>Catalogue &amp; snapshot.</b> As admin, change a study's price → book a new appointment (uses new price) → confirm an <em>earlier</em> appointment still shows its old billed amount. Deactivate a study → confirm it disappears from the booking list. <span class="acid">AC-F8-1 / AC-F8-2</span></li>
+  </ol>
+
+  <!-- 4 -->
+  <h2 id="gaps"><span class="n">4</span>Gaps &amp; decisions</h2>
+  <p>UAT's real value is surfacing the honest delta between "signed off" and "built". The consent-gate gap it first
+     flagged (AC-F3-1) has since been fixed — a required consent checkbox now blocks registration until it's ticked.
+     Three criteria remain not fully met; none blocks the MVP demo, and each has a decision attached.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Item</th><th>Status</th><th>Decision / next step</th></tr></thead>
+    <tbody>
+      <tr><td><b>AC-F1-3</b> Password reset</td><td><span class="pill defer">Deferred</span></td>
+        <td>Already deferred at URD/PRD sign-off (needs an email transport we're not wiring for MVP). Backlog for a post-MVP iteration.</td></tr>
+      <tr><td><b>AC-F5-1</b> Editable bill</td><td><span class="pill partial">Partial</span></td>
+        <td>Bill is auto-computed from snapshotted study prices. Staff-editable billing (discounts/adjustments) not in MVP — confirm with mentor whether it's needed for v1.</td></tr>
+      <tr><td><b>AC-F7-1</b> Admin KPI dashboard</td><td><span class="pill gap">Gap</span></td>
+        <td>The data exists across tabs but there's no summary-counts header. Needs one small aggregate endpoint + a KPI tile row. Candidate for Phase 7 polish or an early Phase&nbsp;8 item.</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 5 -->
+  <h2 id="how"><span class="n">5</span>How to run the tests</h2>
+  <div class="card">
+    <p style="margin:0 0 6px"><b>Backend</b> (73 tests, H2 in-memory — no Postgres needed):</p>
+    <code>&amp; "C:\tools\apache-maven-3.9.16\bin\mvn.cmd" -f backend\pom.xml test</code>
+    <p style="margin:14px 0 6px"><b>Frontend component</b> (18 tests):</p>
+    <code>cd frontend &amp;&amp; npm test</code>
+    <p style="margin:14px 0 6px"><b>End-to-end</b> (needs backend :8080 + Postgres running; Vite auto-starts):</p>
+    <code>cd frontend &amp;&amp; npm run test:e2e</code>
+  </div>
+
+  <footer>Radiology Clinic · Phase 7 UAT &amp; Traceability · 2026-07-16 · traces PRD v0.2</footer>
+</div>
+</body>
+</html>
