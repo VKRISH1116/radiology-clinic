@@ -10,6 +10,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +26,12 @@ export function RegisterPage() {
     }
     if (password !== confirm) {
       setError('Passwords do not match');
+      return;
+    }
+    // AC-F3-1: consent must be given before any account is created. The box is the
+    // gate — no consent, no submission and no data leaves the browser.
+    if (!consent) {
+      setError('Please accept the consent notice to continue');
       return;
     }
 
@@ -81,6 +88,18 @@ export function RegisterPage() {
             autoComplete="new-password"
           />
         </div>
+
+        <label className={styles.consent}>
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+          />
+          <span>
+            I consent to the clinic storing my details and scan reports for my care, and to
+            processing my data as described in the privacy notice.
+          </span>
+        </label>
 
         <button className="btn-primary" type="submit" disabled={loading}>
           {loading ? 'Creating…' : 'Create account'}

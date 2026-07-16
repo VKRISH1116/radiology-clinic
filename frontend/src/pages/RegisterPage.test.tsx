@@ -24,10 +24,16 @@ function renderRegister() {
   );
 }
 
-async function fill(email: string, password: string, confirm: string) {
+async function fill(
+  email: string,
+  password: string,
+  confirm: string,
+  consent = true,
+) {
   await userEvent.type(screen.getByLabelText('Email'), email);
   await userEvent.type(screen.getByLabelText('Password'), password);
   await userEvent.type(screen.getByLabelText('Confirm password'), confirm);
+  if (consent) await userEvent.click(screen.getByRole('checkbox'));
   await userEvent.click(screen.getByRole('button', { name: /create account/i }));
 }
 
@@ -51,7 +57,16 @@ describe('RegisterPage', () => {
     expect(registerMock).not.toHaveBeenCalled();
   });
 
-  it('calls register with valid input', async () => {
+  it('blocks submission when consent is not given (AC-F3-1)', async () => {
+    renderRegister();
+    await fill('a@b.com', 'password123', 'password123', false);
+    expect(
+      screen.getByText('Please accept the consent notice to continue'),
+    ).toBeInTheDocument();
+    expect(registerMock).not.toHaveBeenCalled();
+  });
+
+  it('calls register with valid input once consent is given', async () => {
     registerMock.mockResolvedValue(undefined);
     renderRegister();
     await fill('a@b.com', 'password123', 'password123');
