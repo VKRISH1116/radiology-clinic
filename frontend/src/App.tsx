@@ -11,6 +11,7 @@ import { PatientDashboard } from './pages/patient/PatientDashboard';
 import { ReschedulePage } from './pages/patient/ReschedulePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { StaffDashboard } from './pages/staff/StaffDashboard';
+import { StaffWalkInPage } from './pages/staff/StaffWalkInPage';
 import { HomeRedirect } from './routes/HomeRedirect';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
@@ -34,6 +35,7 @@ export default function App() {
           </Route>
           <Route element={<ProtectedRoute allow={['STAFF', 'ADMIN']} />}>
             <Route path="/staff" element={<StaffDashboard />} />
+            <Route path="/staff/walk-in" element={<StaffWalkInPage />} />
           </Route>
           <Route element={<ProtectedRoute allow={['ADMIN']} />}>
             <Route path="/admin" element={<AdminDashboard />} />

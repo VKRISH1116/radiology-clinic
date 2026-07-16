@@ -3,7 +3,7 @@
 // Every function returns the same shape the Spring Boot endpoint will.
 
 import type { Appointment, AuthSession, Service, SlotAvailability, StudyLine } from '../types';
-import { mockAppointments, mockServices, mockUsers } from './data';
+import { mockAppointments, mockSchedule, mockServices, mockUsers } from './data';
 
 const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -123,5 +123,59 @@ export const mockApi = {
     appt.slotStartTime = slot.startTime;
     bookedSlotIds.add(slot.id);
     return appt;
+  },
+
+  // --- staff / back-office ------------------------------------------------
+
+  async listSchedule(): Promise<Appointment[]> {
+    await delay();
+    return mockSchedule;
+  },
+
+  async completeAppointment(appointmentId: number): Promise<Appointment> {
+    await delay();
+    const appt = mockSchedule.find((a) => a.id === appointmentId);
+    if (!appt) throw new Error('Appointment not found');
+    if (appt.status !== 'BOOKED') {
+      throw new Error('Only a booked appointment can be completed');
+    }
+    appt.status = 'COMPLETED';
+    return appt;
+  },
+
+  async uploadReport(appointmentId: number, fileName: string): Promise<Appointment> {
+    await delay();
+    const appt = mockSchedule.find((a) => a.id === appointmentId);
+    if (!appt) throw new Error('Appointment not found');
+    appt.reportFileName = fileName;
+    return appt;
+  },
+
+  async walkInBook(
+    patientName: string,
+    slot: SlotAvailability,
+    serviceIds: number[],
+  ): Promise<Appointment> {
+    await delay();
+    if (bookedSlotIds.has(slot.id)) {
+      throw new Error('That slot was just taken — please pick another.');
+    }
+    const studies: StudyLine[] = serviceIds.map((serviceId) => {
+      const svc = mockServices.find((s) => s.id === serviceId);
+      if (!svc) throw new Error('Unknown service');
+      return { serviceId, name: svc.name, priceSnapshot: svc.price };
+    });
+    const appointment: Appointment = {
+      id: nextAppointmentId++,
+      patientName,
+      slotId: slot.id,
+      slotStartTime: slot.startTime,
+      status: 'BOOKED',
+      billedAmount: studies.reduce((sum, s) => sum + s.priceSnapshot, 0),
+      studies,
+    };
+    bookedSlotIds.add(slot.id);
+    mockSchedule.unshift(appointment);
+    return appointment;
   },
 };
