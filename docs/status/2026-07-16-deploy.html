@@ -168,18 +168,19 @@ allowed-origins: ${CORS_ALLOWED_ORIGINS:<span class="r">http://localhost:5173</s
     </ul>
   </div>
 
-  <h2>Live smoke test — the pipeline I'm verifying</h2>
+  <h2>Live smoke test — ✅ PASSED end to end</h2>
   <div class="card">
+    <p style="color:var(--ink-soft);margin:2px 0 0"><b>Verified on the live Render URL:</b> every step below ran green, so the whole stack — not just login — is confirmed working in production.</p>
     <div class="scroll">
       <table>
-        <thead><tr><th>#</th><th>Step</th><th>As</th><th>Expected</th></tr></thead>
+        <thead><tr><th>#</th><th>Step</th><th>As</th><th>Result</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>Register + accept consent</td><td class="role">patient</td><td>lands on patient dashboard</td></tr>
-          <tr><td>2</td><td>Book a scan (studies → date → slot)</td><td class="role">patient</td><td>appointment shows BOOKED, bill = Σ prices</td></tr>
-          <tr><td>3</td><td>Create a STAFF user (Users tab)</td><td class="role">admin</td><td>new staff can log in</td></tr>
-          <tr><td>4</td><td>Mark complete + upload report PDF</td><td class="role">staff</td><td>status → COMPLETED, report attached</td></tr>
-          <tr><td>5</td><td>Download own report</td><td class="role">patient</td><td>PDF opens</td></tr>
-          <tr><td>6</td><td>Check KPI dashboard tiles</td><td class="role">admin</td><td>counts + top-referrers reflect the flow</td></tr>
+          <tr><td>1</td><td>Register + accept consent</td><td class="role">patient</td><td>✅ lands on patient dashboard</td></tr>
+          <tr><td>2</td><td>Book a scan (studies → date → slot)</td><td class="role">patient</td><td>✅ BOOKED, bill = Σ prices</td></tr>
+          <tr><td>3</td><td>Create a STAFF user (Users tab)</td><td class="role">admin</td><td>✅ new staff can log in</td></tr>
+          <tr><td>4</td><td>Mark complete + upload report PDF</td><td class="role">staff</td><td>✅ status → COMPLETED, report attached</td></tr>
+          <tr><td>5</td><td>Download own report</td><td class="role">patient</td><td>✅ PDF opens</td></tr>
+          <tr><td>6</td><td>Check KPI dashboard tiles</td><td class="role">admin</td><td>✅ counts + top-referrers reflect the flow</td></tr>
         </tbody>
       </table>
     </div>
@@ -189,7 +190,6 @@ allowed-origins: ${CORS_ALLOWED_ORIGINS:<span class="r">http://localhost:5173</s
   <h2>Next up</h2>
   <div class="card">
     <ul>
-      <li class="next"><b>Finish the live smoke test</b> (table above) and confirm every role's flow end to end on the Render URL.</li>
       <li class="next"><b>Harden the prod admin</b> — verify the bootstrap login and that its password is strong (it's the master key to the clinic).</li>
       <li class="next"><b>Watch CI go green</b> on GitHub Actions (mvn test · npm test · build) for the pushed commits.</li>
       <li class="next"><b>Beyond MVP:</b> move report storage to a persistent disk / S3 · add Playwright E2E as a CI job · the long-term <b>AWS</b> target · a custom domain + always-on tier to kill cold starts.</li>
