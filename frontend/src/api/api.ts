@@ -6,6 +6,7 @@ import type {
   AdminService,
   Appointment,
   AuditEntry,
+  DashboardStats,
   Referral,
   ReferralRule,
   ReferringDoctor,
@@ -55,6 +56,9 @@ export const api = {
       method: 'POST',
       body: { slotId: slot.id, serviceIds, patient: { fullName: patientName } },
     }),
+
+  // --- admin: dashboard ---------------------------------------------------
+  getDashboardStats: () => request<DashboardStats>('/api/admin/stats'),
 
   // --- admin: catalogue ---------------------------------------------------
   listCatalog: () => request<AdminService[]>('/api/services/all'),

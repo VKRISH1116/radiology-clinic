@@ -88,6 +88,23 @@ export interface UserSummary {
   role: Role;
 }
 
+/** Per-doctor payout totals — the "top referrers" line in the admin overview. */
+export interface ReferralSummary {
+  referringDoctorId: number | null;
+  doctorName: string | null;
+  referralCount: number;
+  totalAmount: number;
+}
+
+/** The admin dashboard's at-a-glance counts (from /api/admin/stats, AC-F7-1). */
+export interface DashboardStats {
+  todaysAppointments: number;
+  totalPatients: number;
+  reportsDelivered: number;
+  reportsPending: number;
+  topReferrers: ReferralSummary[];
+}
+
 /** A booked visit (from /api/appointments/mine, or the staff schedule). */
 export interface Appointment {
   id: number;

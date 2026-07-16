@@ -1,5 +1,6 @@
 package com.clinic.booking;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -43,4 +44,30 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             group by a.slotId
             """)
     List<Object[]> countActiveGroupedBySlotId(@Param("slotIds") List<Long> slotIds);
+
+    /**
+     * Live (non-cancelled) appointments whose slot falls in [from, to) — used for
+     * the admin "today's appointments" KPI. Cross-joins Slot by id (Appointment
+     * holds slot_id as a scalar, not a JPA association) so we can filter on the
+     * slot's start_time.
+     */
+    @Query("""
+            select count(a) from Appointment a, Slot s
+            where a.slotId = s.id
+              and s.startTime >= :from and s.startTime < :to
+              and a.status <> com.clinic.booking.AppointmentStatus.CANCELLED
+            """)
+    long countActiveInSlotWindow(
+            @Param("from") OffsetDateTime from, @Param("to") OffsetDateTime to);
+
+    /**
+     * Completed visits that still have no report on file — the "reports pending"
+     * KPI. Uses a correlated NOT EXISTS against the Report entity.
+     */
+    @Query("""
+            select count(a) from Appointment a
+            where a.status = com.clinic.booking.AppointmentStatus.COMPLETED
+              and not exists (select 1 from Report r where r.appointmentId = a.id)
+            """)
+    long countCompletedWithoutReport();
 }
