@@ -11,5 +11,8 @@ export default defineConfig({
     // Registers jest-dom matchers (toBeInTheDocument, etc.) before each file.
     setupFiles: './src/test/setup.ts',
     globals: false,
+    // Only Vitest unit/component tests live under src; the e2e/ folder is
+    // Playwright's (a different runner), so keep Vitest out of it.
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 })
