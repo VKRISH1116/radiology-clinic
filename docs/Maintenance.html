@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phase 9 — Iterate &amp; Maintain</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--green:#16a34a;--amber:#d97706;
+    --red:#dc2626;--red-soft:#fdecec;--codebg:#f2f4fb;--jargon:#0891b2;--jargon-soft:#e0f5fa;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--green:#4ade80;--amber:#fbbf24;
+    --red:#f87171;--red-soft:#2a1a1e;--codebg:#12161f;--jargon:#22d3ee;--jargon-soft:#0c2731;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 80px;
+    font:15px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto}
+  header{padding:38px 0 20px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+    background:var(--accent-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--ink-soft);margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:13px;color:var(--ink-faint)}
+  .meta b{color:var(--ink-soft)}
+  h2{font-size:20px;margin:42px 0 6px;letter-spacing:-.01em;scroll-margin-top:16px}
+  h2 .hash{color:var(--ink-faint);font-weight:400}
+  h3{font-size:15px;margin:22px 0 4px}
+  .lead{color:var(--ink-soft);margin:6px 0 14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 22px;box-shadow:var(--shadow);margin:14px 0}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px}
+  pre{background:var(--codebg);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;overflow-x:auto;margin:14px 0;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px;line-height:1.5}
+  pre .c{color:var(--ink-faint)}
+  pre .k{color:var(--accent);font-weight:600}
+  a{color:var(--accent)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;box-shadow:var(--shadow);margin:22px 0;columns:2;column-gap:26px}
+  nav.toc a{display:block;padding:3px 0;font-size:13.5px;text-decoration:none;color:var(--ink-soft)}
+  nav.toc a:hover{color:var(--accent)}
+  @media(max-width:640px){nav.toc{columns:1}}
+  ul{margin:8px 0;padding-left:22px}li{padding:3px 0}
+  .jargon{background:var(--jargon-soft);border:1px solid var(--line);border-left:3px solid var(--jargon);
+    border-radius:0 10px 10px 0;padding:2px 16px;margin:14px 0}
+  .jargon h4{font-size:13.5px;margin:12px 0 4px;color:var(--jargon)}
+  .jargon h4::before{content:"❓ ";}
+  .jargon p{margin:4px 0 12px;font-size:14px;color:var(--ink-soft)}
+  .scroll{overflow-x:auto;margin:14px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:600px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  td.m{font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:nowrap}
+  .pri{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .p0{background:var(--red-soft);color:var(--red)}
+  .p1{background:#fef3e2;color:var(--amber)}
+  .p2{background:var(--accent-soft);color:var(--accent)}
+  .p3{background:var(--codebg);color:var(--ink-faint)}
+  @media(prefers-color-scheme:dark){.p1{background:#2a1e08}}
+  .tag{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--codebg);color:var(--ink-soft)}
+  .callout{background:var(--jargon-soft);border:1px solid var(--line);border-left:3px solid var(--jargon);
+    border-radius:10px;padding:2px 18px;margin:16px 0}
+  .callout h4{margin:14px 0 4px;font-size:14px}
+  .loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0;font-size:13px;justify-content:center}
+  .chip{background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);
+    padding:6px 14px;border-radius:10px;font-weight:600}
+  .arrow{color:var(--ink-faint);font-size:18px}
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">🔄 Phase 9 · Iterate &amp; Maintain</span>
+    <h1>Living With a Live Product</h1>
+    <p class="sub">Real products are never "finished." This phase is the discipline of running, watching, and steadily improving software that's already in users' hands.</p>
+    <div class="meta">
+      <span><b>Phase:</b> 9 — Iterate &amp; Maintain · <b>STARTED</b></span>
+      <span><b>Status:</b> MVP live on Render, smoke-tested</span>
+      <span><b>This page delivers:</b> versioning plan · changelog · prioritised backlog · tech-debt register · monitoring plan · runbook</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <a href="#why">1 · What Phase 9 is &amp; why it matters</a>
+    <a href="#loop">2 · The iteration loop</a>
+    <a href="#versioning">3 · Versioning (SemVer) &amp; releases</a>
+    <a href="#changelog">4 · Changelog — v1.0.0</a>
+    <a href="#backlog">5 · The product backlog</a>
+    <a href="#techdebt">6 · Tech-debt register</a>
+    <a href="#observability">7 · Observability &amp; monitoring</a>
+    <a href="#runbook">8 · Maintenance runbook</a>
+    <a href="#learned">9 · What I'm learning · next actions</a>
+  </nav>
+
+  <!-- 1 -->
+  <h2 id="why"><span class="hash">1 · </span>What Phase 9 is, and why it matters</h2>
+  <p class="lead">Phases 0–8 took us from an idea to a live app. But shipping is the <em>start</em> of a product's life, not the end. Phase 9 is the never-ending loop that follows: gather feedback, fix bugs, add features, watch the system's health, pay down shortcuts, and repeat — with discipline instead of panic.</p>
+  <div class="card">
+    <b>The three deliverables of this phase, in plain terms:</b>
+    <ul>
+      <li><b>A backlog</b> — an honest, prioritised list of everything we <em>could</em> do next, so work is chosen deliberately rather than by whoever shouts loudest.</li>
+      <li><b>A changelog + versioning</b> — a human-readable record of what changed in each release, and a numbering scheme so "which version is running?" always has a clear answer.</li>
+      <li><b>Monitoring</b> — a way to know the live app is healthy <em>before</em> a user emails to say it's broken.</li>
+    </ul>
+  </div>
+  <div class="jargon">
+    <h4>Why can't we just "be done"?</h4>
+    <p>Because the world around the app keeps moving: users find bugs and want features, dependencies get security patches, servers restart, data grows. Unmaintained software rots — it doesn't stay still. Maintenance is the cost of having something real and used.</p>
+  </div>
+
+  <!-- 2 -->
+  <h2 id="loop"><span class="hash">2 · </span>The iteration loop</h2>
+  <p class="lead">Agile teams work in short, repeating cycles rather than one giant plan. Each loop ships a small improvement, learns from it, and feeds the next loop.</p>
+  <div class="loop">
+    <span class="chip">Prioritise backlog</span><span class="arrow">→</span>
+    <span class="chip">Build a small slice</span><span class="arrow">→</span>
+    <span class="chip">Test &amp; ship</span><span class="arrow">→</span>
+    <span class="chip">Measure &amp; gather feedback</span><span class="arrow">↻</span>
+  </div>
+  <p>We already worked this way through the build (one "slice" at a time, each tested and committed). Phase 9 keeps the same rhythm, but now the input is <em>real-world signal</em> — usage, bugs, requests, monitoring alerts — not a pre-written plan.</p>
+  <div class="jargon">
+    <h4>What is "agile"?</h4>
+    <p>A style of working in small, frequent, feedback-driven increments instead of one big upfront delivery. The point isn't ceremony — it's shortening the gap between "we changed something" and "we learned whether it helped."</p>
+    <h4>What is a "backlog"?</h4>
+    <p>The ordered to-do list for the product — bugs, features, chores, and debt — kept prioritised so the team always knows what's next and why.</p>
+  </div>
+
+  <!-- 3 -->
+  <h2 id="versioning"><span class="hash">3 · </span>Versioning &amp; releases (SemVer)</h2>
+  <p class="lead">Once software is out in the world, "which version?" must have a precise answer. The standard is <b>Semantic Versioning</b> — a three-number scheme <code>MAJOR.MINOR.PATCH</code> that <em>communicates the nature of a change</em>.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Bump</th><th>When</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td class="m">MAJOR</td><td>A breaking change — existing behaviour/clients would break.</td><td class="m">1.0.0 → 2.0.0</td></tr>
+      <tr><td class="m">MINOR</td><td>A new feature, backward-compatible.</td><td class="m">1.0.0 → 1.1.0</td></tr>
+      <tr><td class="m">PATCH</td><td>A bug fix, no new features, backward-compatible.</td><td class="m">1.0.0 → 1.0.1</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><b>Decision for this project:</b> the shipped, smoke-tested MVP is our <b>v1.0.0</b> — the first release that delivers the promised value. We'll mark it with a <b>git tag</b>, which freezes a named point in history you can always return to or deploy.</p>
+<pre><span class="c"># tag the released MVP and push the tag</span>
+git tag -a <span class="k">v1.0.0</span> -m <span class="k">"MVP: booking, reports, referrals, admin — live on Render"</span>
+git push origin <span class="k">v1.0.0</span></pre>
+  <div class="jargon">
+    <h4>What is a "release" vs a "commit" vs a "tag"?</h4>
+    <p>A <b>commit</b> is any saved change. A <b>tag</b> is a permanent label on one specific commit (e.g. <code>v1.0.0</code>). A <b>release</b> is a tagged version you've decided to publish/deploy as a milestone. Tags turn a stream of commits into named, referenceable versions.</p>
+    <h4>What does <code>-SNAPSHOT</code> mean (in <code>pom.xml</code>)?</h4>
+    <p>A Maven convention meaning "in-development, not a fixed release." <code>0.0.1-SNAPSHOT</code> = a work-in-progress build. A real release drops the suffix (e.g. <code>1.0.0</code>). It signals the artifact isn't final.</p>
+  </div>
+
+  <!-- 4 -->
+  <h2 id="changelog"><span class="hash">4 · </span>Changelog — v1.0.0</h2>
+  <p class="lead">A changelog is a human-readable "what changed, for people" — distinct from the git log, which is "every change, for machines/developers." We follow the <a href="https://keepachangelog.com">Keep a Changelog</a> convention.</p>
+  <div class="card">
+    <h3 style="margin-top:8px">v1.0.0 — 2026-07-16 · first public release 🚀</h3>
+    <p style="color:var(--ink-soft);margin:2px 0 10px">The Radiology Clinic MVP: an ultrasound-clinic web app for patients, staff, and admins — live on Render, verified end to end.</p>
+    <b style="font-size:12px;color:var(--green)">ADDED</b>
+    <ul>
+      <li><b>Patients</b> — register with consent, log in, browse the study catalogue, book multi-study appointments (live bill), view / cancel / reschedule, download report PDFs.</li>
+      <li><b>Staff</b> — daily schedule, mark complete, upload report PDFs, walk-in booking with pick-or-type referring-doctor tagging.</li>
+      <li><b>Admin</b> — KPI dashboard, catalogue editing (price snapshotting), referral rules &amp; ledger with payouts, user management, audit log.</li>
+      <li><b>Referral engine</b> — configurable, specificity-scored rules ("most specific wins").</li>
+      <li><b>Platform</b> — JWT auth (access + refresh), role-based access, Postgres via Flyway migrations, Dockerised, deployed on Render, CI on GitHub Actions, 100 automated tests.</li>
+    </ul>
+    <b style="font-size:12px;color:var(--amber)">KNOWN LIMITATIONS</b>
+    <ul>
+      <li>Password reset not available (no email transport yet). Report PDFs are ephemeral on the free tier. First request after idle is slow (cold start). See the backlog below.</li>
+    </ul>
+  </div>
+  <p class="lead">Going forward, every release adds a dated section here (<code>Added / Changed / Fixed / Removed / Security</code>) — kept in a <code>CHANGELOG.md</code> at the repo root so it travels with the code.</p>
+
+  <!-- 5 -->
+  <h2 id="backlog"><span class="hash">5 · </span>The product backlog</h2>
+  <p class="lead">Every deferred item, known gap, and stopgap we accumulated during the build — now gathered, categorised, and prioritised in one place. Priority reflects value ÷ risk, not effort.</p>
+  <p style="font-size:12px;color:var(--ink-soft)">
+    <span class="pri p0">P0 now</span> critical/blocking ·
+    <span class="pri p1">P1 soon</span> important ·
+    <span class="pri p2">P2 later</span> nice-to-have ·
+    <span class="pri p3">P3 someday</span> out-of-scope-for-now
+  </p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Item</th><th>Type</th><th>Pri</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Harden the production admin password &amp; confirm the bootstrap login</td><td><span class="tag">security</span></td><td><span class="pri p0">P0 now</span></td><td>The master key to the clinic — must be strong and known.</td></tr>
+      <tr><td>Persistent report storage (attach a disk or move to S3/object storage)</td><td><span class="tag">infra</span></td><td><span class="pri p1">P1 soon</span></td><td>Free-tier has no persistent disk → uploaded PDFs vanish on redeploy.</td></tr>
+      <tr><td>Password reset (email transport + reset flow) — AC-F1-3</td><td><span class="tag">feature</span></td><td><span class="pri p1">P1 soon</span></td><td>Deferred at UAT for lack of an email provider. Real usability gap.</td></tr>
+      <tr><td>Report re-upload orphans the old file on disk</td><td><span class="tag">bug</span></td><td><span class="pri p1">P1 soon</span></td><td>Replace silently but delete/version the previous file.</td></tr>
+      <tr><td>Change-cutoff not enforced on staff "complete"</td><td><span class="tag">correctness</span></td><td><span class="pri p1">P1 soon</span></td><td>Policy applied to self-cancel/reschedule only.</td></tr>
+      <tr><td>Verify first CI run is green on the hosted runner</td><td><span class="tag">infra</span></td><td><span class="pri p1">P1 soon</span></td><td>Proven locally; not yet watched on GitHub Actions.</td></tr>
+      <tr><td>Uptime + error monitoring (health check, alerting, error tracking)</td><td><span class="tag">observability</span></td><td><span class="pri p1">P1 soon</span></td><td>See §7. Know about breakage before users do.</td></tr>
+      <tr><td>Patient can pick a referring doctor at self-booking</td><td><span class="tag">feature</span></td><td><span class="pri p2">P2 later</span></td><td>Currently wired for staff walk-in only.</td></tr>
+      <tr><td>Admin "manage referring doctors" tab (list / edit / deactivate)</td><td><span class="tag">feature</span></td><td><span class="pri p2">P2 later</span></td><td>Only create + the 3 seeded doctors exist.</td></tr>
+      <tr><td>Staff-editable bill / manual line items — AC-F5-1</td><td><span class="tag">feature</span></td><td><span class="pri p2">P2 later</span></td><td>Bill is auto-computed from snapshots; UAT rated Partial.</td></tr>
+      <tr><td>Pagination + date filter on staff schedule &amp; list endpoints</td><td><span class="tag">scalability</span></td><td><span class="pri p2">P2 later</span></td><td>Fine at MVP data size; needed as data grows.</td></tr>
+      <tr><td>Patient self-service profile edit</td><td><span class="tag">feature</span></td><td><span class="pri p2">P2 later</span></td><td>Deferred from URD backlog.</td></tr>
+      <tr><td>Capture patient full name at registration (not fullName = email)</td><td><span class="tag">tech-debt</span></td><td><span class="pri p2">P2 later</span></td><td>Booking stopgap; needs a small profile step.</td></tr>
+      <tr><td>Antivirus scan on uploaded report PDFs</td><td><span class="tag">security</span></td><td><span class="pri p2">P2 later</span></td><td>Currently validates type + magic bytes + size only.</td></tr>
+      <tr><td>Playwright E2E as a CI job</td><td><span class="tag">testing</span></td><td><span class="pri p2">P2 later</span></td><td>Runs locally; CI needs a browser + full stack.</td></tr>
+      <tr><td>Loading spinners on some admin tabs; misc UX polish</td><td><span class="tag">ux</span></td><td><span class="pri p3">P3 someday</span></td><td>Cosmetic.</td></tr>
+      <tr><td>Custom domain + always-on tier (kill cold starts)</td><td><span class="tag">infra</span></td><td><span class="pri p3">P3 someday</span></td><td>Costs money; only when there are real users.</td></tr>
+      <tr><td>SMS/email notifications · online payments · DICOM viewing · multi-location</td><td><span class="tag">beyond-mvp</span></td><td><span class="pri p3">P3 someday</span></td><td>Consciously out of MVP scope from Phase 1.</td></tr>
+      <tr><td>Long-term migration to AWS</td><td><span class="tag">infra</span></td><td><span class="pri p3">P3 someday</span></td><td>Stated long-term target once the app outgrows a PaaS.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- 6 -->
+  <h2 id="techdebt"><span class="hash">6 · </span>Tech-debt register</h2>
+  <p class="lead">"Tech debt" is a deliberate shortcut taken to ship faster, tracked honestly so it's <em>repaid</em> rather than forgotten. Recording it is what keeps it from becoming a silent liability.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Shortcut taken</th><th>Why it was OK</th><th>The interest we pay</th></tr></thead>
+    <tbody>
+      <tr><td>Booking sends <code>fullName = email</code></td><td>Registration only captured email; unblocked booking.</td><td>Patient names are placeholders until a profile step exists.</td></tr>
+      <tr><td>Report PDFs on local/ephemeral disk (uuid filenames)</td><td>Simple, worked for MVP; volume persists locally.</td><td>Lost on Render redeploy; won't scale past one instance.</td></tr>
+      <tr><td>No pagination on list endpoints</td><td>Tiny data volumes at MVP.</td><td>Slows and bloats payloads as records grow.</td></tr>
+      <tr><td>Walk-in phone field collected but not sent to the API</td><td>UI built ahead of the field's use.</td><td>Dead input; mild confusion until wired.</td></tr>
+      <tr><td>Slot times normalise to UTC on DB read (render "Z")</td><td>Same instant; frontend localises.</td><td>Cosmetic inconsistency vs the in-memory "+05:30" form.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="jargon">
+    <h4>Is tech debt bad?</h4>
+    <p>Not inherently — like financial debt, a deliberate, tracked shortcut can be a smart trade to ship sooner. It's only dangerous when it's <em>unacknowledged</em>. The register turns invisible risk into a visible, payable list.</p>
+  </div>
+
+  <!-- 7 -->
+  <h2 id="observability"><span class="hash">7 · </span>Observability &amp; monitoring</h2>
+  <p class="lead"><b>Observability</b> is being able to answer "is the app healthy, and if not, why?" from the outside. Right now, we'd only learn about an outage from a user. That's the first thing to fix in Phase 9.</p>
+  <h3>The three classic signals</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Signal</th><th>Question it answers</th><th>Our starting point</th></tr></thead>
+    <tbody>
+      <tr><td><b>Logs</b></td><td>What exactly happened, in order?</td><td>Spring logs to stdout → visible in Render's log stream. Already have an <code>audit_logs</code> table for sensitive actions.</td></tr>
+      <tr><td><b>Metrics</b></td><td>How much / how fast / how often? (traffic, latency, errors, memory)</td><td>None yet. Render shows basic CPU/memory; Spring Boot Actuator can expose more.</td></tr>
+      <tr><td><b>Traces</b></td><td>Where did one request spend its time across the system?</td><td>Not needed at this scale (single service); note for later.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Concrete first steps (cheap, high-value)</h3>
+  <ul>
+    <li><b>A health-check endpoint</b> — a lightweight <code>GET /health</code> (or Actuator's <code>/actuator/health</code>) that returns 200 when the app + DB are up. It's the anchor everything else pings.</li>
+    <li><b>An uptime monitor</b> — a free service (UptimeRobot, Better Stack, or Render's own) pings the health URL every few minutes and emails/texts if it fails. This is how you learn about downtime <em>first</em>. Bonus on a free tier: the ping also keeps the app warm, softening cold starts.</li>
+    <li><b>Error tracking</b> — a tool like Sentry captures unhandled exceptions with stack traces and context, so you see <em>what</em> broke and <em>how often</em>, not just "something 500'd."</li>
+    <li><b>Read the logs deliberately</b> — after each deploy, watch Render's log stream for a clean startup (Flyway migrations applied, server listening) before declaring success.</li>
+  </ul>
+  <div class="jargon">
+    <h4>Monitoring vs Observability?</h4>
+    <p><b>Monitoring</b> = watching known signals for known problems ("is it up? is CPU high?"). <b>Observability</b> = having enough data (logs/metrics/traces) to investigate <em>unknown</em> problems you didn't predict. Monitoring tells you something's wrong; observability helps you find out why.</p>
+    <h4>What is a "health check"?</h4>
+    <p>A trivial endpoint whose only job is to say "I'm alive" (200) or fail. Load balancers, uptime monitors, and orchestrators all rely on it to decide if an instance is healthy.</p>
+  </div>
+
+  <!-- 8 -->
+  <h2 id="runbook"><span class="hash">8 · </span>Maintenance runbook</h2>
+  <p class="lead">A <b>runbook</b> is a short, calm checklist for routine operations — so future-you (or a teammate) isn't improvising under pressure.</p>
+  <div class="card">
+    <h3 style="margin-top:8px">Shipping a change (the safe loop)</h3>
+    <ul>
+      <li>Branch → make the change → run tests locally (<code>mvn test</code>, <code>npm test</code>) → open a PR → let CI go green → merge to <code>main</code>.</li>
+      <li>Render auto-deploys <code>main</code>. Watch the deploy log for a clean boot; run a quick smoke check on the live URL.</li>
+      <li>Add a <code>CHANGELOG.md</code> entry; if it's a released milestone, bump the version and tag it.</li>
+    </ul>
+    <h3>If the live app is down</h3>
+    <ul>
+      <li>Check the uptime monitor + Render status/logs → is it a cold start, a crash loop, or the DB?</li>
+      <li>Read the latest deploy log: did a migration fail, or a bad env var slip in?</li>
+      <li>If a recent deploy caused it, <b>roll back</b> to the previous deploy (or the last good tag) first, then diagnose calmly.</li>
+    </ul>
+    <h3>Routine hygiene</h3>
+    <ul>
+      <li>Periodically update dependencies for security patches, letting CI catch regressions.</li>
+      <li>Rotate secrets if ever exposed; never commit them.</li>
+      <li>Keep the backlog honest — add new bugs/requests as they arrive, re-prioritise, and celebrate closing debt.</li>
+    </ul>
+  </div>
+  <div class="jargon">
+    <h4>What is a "rollback"?</h4>
+    <p>Reverting to a previous known-good version when a new deploy misbehaves. It restores service <em>fast</em>, buying you time to diagnose without users suffering. This is exactly why tags and immutable deploys matter.</p>
+  </div>
+
+  <!-- 9 -->
+  <h2 id="learned"><span class="hash">9 · </span>What I'm learning · next actions</h2>
+  <div class="card">
+    <ul>
+      <li>💡 <b>Shipping is the midpoint, not the finish line</b> — the interesting engineering (keeping it healthy, evolving it safely) starts once real users can reach it.</li>
+      <li>💡 <b>Write the debt down.</b> An acknowledged shortcut is a plan; a forgotten one is a landmine.</li>
+      <li>💡 <b>You can't fix what you can't see</b> — a health check + uptime monitor is the cheapest, highest-leverage thing to add to a freshly-live app.</li>
+      <li>💡 <b>Versions are communication</b> — SemVer + a changelog let anyone answer "what's running, and what changed?" without reading code.</li>
+    </ul>
+  </div>
+  <h3>Immediate next actions (P0/P1 from the backlog)</h3>
+  <ul>
+    <li>Tag the MVP as <b>v1.0.0</b> and add a <code>CHANGELOG.md</code> at the repo root.</li>
+    <li>Harden the production admin credential.</li>
+    <li>Add a <b>health check + uptime monitor</b> so downtime is visible.</li>
+    <li>Decide the first real iteration: persistent report storage, password reset, or the CI-green + monitoring foundation.</li>
+  </ul>
+
+  <p style="margin-top:24px;font-size:12px"><a href="index.html">← Back to the knowledge-base home</a></p>
+  <footer>Phase 9 · Iterate &amp; Maintain — the loop that keeps a live product alive · Part of the learning-first knowledge base in <code>docs/</code></footer>
+</div>
+</body>
+</html>
