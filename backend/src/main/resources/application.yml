@@ -11,7 +11,9 @@ spring:
   # Connects to the PostgreSQL started by docker-compose.yml.
   # Values fall back to the dev defaults but can be overridden by env vars.
   datasource:
-    url: jdbc:postgresql://localhost:5432/radiology_clinic
+    # Default targets the docker-compose Postgres on localhost (dev). In the full
+    # container stack, DB_URL points at the "db" service host instead.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/radiology_clinic}
     username: ${DB_USER:clinic}
     password: ${DB_PASSWORD:clinic_dev_pw}
 
