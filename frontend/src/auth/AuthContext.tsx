@@ -1,12 +1,15 @@
-// Auth state shared across the whole app via React Context, so any component can
-// ask "who's logged in?" without passing the session down through every prop.
-// The session is persisted to localStorage so a refresh keeps you logged in.
+// Auth state shared across the app via React Context. It mirrors the persisted
+// session (in localStorage, managed by src/api/session) in React state so the UI
+// re-renders on login/logout. The actual HTTP calls live in src/api/auth.
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { mockApi } from '../mock/api';
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  register as apiRegister,
+} from '../api/auth';
+import { getSession } from '../api/session';
 import type { AuthSession } from '../types';
-
-const STORAGE_KEY = 'clinic.session';
 
 interface AuthContextValue {
   session: AuthSession | null;
@@ -17,29 +20,23 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function loadSession(): AuthSession | null {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as AuthSession) : null;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Lazy initializer: read localStorage once on first render, not every render.
-  const [session, setSession] = useState<AuthSession | null>(loadSession);
+  // Read any persisted session once on first render.
+  const [session, setSession] = useState<AuthSession | null>(getSession);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
       async login(email, password) {
-        const next = await mockApi.login(email, password);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        const next = await apiLogin(email, password);
         setSession(next);
         return next;
       },
       async register(email, password) {
-        await mockApi.register(email, password);
+        await apiRegister(email, password);
       },
       logout() {
-        localStorage.removeItem(STORAGE_KEY);
+        void apiLogout(); // revoke the refresh token server-side, best-effort
         setSession(null);
       },
     }),
