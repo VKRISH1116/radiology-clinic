@@ -37,6 +37,49 @@ export interface StudyLine {
   priceSnapshot: number;
 }
 
+/** A catalogue entry as admin sees it — includes the active flag. */
+export interface AdminService extends Service {
+  active: boolean;
+}
+
+export type ReferralStatus = 'PENDING' | 'PAID';
+
+/** A computed referral payout in the ledger. */
+export interface Referral {
+  id: number;
+  appointmentId: number;
+  doctorName: string;
+  amount: number;
+  status: ReferralStatus;
+  computedAt: string;
+}
+
+/** A configurable referral-engine rule (null scope column = "any"). */
+export interface ReferralRule {
+  id: number;
+  doctorName: string | null;
+  serviceName: string | null;
+  minAmount: number | null;
+  percentage: number;
+  active: boolean;
+}
+
+/** One audit-trail entry. */
+export interface AuditEntry {
+  id: number;
+  action: string;
+  entity: string | null;
+  entityId: number | null;
+  actor: string | null;
+  createdAt: string;
+}
+
+/** A staff/admin account row for user management. */
+export interface UserSummary {
+  email: string;
+  role: Role;
+}
+
 /** A booked visit (from /api/appointments/mine, or the staff schedule). */
 export interface Appointment {
   id: number;

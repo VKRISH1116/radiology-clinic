@@ -2,7 +2,15 @@
 // API with real HTTP calls; the component code above it won't need to change,
 // because both speak the same types from src/types.
 
-import type { Appointment, Role, Service } from '../types';
+import type {
+  AdminService,
+  Appointment,
+  AuditEntry,
+  Referral,
+  ReferralRule,
+  Role,
+  Service,
+} from '../types';
 
 export interface MockUser {
   email: string;
@@ -106,4 +114,31 @@ export const mockAppointments: Appointment[] = [
     billedAmount: 1000,
     studies: [{ serviceId: 2, name: 'Ultrasound Pelvis', priceSnapshot: 1000 }],
   },
+];
+
+// --- admin console data ---------------------------------------------------
+
+// Full catalogue incl. an inactive entry (admin sees active + inactive).
+export const mockCatalog: AdminService[] = [
+  ...mockServices.map((s) => ({ ...s, active: true })),
+  { id: 99, category: 'General', name: 'Ultrasound Chest (retired)', price: 1200, active: false },
+];
+
+export const mockReferrals: Referral[] = [
+  { id: 1, appointmentId: 503, doctorName: 'Dr. Meera Sharma', amount: 625, status: 'PENDING', computedAt: todayAt(10, 35) },
+  { id: 2, appointmentId: 480, doctorName: 'Dr. Arjun Iyer', amount: 225, status: 'PAID', computedAt: todayAt(9, 20) },
+  { id: 3, appointmentId: 495, doctorName: 'Dr. Meera Sharma', amount: 400, status: 'PENDING', computedAt: todayAt(11, 5) },
+];
+
+export const mockRules: ReferralRule[] = [
+  { id: 1, doctorName: null, serviceName: null, minAmount: null, percentage: 20, active: true },
+  { id: 2, doctorName: 'Dr. Meera Sharma', serviceName: null, minAmount: null, percentage: 25, active: true },
+  { id: 3, doctorName: null, serviceName: 'Ultrasound Thyroid', minAmount: null, percentage: 15, active: true },
+  { id: 4, doctorName: null, serviceName: null, minAmount: 3000, percentage: 30, active: true },
+];
+
+export const mockAudit: AuditEntry[] = [
+  { id: 1, action: 'REPORT_UPLOAD', entity: 'appointment', entityId: 503, actor: 'staff@clinic.local', createdAt: todayAt(10, 40) },
+  { id: 2, action: 'PAYOUT_UPDATE', entity: 'referral', entityId: 2, actor: 'admin@clinic.local', createdAt: todayAt(9, 20) },
+  { id: 3, action: 'REPORT_DOWNLOAD', entity: 'appointment', entityId: 503, actor: 'patient@clinic.local', createdAt: todayAt(11, 5) },
 ];
