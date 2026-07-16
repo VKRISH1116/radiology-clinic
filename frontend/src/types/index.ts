@@ -37,7 +37,7 @@ export interface StudyLine {
   priceSnapshot: number;
 }
 
-/** A booked visit (from /api/appointments/mine). */
+/** A booked visit (from /api/appointments/mine, or the staff schedule). */
 export interface Appointment {
   id: number;
   slotId: number;
@@ -45,4 +45,6 @@ export interface Appointment {
   status: AppointmentStatus;
   billedAmount: number;
   studies: StudyLine[];
+  patientName?: string; // shown to staff; not needed on the patient's own view
+  reportFileName?: string; // set once a report PDF is attached
 }

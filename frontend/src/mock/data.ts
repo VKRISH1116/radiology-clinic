@@ -30,6 +30,61 @@ export const mockServices: Service[] = [
   { id: 8, category: 'Obstetrics', name: 'TIFFA Scan', price: 2000 },
 ];
 
+// Build an ISO instant for today at a given clinic-local time.
+function todayAt(hour: number, minute: number): string {
+  const d = new Date();
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
+  const hh = String(hour).padStart(2, '0');
+  const mm = String(minute).padStart(2, '0');
+  return `${date}T${hh}:${mm}:00+05:30`;
+}
+
+// The whole clinic's schedule for today, as staff would see it (with patient names).
+export const mockSchedule: Appointment[] = [
+  {
+    id: 501,
+    patientName: 'Asha Rao',
+    slotId: 9001,
+    slotStartTime: todayAt(9, 0),
+    status: 'BOOKED',
+    billedAmount: 2500,
+    studies: [
+      { serviceId: 1, name: 'Ultrasound Abdomen & Pelvis', priceSnapshot: 1000 },
+      { serviceId: 4, name: 'Ultrasound Thyroid', priceSnapshot: 1500 },
+    ],
+  },
+  {
+    id: 502,
+    patientName: 'Vikram Singh',
+    slotId: 9002,
+    slotStartTime: todayAt(9, 45),
+    status: 'BOOKED',
+    billedAmount: 1000,
+    studies: [{ serviceId: 2, name: 'Ultrasound Pelvis', priceSnapshot: 1000 }],
+  },
+  {
+    id: 503,
+    patientName: 'Meena Kumari',
+    slotId: 9003,
+    slotStartTime: todayAt(10, 30),
+    status: 'COMPLETED',
+    billedAmount: 2000,
+    studies: [{ serviceId: 8, name: 'TIFFA Scan', priceSnapshot: 2000 }],
+    reportFileName: 'meena-tiffa.pdf',
+  },
+  {
+    id: 504,
+    patientName: 'Rahul Nair',
+    slotId: 9004,
+    slotStartTime: todayAt(11, 15),
+    status: 'BOOKED',
+    billedAmount: 1500,
+    studies: [{ serviceId: 5, name: 'Ultrasound Scrotum', priceSnapshot: 1500 }],
+  },
+];
+
 // A couple of appointments for the demo patient.
 export const mockAppointments: Appointment[] = [
   {
