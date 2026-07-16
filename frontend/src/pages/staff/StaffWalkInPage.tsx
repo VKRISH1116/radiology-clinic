@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SlotPicker } from '../../components/SlotPicker';
 import { api } from '../../api/api';
-import type { Service, SlotAvailability } from '../../types';
+import type { ReferringDoctor, Service, SlotAvailability } from '../../types';
 import { formatINR } from '../../util/format';
 // Reuse the patient booking page's layout styles — same two-column shape.
 import styles from '../patient/BookingPage.module.css';
@@ -12,6 +12,8 @@ export function StaffWalkInPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [doctors, setDoctors] = useState<ReferringDoctor[]>([]);
+  const [doctorName, setDoctorName] = useState('');
   const [selectedStudies, setSelectedStudies] = useState<number[]>([]);
   const [slot, setSlot] = useState<SlotAvailability | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -19,7 +21,21 @@ export function StaffWalkInPage() {
 
   useEffect(() => {
     api.listServices().then(setServices);
+    api.listReferringDoctors().then(setDoctors);
   }, []);
+
+  /**
+   * Turn the typed doctor name into an id: blank -> none; an existing doctor
+   * (case-insensitive) -> its id; anything else -> create it, then use that id.
+   */
+  async function resolveDoctorId(): Promise<number | undefined> {
+    const typed = doctorName.trim();
+    if (typed === '') return undefined;
+    const existing = doctors.find((d) => d.name.toLowerCase() === typed.toLowerCase());
+    if (existing) return existing.id;
+    const created = await api.createReferringDoctor(typed);
+    return created.id;
+  }
 
   function toggleStudy(id: number) {
     setSelectedStudies((prev) =>
@@ -44,7 +60,8 @@ export function StaffWalkInPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await api.walkInBook(name.trim(), slot, selectedStudies);
+      const referringDoctorId = await resolveDoctorId();
+      await api.walkInBook(name.trim(), slot, selectedStudies, referringDoctorId);
       navigate('/staff', { replace: true, state: { walkedIn: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Booking failed');
@@ -74,6 +91,21 @@ export function StaffWalkInPage() {
           <div className={styles.group}>
             <label htmlFor="phone">Phone (optional)</label>
             <input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </div>
+          <div className={styles.group}>
+            <label htmlFor="doctor">Referring doctor (optional)</label>
+            <input
+              id="doctor"
+              list="doctor-options"
+              placeholder="Pick a doctor or type a new name"
+              value={doctorName}
+              onChange={(e) => setDoctorName(e.target.value)}
+            />
+            <datalist id="doctor-options">
+              {doctors.map((d) => (
+                <option key={d.id} value={d.name} />
+              ))}
+            </datalist>
           </div>
 
           <h2 className={styles.h2}>2 · Studies</h2>
