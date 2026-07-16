@@ -26,8 +26,13 @@ RUN mvn -B -q clean package -DskipTests
 FROM eclipse-temurin:21-jre AS runtime
 WORKDIR /app
 
-# Run as an unprivileged user, never root.
-RUN useradd --system --uid 1001 spring
+# Run as an unprivileged user, never root. Pre-create the reports directory and
+# hand it to that user, so the app can write there even with NO volume mounted
+# (e.g. a PaaS free tier without an attached disk). With a volume, it's the mount
+# point; either way the non-root user owns it.
+RUN useradd --system --uid 1001 spring \
+ && mkdir -p /data/reports \
+ && chown -R spring:spring /data
 USER spring
 
 # The single fat jar produced by the build stage (Spring Boot repackage).

@@ -86,7 +86,8 @@
     <a href="#ready">3 · What's ready</a>
     <a href="#checklist">4 · Go-live checklist</a>
     <a href="#run">5 · Commands</a>
-    <a href="#next">6 · Beyond MVP</a>
+    <a href="#render">6 · Deploy to Render</a>
+    <a href="#next">7 · Beyond MVP</a>
   </nav>
 
   <!-- 1 -->
@@ -186,7 +187,34 @@ docker compose --profile app up -d --build</code></pre>
   </div>
 
   <!-- 6 -->
-  <h2 id="next"><span class="n">6</span>Beyond MVP</h2>
+  <h2 id="render"><span class="n">6</span>Deploy to Render (chosen PaaS)</h2>
+  <p>The repo has a <code>render.yaml</code> <b>blueprint</b> that declares all three pieces — a managed Postgres, the
+     backend (from its Dockerfile), and the frontend (a static site). On a PaaS the two app pieces are separate services
+     with their own URLs, so the frontend calls the backend cross-origin using <code>VITE_API_URL</code> + CORS (not the
+     local nginx same-origin proxy).</p>
+  <ol>
+    <li>Push to GitHub (done). In the <b>Render dashboard → New → Blueprint</b>, connect this repo. Render reads
+        <code>render.yaml</code> and provisions the database + both services.</li>
+    <li>It will prompt for the two <code>sync:false</code> values it can't guess: <code>BOOTSTRAP_ADMIN_PASSWORD</code>
+        (choose one you'll remember) — the rest (DB connection, <code>JWT_SECRET</code>) are wired/generated for you.</li>
+    <li>Let the first deploy finish. Note the two public URLs, e.g. <code>radiology-backend.onrender.com</code> and
+        <code>radiology-frontend.onrender.com</code>.</li>
+    <li><b>Wire the two cross-references</b> (chicken-and-egg — each needs the other's URL):
+      <ul>
+        <li>Backend env <code>CORS_ALLOWED_ORIGINS</code> = the frontend URL.</li>
+        <li>Frontend env <code>VITE_API_URL</code> = the backend URL.</li>
+      </ul>
+      Save — Render redeploys the backend and rebuilds the static site with the baked URL.</li>
+    <li>Open the frontend URL, log in as the bootstrap admin, and change its password.</li>
+  </ol>
+  <div class="callout"><b>Verified locally under PaaS-like conditions.</b> The backend was booted with the DB URL
+    assembled from parts, the platform-injected <code>PORT</code>, and <b>no mounted volume</b> — which surfaced (and we
+    fixed) a real bug: the non-root container user couldn't create <code>/data/reports</code>. The image now pre-creates
+    and owns it. <b>Caveat:</b> on Render's free tier there's no persistent disk, so uploaded report PDFs are lost on
+    each redeploy — fine for a demo; attach a disk (paid) or move reports to S3 for real use.</div>
+
+  <!-- 7 -->
+  <h2 id="next"><span class="n">7</span>Beyond MVP</h2>
   <div class="tablewrap"><table>
     <thead><tr><th>Item</th><th>Status</th><th>Note</th></tr></thead>
     <tbody>
