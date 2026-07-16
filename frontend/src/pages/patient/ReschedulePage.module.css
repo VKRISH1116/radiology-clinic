@@ -1,0 +1,61 @@
+.back {
+  padding: 5px 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.h1 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+.h2 {
+  margin: 22px 0 4px;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.muted {
+  color: var(--ink-soft);
+}
+
+.current {
+  padding: 14px 18px;
+}
+.curLabel {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.curWhen {
+  font-weight: 700;
+  margin-top: 2px;
+}
+.curStudies {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  margin-top: 20px;
+  position: sticky;
+  bottom: 12px;
+}
+.sumLine {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.sumRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.error {
+  color: var(--red);
+  font-size: 13px;
+}

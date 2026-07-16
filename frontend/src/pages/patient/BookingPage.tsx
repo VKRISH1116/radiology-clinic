@@ -1,16 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { SlotPicker } from '../../components/SlotPicker';
 import { mockApi } from '../../mock/api';
 import type { Service, SlotAvailability } from '../../types';
 import { formatINR } from '../../util/format';
 import styles from './BookingPage.module.css';
-
-/** Default the date to tomorrow (yyyy-mm-dd for the <input type="date">). */
-function tomorrowISO(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
-}
 
 export function BookingPage() {
   const navigate = useNavigate();
@@ -19,32 +13,14 @@ export function BookingPage() {
   const preselect = (location.state as { serviceId?: number } | null)?.serviceId;
 
   const [services, setServices] = useState<Service[]>([]);
-  const [date, setDate] = useState(tomorrowISO());
-  const [slots, setSlots] = useState<SlotAvailability[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(true);
   const [selectedStudies, setSelectedStudies] = useState<number[]>(preselect ? [preselect] : []);
-  const [selectedSlotId, setSelectedSlotId] = useState<number | null>(null);
+  const [slot, setSlot] = useState<SlotAvailability | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     mockApi.listServices().then(setServices);
   }, []);
-
-  // Re-fetch the slot grid whenever the date changes; clear any slot selection.
-  useEffect(() => {
-    let active = true;
-    setLoadingSlots(true);
-    setSelectedSlotId(null);
-    mockApi.listSlots(date).then((s) => {
-      if (!active) return;
-      setSlots(s);
-      setLoadingSlots(false);
-    });
-    return () => {
-      active = false;
-    };
-  }, [date]);
 
   function toggleStudy(id: number) {
     setSelectedStudies((prev) =>
@@ -62,10 +38,9 @@ export function BookingPage() {
     [selectedStudies, services],
   );
 
-  const canBook = selectedStudies.length > 0 && selectedSlotId !== null && !submitting;
+  const canBook = selectedStudies.length > 0 && slot !== null && !submitting;
 
   async function confirm() {
-    const slot = slots.find((s) => s.id === selectedSlotId);
     if (!slot) return;
     setError(null);
     setSubmitting(true);
@@ -114,32 +89,7 @@ export function BookingPage() {
 
         <section className={styles.col}>
           <h2 className={styles.h2}>2 · Pick a slot</h2>
-          <label htmlFor="date">Date</label>
-          <input
-            id="date"
-            type="date"
-            value={date}
-            min={new Date().toISOString().slice(0, 10)}
-            onChange={(e) => setDate(e.target.value)}
-          />
-
-          {loadingSlots ? (
-            <p className={styles.muted}>Loading slots…</p>
-          ) : (
-            <div className={styles.slots}>
-              {slots.map((slot) => (
-                <button
-                  key={slot.id}
-                  className={`${styles.slot} ${selectedSlotId === slot.id ? styles.slotOn : ''}`}
-                  disabled={slot.available === 0}
-                  title={slot.available === 0 ? 'Fully booked' : ''}
-                  onClick={() => setSelectedSlotId(slot.id)}
-                >
-                  {slot.startTime.slice(11, 16)}
-                </button>
-              ))}
-            </div>
-          )}
+          <SlotPicker value={slot} onChange={setSlot} />
         </section>
       </div>
 
@@ -147,7 +97,7 @@ export function BookingPage() {
         <div>
           <div className={styles.sumLine}>
             {selectedStudies.length} stud{selectedStudies.length === 1 ? 'y' : 'ies'} ·{' '}
-            {selectedSlotId ? 'slot selected' : 'no slot yet'}
+            {slot ? 'slot selected' : 'no slot yet'}
           </div>
           <div className={styles.total}>{formatINR(bill)}</div>
         </div>
