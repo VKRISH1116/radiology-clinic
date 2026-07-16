@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SlotPicker } from '../../components/SlotPicker';
-import { mockApi } from '../../mock/api';
+import { api } from '../../api/api';
 import type { Appointment, SlotAvailability } from '../../types';
 import { formatDateTime } from '../../util/format';
 import styles from './ReschedulePage.module.css';
@@ -19,7 +19,7 @@ export function ReschedulePage() {
 
   useEffect(() => {
     let active = true;
-    mockApi.listMyAppointments().then((list) => {
+    api.listMyAppointments().then((list) => {
       if (!active) return;
       setAppt(list.find((a) => a.id === appointmentId) ?? null);
       setLoading(false);
@@ -34,7 +34,7 @@ export function ReschedulePage() {
     setError(null);
     setSubmitting(true);
     try {
-      await mockApi.reschedule(appointmentId, slot);
+      await api.reschedule(appointmentId, slot);
       navigate('/patient', { replace: true, state: { rescheduled: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Reschedule failed');
