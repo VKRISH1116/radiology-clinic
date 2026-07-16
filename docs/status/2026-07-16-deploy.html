@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Status — 2026-07-16 · Live Deploy</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--green:#16a34a;--amber:#d97706;
+    --red:#dc2626;--red-soft:#fdecec;--codebg:#f2f4fb;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--green:#4ade80;--amber:#fbbf24;
+    --red:#f87171;--red-soft:#2a1a1e;--codebg:#12161f;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 60px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:860px;margin:0 auto}
+  header{padding:38px 0 20px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+    background:var(--accent-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:26px;margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--ink-soft);margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:14px;font-size:13px;color:var(--ink-faint)}
+  .meta b{color:var(--ink-soft)}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+    margin:30px 0 12px;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:6px 22px;box-shadow:var(--shadow)}
+  ul{margin:14px 0;padding-left:4px;list-style:none}
+  li{position:relative;padding:6px 0 6px 28px;border-bottom:1px solid var(--line)}
+  li:last-child{border-bottom:none}
+  li::before{content:"✓";position:absolute;left:2px;top:6px;color:var(--green);font-weight:700}
+  li.learn::before{content:"💡";left:0}
+  li.next::before{content:"→";color:var(--amber);font-weight:700;left:4px}
+  li.fix::before{content:"🔒";left:0}
+  li b{color:var(--ink)}
+  a{color:var(--accent)}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px}
+  pre{background:var(--codebg);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;overflow-x:auto;margin:16px 0;
+    font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12.5px;line-height:1.55}
+  pre .c{color:var(--ink-faint)}
+  pre .k{color:var(--accent);font-weight:600}
+  pre .r{color:var(--red);font-weight:600}
+  pre .g{color:var(--green);font-weight:600}
+  .scroll{overflow-x:auto;margin:14px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  td.m{font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:nowrap}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0;font-size:13px}
+  .chip{background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);
+    padding:4px 10px;border-radius:8px;font-weight:600}
+  .chip.host{background:var(--panel);color:var(--ink-soft)}
+  .arrow{color:var(--ink-faint)}
+  .tests{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+  .stat{flex:1 1 150px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow)}
+  .stat .n{font-size:19px;font-weight:700;color:var(--green);word-break:break-word}
+  .stat .l{font-size:12px;color:var(--ink-faint);margin-top:2px}
+  .callout{background:var(--red-soft);border:1px solid var(--line);border-left:3px solid var(--red);
+    border-radius:10px;padding:2px 18px;margin:16px 0}
+  .callout.amber{background:transparent;border-left-color:var(--amber)}
+  .callout h3{font-size:14px;margin:14px 0 4px;color:var(--ink)}
+  .livebtn{display:inline-block;margin:2px 0;padding:9px 16px;border-radius:10px;
+    background:var(--accent);color:#fff;font-weight:600;text-decoration:none;font-size:14px}
+  footer{margin-top:34px;font-size:12px;color:var(--ink-faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">🚀 Daily Status · For mentor review</span>
+    <h1>Day 4 — The app is LIVE on the internet</h1>
+    <p class="sub">Radiology Clinic Website · Learning-first full-stack build · first public cloud deploy</p>
+    <div class="meta">
+      <span><b>Date:</b> 2026-07-16</span>
+      <span><b>Phase:</b> 8 — Deployment · <b>SHIPPED</b></span>
+      <span><b>Host:</b> Render (PaaS) — managed Postgres + Docker web service + static site</span>
+      <span><b>Stack live:</b> React 19 SPA · Spring Boot 4.1 · PostgreSQL 16 · HTTPS</span>
+    </div>
+  </header>
+
+  <div class="tests">
+    <div class="stat"><div class="n"><a href="https://radiology-frontend-ok1f.onrender.com">radiology-frontend-ok1f</a></div><div class="l">Frontend — React static site</div></div>
+    <div class="stat"><div class="n">radiology-backend-qw3h</div><div class="l">Backend — Spring Boot (Docker)</div></div>
+    <div class="stat"><div class="n">managed PG</div><div class="l">Render PostgreSQL — persistent DB</div></div>
+    <div class="stat"><div class="n">1 bug</div><div class="l">found &amp; fixed post-deploy (CORS)</div></div>
+  </div>
+
+  <p style="text-align:center;margin:18px 0 6px">
+    <a class="livebtn" href="https://radiology-frontend-ok1f.onrender.com">Open the live app →</a>
+  </p>
+
+  <h2>What shipped today</h2>
+  <div class="card">
+    <ul>
+      <li><b>The whole MVP is now reachable on the public internet over HTTPS.</b> Anyone with the link can register as a patient, book an ultrasound, and — as staff/admin — run the clinic. Phases 0–8 are complete end to end: requirements → design → backend → frontend → integration → testing → <b>deployment</b>.</li>
+      <li><b>Deployed via the <code>render.yaml</code> blueprint</b> (infrastructure-as-code): one file describes all three services, so the deploy is reproducible instead of hand-clicked. Render read it, provisioned the managed Postgres, built the backend from its Dockerfile, and built + served the frontend as a static site.</li>
+      <li><b>Secrets live in the platform, not in git:</b> the JWT signing key is generated by Render, the DB password is injected by the managed database, and the admin bootstrap password is set privately in the dashboard (<code>sync:false</code>). Nothing sensitive is in the repo.</li>
+    </ul>
+  </div>
+
+  <h2>How the live architecture differs from localhost</h2>
+  <div class="card">
+    <p style="color:var(--ink-soft)">This was the key learning of the deploy. <b>Locally</b>, one nginx container serves the frontend <em>and</em> reverse-proxies <code>/api</code> to the backend — so the browser only ever talks to <b>one origin</b> and there is no cross-origin problem at all:</p>
+    <div class="flow">
+      <span class="chip host">browser</span><span class="arrow">→</span>
+      <span class="chip">localhost:3000 (nginx)</span><span class="arrow">→ /api →</span>
+      <span class="chip">backend:8080</span><span class="arrow">→</span>
+      <span class="chip">postgres</span>
+    </div>
+    <p style="color:var(--ink-soft)">On <b>Render</b>, the frontend and backend are <b>separate services on separate domains</b>. The browser calls the backend directly from another origin, so two things must be wired up that localhost never needed:</p>
+    <div class="flow">
+      <span class="chip host">browser</span><span class="arrow">→</span>
+      <span class="chip">…frontend-ok1f.onrender.com</span>
+      <span class="arrow">— cross-origin fetch →</span>
+      <span class="chip">…backend-qw3h.onrender.com</span><span class="arrow">→</span>
+      <span class="chip">managed PG</span>
+    </div>
+    <ul>
+      <li><b><code>VITE_API_URL</code> (build-time):</b> the frontend has no proxy now, so it must know the backend's full URL. Vite <b>bakes this into the JS at build</b> — which means changing it requires a <b>rebuild</b>, not just a restart. (This one was already correct — the login request was hitting the right backend URL.)</li>
+      <li><b><code>CORS_ALLOWED_ORIGINS</code> (run-time):</b> the backend must explicitly permit the frontend's origin, or the browser blocks the response. This is the one that bit us — see below.</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <h3>🔒 The one post-deploy bug — CORS preflight 403</h3>
+    <p style="color:var(--ink-soft);font-size:14px">Login failed in the browser with a bare <code>Failed to fetch</code>. DevTools showed the real story: the browser's <b>preflight <code>OPTIONS</code></b> request (which it sends automatically before a cross-origin <code>POST</code>) came back <b>403 Forbidden</b> with no <code>Access-Control-Allow-*</code> headers — so the browser never sent the actual login POST.</p>
+<pre><span class="c">// browser → backend, before the real POST:</span>
+<span class="k">OPTIONS</span> /api/auth/login
+Origin: https://radiology-frontend-ok1f.onrender.com
+Access-Control-Request-Method: POST
+   <span class="c">← backend replied</span> <span class="r">403 Forbidden</span> <span class="c">(origin not on the allow-list)</span>
+
+<span class="c">// the backend's default was still the localhost dev origin:</span>
+allowed-origins: ${CORS_ALLOWED_ORIGINS:<span class="r">http://localhost:5173</span>}</pre>
+    <p style="color:var(--ink-soft);font-size:14px"><b>Root cause:</b> Spring Security's CORS filter checks the incoming <code>Origin</code> against a configured allow-list. On Render that list still held only the <em>localhost</em> default, so the real frontend origin was rejected. <b>Fix</b> (no code change — config only): set the backend env var to the exact frontend URL and let Render auto-redeploy:</p>
+<pre><span class="k">CORS_ALLOWED_ORIGINS</span> = https://radiology-frontend-ok1f.onrender.com  <span class="c">// exact match, no trailing slash</span>
+   <span class="c">→ redeploy →</span> <span class="g">preflight 200, login works ✓</span></pre>
+    <p style="color:var(--ink-soft);font-size:13px">This was the expected "chicken-and-egg": each service needs the other's final URL, which only exists <em>after</em> the first deploy — so wiring the pair together always takes one extra redeploy.</p>
+  </div>
+
+  <div class="callout amber">
+    <h3>⚠️ Free-tier trade-offs (fine for a demo — flagged for honesty)</h3>
+    <ul>
+      <li><b>Cold starts:</b> free services spin down after ~15 min idle; the first request then takes ~50 s while the backend wakes. Not a bug — just slow-on-first-hit.</li>
+      <li><b>Ephemeral report storage:</b> there's no persistent disk, so uploaded report PDFs live only until the next redeploy. Real use needs a paid disk or object storage (S3). The rest of the data is safe — it's in the managed Postgres.</li>
+    </ul>
+  </div>
+
+  <h2>What I learned</h2>
+  <div class="card">
+    <ul>
+      <li class="learn"><b>"Deployed" and "working" are different claims.</b> The build succeeded and the site loaded, yet login was broken — only exercising the real flow through a real browser surfaced it. A smoke test on the live URL is part of deploying, not an afterthought.</li>
+      <li class="learn"><b>Same code, different topology, new failure modes.</b> The exact backend that needed no CORS at all locally (one origin behind nginx) suddenly needed it in prod (two origins). The environment, not the code, created the bug.</li>
+      <li class="learn"><b>Build-time vs run-time config.</b> <code>VITE_API_URL</code> is frozen into the frontend at <em>build</em>; <code>CORS_ALLOWED_ORIGINS</code> is read at <em>run</em>. Knowing which is which tells you whether a change needs a rebuild or just a restart.</li>
+      <li class="learn"><b>Read the preflight, not just the error.</b> "Failed to fetch" says nothing; the <code>OPTIONS</code> 403 in the Network tab named the exact cause. The browser's CORS handshake is where cross-origin problems announce themselves.</li>
+      <li class="learn"><b>Blueprint &gt; clicking.</b> Describing the infrastructure in <code>render.yaml</code> makes the deploy repeatable and reviewable — the same discipline as code, applied to servers.</li>
+    </ul>
+  </div>
+
+  <h2>Live smoke test — the pipeline I'm verifying</h2>
+  <div class="card">
+    <div class="scroll">
+      <table>
+        <thead><tr><th>#</th><th>Step</th><th>As</th><th>Expected</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Register + accept consent</td><td class="role">patient</td><td>lands on patient dashboard</td></tr>
+          <tr><td>2</td><td>Book a scan (studies → date → slot)</td><td class="role">patient</td><td>appointment shows BOOKED, bill = Σ prices</td></tr>
+          <tr><td>3</td><td>Create a STAFF user (Users tab)</td><td class="role">admin</td><td>new staff can log in</td></tr>
+          <tr><td>4</td><td>Mark complete + upload report PDF</td><td class="role">staff</td><td>status → COMPLETED, report attached</td></tr>
+          <tr><td>5</td><td>Download own report</td><td class="role">patient</td><td>PDF opens</td></tr>
+          <tr><td>6</td><td>Check KPI dashboard tiles</td><td class="role">admin</td><td>counts + top-referrers reflect the flow</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--ink-soft);font-size:13px">The prod database is fresh, so the first admin comes from the <code>BOOTSTRAP_ADMIN_*</code> env vars; staff and patients are created live during the test.</p>
+  </div>
+
+  <h2>Next up</h2>
+  <div class="card">
+    <ul>
+      <li class="next"><b>Finish the live smoke test</b> (table above) and confirm every role's flow end to end on the Render URL.</li>
+      <li class="next"><b>Harden the prod admin</b> — verify the bootstrap login and that its password is strong (it's the master key to the clinic).</li>
+      <li class="next"><b>Watch CI go green</b> on GitHub Actions (mvn test · npm test · build) for the pushed commits.</li>
+      <li class="next"><b>Beyond MVP:</b> move report storage to a persistent disk / S3 · add Playwright E2E as a CI job · the long-term <b>AWS</b> target · a custom domain + always-on tier to kill cold starts.</li>
+    </ul>
+  </div>
+
+  <footer>Generated as part of the daily learning log · Phase 8 (Deployment) shipped — first public cloud deploy on Render, live over HTTPS</footer>
+</div>
+</body>
+</html>
