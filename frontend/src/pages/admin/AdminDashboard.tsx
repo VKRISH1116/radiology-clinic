@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './Admin.module.css';
+import { StatsBar } from './StatsBar';
 import { AuditSection } from './sections/AuditSection';
 import { CatalogueSection } from './sections/CatalogueSection';
 import { ReferralsSection } from './sections/ReferralsSection';
@@ -22,6 +23,8 @@ export function AdminDashboard() {
   return (
     <div>
       <h1 className={styles.h1}>Admin console</h1>
+
+      <StatsBar />
 
       <div className={styles.tabs}>
         {TABS.map((t) => (

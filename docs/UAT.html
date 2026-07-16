@@ -107,10 +107,10 @@
   <p>Three layers of automated tests back this release, plus a manual walkthrough. Each layer catches a different
      class of defect, which is why we keep all three rather than relying on one.</p>
   <div class="metrics">
-    <div class="metric"><div class="big">73</div><div class="lbl">Backend tests</div></div>
-    <div class="metric"><div class="big">18</div><div class="lbl">Frontend tests</div></div>
+    <div class="metric"><div class="big">76</div><div class="lbl">Backend tests</div></div>
+    <div class="metric"><div class="big">20</div><div class="lbl">Frontend tests</div></div>
     <div class="metric"><div class="big">1</div><div class="lbl">E2E (browser)</div></div>
-    <div class="metric"><div class="big">92</div><div class="lbl">Automated total</div></div>
+    <div class="metric"><div class="big">97</div><div class="lbl">Automated total</div></div>
   </div>
   <div class="tablewrap"><table>
     <thead><tr><th>Layer</th><th>Tooling</th><th>What it proves</th><th>Where</th></tr></thead>
@@ -187,8 +187,8 @@
         <td>BE <code>/referrals/summary</code> endpoint exists + pay flow tested (<code>payingAReferral_writesAPayoutAuditEntry</code>, <code>referral_markedPaid_byAdmin_andRepayReturns409</code>). The aggregated summary shape itself is exercised manually via the admin Referrals tab (no dedicated assertion yet).</td>
         <td><span class="pill partial">Partial</span></td></tr>
       <tr><td class="acid">AC-F7-1</td><td>Admin dashboard shows today's appt count, total patients, reports pending vs delivered, top-5 referrers.</td>
-        <td>Admin console has Referrals (top referrers) + per-tab lists, but no consolidated "counts" dashboard endpoint/tiles. The KPI header is not built.</td>
-        <td><span class="pill gap">Gap</span></td></tr>
+        <td>BE <code>stats_countTodaysAppointmentsAndPendingReports</code>, <code>stats_areAdminOnly</code>, <code>stats_withoutToken_returns401</code> (GET <code>/api/admin/stats</code>); FE <code>StatsBar</code> (KPI tiles + top-referrers render from the stats call). Counts scoped to the clinic's local day.</td>
+        <td><span class="pill pass">Pass</span></td></tr>
       <tr><td class="acid">AC-F8-1</td><td>Change a study's price → new bookings use it, existing appointments keep the snapshot.</td>
         <td>BE <code>adminCreatesService_thenItIsBookable</code> + snapshot proof <code>book_validRequest_snapshotsPricesAndBillsTheSum</code> (BR-9); FE <code>CatalogueSection</code> (Save appears only when price is dirty, PUTs the new price).</td>
         <td><span class="pill pass">Pass</span></td></tr>
@@ -197,7 +197,7 @@
         <td><span class="pill pass">Pass</span></td></tr>
     </tbody>
   </table></div>
-  <p style="font-size:13px;color:var(--ink-faint)"><b>Tally:</b> 13 Pass · 2 Partial · 1 Gap · 1 Deferred, across 17 acceptance criteria.
+  <p style="font-size:13px;color:var(--ink-faint)"><b>Tally:</b> 14 Pass · 2 Partial · 0 Gap · 1 Deferred, across 17 acceptance criteria.
      BE = backend test, FE = frontend test, E2E = Playwright.</p>
 
   <!-- 3 -->
@@ -213,15 +213,18 @@
     <li><b>Role gate.</b> While logged in as the patient, try to reach <code>/staff</code> or <code>/admin</code> → you are redirected away. <span class="acid">AC-F1-2</span></li>
     <li><b>Staff completes &amp; uploads.</b> Log in as staff → open today's schedule → Mark complete a booked visit → upload a PDF report (try a non-PDF first: rejected). <span class="acid">AC-F4-1 / AC-F5-2</span></li>
     <li><b>Report privacy.</b> Back as the owning patient, download the report. As a <em>different</em> patient, confirm you cannot. <span class="acid">AC-F4-2</span></li>
+    <li><b>Admin overview.</b> Log in as admin → the console header shows KPI tiles (today's appointments, total patients, reports delivered vs pending) and a top-5 referrers line. <span class="acid">AC-F7-1</span></li>
     <li><b>Referral maths.</b> As admin, open Referrals → confirm a completed referred visit shows the expected payout (default 20%, or the doctor's specific rate if a rule applies) → Mark paid → status flips to PAID. <span class="acid">AC-F6-1/2/3</span></li>
     <li><b>Catalogue &amp; snapshot.</b> As admin, change a study's price → book a new appointment (uses new price) → confirm an <em>earlier</em> appointment still shows its old billed amount. Deactivate a study → confirm it disappears from the booking list. <span class="acid">AC-F8-1 / AC-F8-2</span></li>
   </ol>
 
   <!-- 4 -->
   <h2 id="gaps"><span class="n">4</span>Gaps &amp; decisions</h2>
-  <p>UAT's real value is surfacing the honest delta between "signed off" and "built". The consent-gate gap it first
-     flagged (AC-F3-1) has since been fixed — a required consent checkbox now blocks registration until it's ticked.
-     Three criteria remain not fully met; none blocks the MVP demo, and each has a decision attached.</p>
+  <p>UAT's real value is surfacing the honest delta between "signed off" and "built". Two gaps it first flagged have
+     since been closed: the consent gate (AC-F3-1 — a required consent checkbox now blocks registration) and the admin
+     KPI dashboard (AC-F7-1 — a <code>/api/admin/stats</code> endpoint now feeds a tile row of today's appointments,
+     total patients, reports delivered/pending, and top-5 referrers). Two criteria remain not fully met; neither blocks
+     the MVP demo, and each has a decision attached.</p>
   <div class="tablewrap"><table>
     <thead><tr><th>Item</th><th>Status</th><th>Decision / next step</th></tr></thead>
     <tbody>
@@ -229,17 +232,15 @@
         <td>Already deferred at URD/PRD sign-off (needs an email transport we're not wiring for MVP). Backlog for a post-MVP iteration.</td></tr>
       <tr><td><b>AC-F5-1</b> Editable bill</td><td><span class="pill partial">Partial</span></td>
         <td>Bill is auto-computed from snapshotted study prices. Staff-editable billing (discounts/adjustments) not in MVP — confirm with mentor whether it's needed for v1.</td></tr>
-      <tr><td><b>AC-F7-1</b> Admin KPI dashboard</td><td><span class="pill gap">Gap</span></td>
-        <td>The data exists across tabs but there's no summary-counts header. Needs one small aggregate endpoint + a KPI tile row. Candidate for Phase 7 polish or an early Phase&nbsp;8 item.</td></tr>
     </tbody>
   </table></div>
 
   <!-- 5 -->
   <h2 id="how"><span class="n">5</span>How to run the tests</h2>
   <div class="card">
-    <p style="margin:0 0 6px"><b>Backend</b> (73 tests, H2 in-memory — no Postgres needed):</p>
+    <p style="margin:0 0 6px"><b>Backend</b> (76 tests, H2 in-memory — no Postgres needed):</p>
     <code>&amp; "C:\tools\apache-maven-3.9.16\bin\mvn.cmd" -f backend\pom.xml test</code>
-    <p style="margin:14px 0 6px"><b>Frontend component</b> (18 tests):</p>
+    <p style="margin:14px 0 6px"><b>Frontend component</b> (20 tests):</p>
     <code>cd frontend &amp;&amp; npm test</code>
     <p style="margin:14px 0 6px"><b>End-to-end</b> (needs backend :8080 + Postgres running; Vite auto-starts):</p>
     <code>cd frontend &amp;&amp; npm run test:e2e</code>
