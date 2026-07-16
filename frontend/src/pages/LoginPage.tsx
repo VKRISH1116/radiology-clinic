@@ -66,8 +66,8 @@ export function LoginPage() {
           No account? <Link to="/register">Register</Link>
         </p>
         <div className={styles.demo}>
-          Demo logins: <code>patient@clinic.local</code> · <code>staff@clinic.local</code> ·{' '}
-          <code>admin@clinic.local</code> — password <code>password</code>
+          Connected to the live backend. New here? <Link to="/register">Register a patient</Link>{' '}
+          account, then sign in.
         </div>
       </form>
     </div>
