@@ -1,0 +1,92 @@
+.h1 {
+  margin: 0 0 2px;
+  font-size: 24px;
+}
+.h2 {
+  margin: 30px 0 12px;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.muted {
+  color: var(--ink-soft);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.appt {
+  padding: 14px 18px;
+}
+.apptTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.when {
+  font-weight: 600;
+}
+.status {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.booked {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.progress {
+  color: var(--amber);
+}
+.completed {
+  color: var(--green);
+}
+.cancelled {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+.studies {
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.bill {
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.group {
+  margin-bottom: 18px;
+}
+.cat {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 6px 0 10px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.svc {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.svcName {
+  font-weight: 600;
+}
+.svcPrice {
+  color: var(--ink-soft);
+}
+.svc button {
+  margin-top: 4px;
+}

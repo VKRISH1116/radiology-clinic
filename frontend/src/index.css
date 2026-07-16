@@ -1,0 +1,132 @@
+/* Global theme + base element styles. Component-specific layout lives in CSS
+   Modules (e.g. LoginPage.module.css); this file sets the design tokens and the
+   look of plain elements (buttons, inputs) so pages stay lean.
+   Palette matches the project's docs pages; light/dark follows the OS setting. */
+
+:root {
+  --bg: #f7f8fb;
+  --panel: #fff;
+  --ink: #1a2233;
+  --ink-soft: #55617a;
+  --ink-faint: #8a93a8;
+  --line: #e6e9f0;
+  --accent: #4f46e5;
+  --accent-ink: #fff;
+  --accent-soft: #eef0fe;
+  --green: #16a34a;
+  --amber: #d97706;
+  --red: #dc2626;
+  --shadow: 0 1px 2px rgba(20, 30, 60, 0.06), 0 8px 24px rgba(20, 30, 60, 0.06);
+  --radius: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1117;
+    --panel: #161b24;
+    --ink: #e8ecf4;
+    --ink-soft: #a4adc2;
+    --ink-faint: #6b7488;
+    --line: #262d3a;
+    --accent: #7c83ff;
+    --accent-soft: #1e2233;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 9px 16px;
+  border-radius: 9px;
+  transition: filter 0.12s ease, opacity 0.12s ease;
+}
+button:hover {
+  filter: brightness(0.98);
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+  font-weight: 600;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+input,
+select {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* small role badge used in the top bar */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}

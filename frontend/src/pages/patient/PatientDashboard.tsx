@@ -1,0 +1,92 @@
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../auth/AuthContext';
+import { mockApi } from '../../mock/api';
+import type { Appointment, Service } from '../../types';
+import { formatDateTime, formatINR } from '../../util/format';
+import styles from './PatientDashboard.module.css';
+
+const STATUS_CLASS: Record<Appointment['status'], string> = {
+  BOOKED: styles.booked,
+  IN_PROGRESS: styles.progress,
+  COMPLETED: styles.completed,
+  CANCELLED: styles.cancelled,
+};
+
+export function PatientDashboard() {
+  const { session } = useAuth();
+  const [services, setServices] = useState<Service[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch both lists once when the screen mounts. The `active` flag avoids setting
+  // state if the component unmounts before the (async) data arrives.
+  useEffect(() => {
+    let active = true;
+    Promise.all([mockApi.listServices(), mockApi.listMyAppointments()]).then(
+      ([svc, appts]) => {
+        if (!active) return;
+        setServices(svc);
+        setAppointments(appts);
+        setLoading(false);
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (loading) {
+    return <p className={styles.muted}>Loading…</p>;
+  }
+
+  // Group the catalogue by category for display.
+  const byCategory = services.reduce<Record<string, Service[]>>((acc, s) => {
+    (acc[s.category] ??= []).push(s);
+    return acc;
+  }, {});
+
+  return (
+    <div>
+      <h1 className={styles.h1}>Welcome back</h1>
+      <p className={styles.muted}>{session?.email}</p>
+
+      <h2 className={styles.h2}>My appointments</h2>
+      {appointments.length === 0 ? (
+        <p className={styles.muted}>No appointments yet.</p>
+      ) : (
+        <div className={styles.list}>
+          {appointments.map((a) => (
+            <div key={a.id} className={`card ${styles.appt}`}>
+              <div className={styles.apptTop}>
+                <span className={styles.when}>{formatDateTime(a.slotStartTime)}</span>
+                <span className={`${styles.status} ${STATUS_CLASS[a.status]}`}>{a.status}</span>
+              </div>
+              <div className={styles.studies}>
+                {a.studies.map((s) => s.name).join(' · ')}
+              </div>
+              <div className={styles.bill}>{formatINR(a.billedAmount)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h2 className={styles.h2}>Available studies</h2>
+      {Object.entries(byCategory).map(([category, items]) => (
+        <div key={category} className={styles.group}>
+          <h3 className={styles.cat}>{category}</h3>
+          <div className={styles.grid}>
+            {items.map((s) => (
+              <div key={s.id} className={`card ${styles.svc}`}>
+                <div className={styles.svcName}>{s.name}</div>
+                <div className={styles.svcPrice}>{formatINR(s.price)}</div>
+                <button disabled title="Booking arrives in the next slice">
+                  Book
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
