@@ -16,15 +16,18 @@ services:
     image: postgres:16
     container_name: radiology-clinic-db
     environment:
+      # Values come from a local .env file if present, else these dev defaults.
+      # A real deployment supplies a .env with strong secrets (see .env.example).
       POSTGRES_DB: radiology_clinic
-      POSTGRES_USER: clinic
-      POSTGRES_PASSWORD: clinic_dev_pw   # dev-only; real deploys use secrets/env vars
+      POSTGRES_USER: ${DB_USER:-clinic}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-clinic_dev_pw}
     ports:
       - "5432:5432"                      # host:container — Spring connects to localhost:5432
     volumes:
       - clinic_pgdata:/var/lib/postgresql/data   # named volume = data survives restarts
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U clinic -d radiology_clinic"]
+      # $$ escapes compose interpolation so the shell reads the container's env.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -38,15 +41,16 @@ services:
         condition: service_healthy   # wait until Postgres accepts connections
     environment:
       # Inside the compose network the DB is reachable as host "db", not localhost.
-      DB_URL: jdbc:postgresql://db:5432/radiology_clinic
-      DB_USER: clinic
-      DB_PASSWORD: clinic_dev_pw
+      # All of these fall back to dev defaults but are overridden by a .env file
+      # (or real environment vars) at deploy time — nothing secret is committed.
+      DB_URL: ${DB_URL:-jdbc:postgresql://db:5432/radiology_clinic}
+      DB_USER: ${DB_USER:-clinic}
+      DB_PASSWORD: ${DB_PASSWORD:-clinic_dev_pw}
       REPORTS_DIR: /data/reports
-      CORS_ALLOWED_ORIGINS: http://localhost:3000
-      # DEV secrets — OVERRIDE these for any real deployment.
-      JWT_SECRET: dev-secret-please-change-me-this-must-be-at-least-32-bytes-long
-      BOOTSTRAP_ADMIN_EMAIL: admin@clinic.local
-      BOOTSTRAP_ADMIN_PASSWORD: admin-dev-password
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-please-change-me-this-must-be-at-least-32-bytes-long}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@clinic.local}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-admin-dev-password}
     ports:
       - "8080:8080"                    # handy for hitting the API directly
     volumes:
