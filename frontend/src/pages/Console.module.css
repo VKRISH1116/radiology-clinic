@@ -1,0 +1,32 @@
+.h1 {
+  margin: 0 0 2px;
+  font-size: 24px;
+}
+.sub {
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.tile {
+  padding: 18px;
+}
+.tileTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.tileDesc {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.soon {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--amber);
+}
