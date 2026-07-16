@@ -51,10 +51,22 @@ export const api = {
   uploadReport: (appointmentId: number, file: File) =>
     upload(`/api/appointments/${appointmentId}/report`, file),
 
-  walkInBook: (patientName: string, slot: SlotAvailability, serviceIds: number[]) =>
+  walkInBook: (
+    patientName: string,
+    slot: SlotAvailability,
+    serviceIds: number[],
+    referringDoctorId?: number,
+  ) =>
     request<Appointment>('/api/appointments/walk-in', {
       method: 'POST',
-      body: { slotId: slot.id, serviceIds, patient: { fullName: patientName } },
+      body: { slotId: slot.id, serviceIds, referringDoctorId, patient: { fullName: patientName } },
+    }),
+
+  // Add a referring doctor on the fly (staff walk-in "pick-or-type" field).
+  createReferringDoctor: (name: string, phone?: string) =>
+    request<ReferringDoctor>('/api/referring-doctors', {
+      method: 'POST',
+      body: { name, phone },
     }),
 
   // --- admin: dashboard ---------------------------------------------------
