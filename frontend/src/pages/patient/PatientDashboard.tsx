@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { mockApi } from '../../mock/api';
+import { api } from '../../api/api';
 import type { Appointment, Service } from '../../types';
 import { formatDateTime, formatINR } from '../../util/format';
 import styles from './PatientDashboard.module.css';
@@ -27,7 +27,7 @@ export function PatientDashboard() {
   // state if the component unmounts before the (async) data arrives.
   useEffect(() => {
     let active = true;
-    Promise.all([mockApi.listServices(), mockApi.listMyAppointments()]).then(
+    Promise.all([api.listServices(), api.listMyAppointments()]).then(
       ([svc, appts]) => {
         if (!active) return;
         setServices(svc);
@@ -43,7 +43,7 @@ export function PatientDashboard() {
   async function handleCancel(id: number) {
     setCancellingId(id);
     try {
-      const updated = await mockApi.cancel(id);
+      const updated = await api.cancel(id);
       // Replace that appointment with a fresh object so React re-renders the row.
       setAppointments((prev) => prev.map((a) => (a.id === id ? { ...updated } : a)));
     } finally {

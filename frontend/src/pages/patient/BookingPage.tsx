@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SlotPicker } from '../../components/SlotPicker';
-import { mockApi } from '../../mock/api';
+import { api } from '../../api/api';
 import type { Service, SlotAvailability } from '../../types';
 import { formatINR } from '../../util/format';
 import styles from './BookingPage.module.css';
@@ -19,7 +19,7 @@ export function BookingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    mockApi.listServices().then(setServices);
+    api.listServices().then(setServices);
   }, []);
 
   function toggleStudy(id: number) {
@@ -45,7 +45,7 @@ export function BookingPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await mockApi.book(slot, selectedStudies);
+      await api.book(slot, selectedStudies);
       navigate('/patient', { replace: true, state: { booked: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Booking failed');

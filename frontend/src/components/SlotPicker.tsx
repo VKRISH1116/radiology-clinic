@@ -4,7 +4,7 @@
 // to do with the selection.
 
 import { useEffect, useState } from 'react';
-import { mockApi } from '../mock/api';
+import { api } from '../api/api';
 import type { SlotAvailability } from '../types';
 import styles from './SlotPicker.module.css';
 
@@ -31,7 +31,7 @@ export function SlotPicker({ value, onChange }: Props) {
     let active = true;
     setLoading(true);
     onChange(null);
-    mockApi.listSlots(date).then((s) => {
+    api.listSlots(date).then((s) => {
       if (!active) return;
       setSlots(s);
       setLoading(false);
