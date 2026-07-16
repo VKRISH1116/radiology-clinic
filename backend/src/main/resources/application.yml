@@ -11,9 +11,11 @@ spring:
   # Connects to the PostgreSQL started by docker-compose.yml.
   # Values fall back to the dev defaults but can be overridden by env vars.
   datasource:
-    # Default targets the docker-compose Postgres on localhost (dev). In the full
-    # container stack, DB_URL points at the "db" service host instead.
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/radiology_clinic}
+    # Priority: an explicit DB_URL (docker-compose sets one) wins; otherwise the
+    # URL is built from parts. Managed hosts (e.g. Render Postgres) expose host/
+    # port/name/user/password separately, so we assemble the JDBC URL from them.
+    # With nothing set, it falls back to the local dev database.
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:radiology_clinic}}
     username: ${DB_USER:clinic}
     password: ${DB_PASSWORD:clinic_dev_pw}
 
@@ -30,7 +32,8 @@ spring:
     locations: classpath:db/migration   # V1__, V2__ ... run in order on startup
 
 server:
-  port: 8080
+  # PaaS platforms inject the port to listen on via PORT; default to 8080 locally.
+  port: ${PORT:8080}
 
 # App-specific settings (read by JwtService via @Value).
 app:
