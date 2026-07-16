@@ -12,6 +12,12 @@ compatible), PATCH = bug fix (backward compatible).
 Work in progress lands here until the next tagged release. See the prioritised
 backlog in [`docs/Maintenance.html`](docs/Maintenance.html) for what's planned.
 
+### Added
+- **Health-check endpoint** — public `GET /health` returns `200 {status:UP, db:UP}`
+  when the app and database are reachable, or `503 DOWN` if the database ping
+  fails. Enables external uptime monitoring (no auth required). Backend test
+  count is now 80.
+
 ## [1.0.0] — 2026-07-16
 
 First public release. The Radiology Clinic MVP — an ultrasound-clinic web app
