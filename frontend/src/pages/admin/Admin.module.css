@@ -1,0 +1,130 @@
+.h1 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+.muted {
+  color: var(--ink-soft);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.tab,
+.tabOn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 8px 12px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.tabOn {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.section h2 {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+.scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+  min-width: 520px;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+th {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.on {
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+}
+.off {
+  color: var(--ink-faint);
+}
+.pending {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+}
+.paid {
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+}
+
+.smallBtn {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+
+.priceInput {
+  width: 92px;
+  padding: 6px 8px;
+}
+
+/* inline add form */
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+.form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.form input,
+.form select {
+  width: auto;
+  min-width: 130px;
+}
+.error {
+  color: var(--red);
+  font-size: 13px;
+  margin-left: 8px;
+}
+.ok {
+  color: var(--green);
+  font-size: 13px;
+  margin-left: 8px;
+}
+.total {
+  font-weight: 700;
+}

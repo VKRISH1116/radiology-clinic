@@ -2,8 +2,29 @@
 // async patterns (loading spinners, error states) before we wire the real backend.
 // Every function returns the same shape the Spring Boot endpoint will.
 
-import type { Appointment, AuthSession, Service, SlotAvailability, StudyLine } from '../types';
-import { mockAppointments, mockSchedule, mockServices, mockUsers } from './data';
+import type {
+  AdminService,
+  Appointment,
+  AuditEntry,
+  AuthSession,
+  Referral,
+  ReferralRule,
+  Role,
+  Service,
+  SlotAvailability,
+  StudyLine,
+  UserSummary,
+} from '../types';
+import {
+  mockAppointments,
+  mockAudit,
+  mockCatalog,
+  mockReferrals,
+  mockRules,
+  mockSchedule,
+  mockServices,
+  mockUsers,
+} from './data';
 
 const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -11,6 +32,7 @@ const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));
 // the grid and the new appointment shows up in "My appointments".
 const bookedSlotIds = new Set<number>();
 let nextAppointmentId = 200;
+let nextId = 1000; // for newly created catalogue entries, rules, audit rows
 
 export const mockApi = {
   async login(email: string, password: string): Promise<AuthSession> {
@@ -177,5 +199,97 @@ export const mockApi = {
     bookedSlotIds.add(slot.id);
     mockSchedule.unshift(appointment);
     return appointment;
+  },
+
+  // --- admin: catalogue ---------------------------------------------------
+
+  async listCatalog(): Promise<AdminService[]> {
+    await delay();
+    return mockCatalog;
+  },
+
+  async createService(category: string, name: string, price: number): Promise<AdminService> {
+    await delay();
+    const svc: AdminService = { id: nextId++, category, name, price, active: true };
+    mockCatalog.push(svc);
+    return svc;
+  },
+
+  async setServiceActive(id: number, active: boolean): Promise<AdminService> {
+    await delay();
+    const svc = mockCatalog.find((s) => s.id === id);
+    if (!svc) throw new Error('Service not found');
+    svc.active = active;
+    return svc;
+  },
+
+  async updateServicePrice(id: number, price: number): Promise<AdminService> {
+    await delay();
+    const svc = mockCatalog.find((s) => s.id === id);
+    if (!svc) throw new Error('Service not found');
+    svc.price = price;
+    return svc;
+  },
+
+  // --- admin: referrals ---------------------------------------------------
+
+  async listReferrals(): Promise<Referral[]> {
+    await delay();
+    return mockReferrals;
+  },
+
+  async payReferral(id: number): Promise<Referral> {
+    await delay();
+    const ref = mockReferrals.find((r) => r.id === id);
+    if (!ref) throw new Error('Referral not found');
+    if (ref.status === 'PAID') throw new Error('Referral already paid');
+    ref.status = 'PAID';
+    mockAudit.unshift({
+      id: nextId++,
+      action: 'PAYOUT_UPDATE',
+      entity: 'referral',
+      entityId: id,
+      actor: 'admin@clinic.local',
+      createdAt: new Date().toISOString(),
+    });
+    return ref;
+  },
+
+  // --- admin: rules -------------------------------------------------------
+
+  async listRules(): Promise<ReferralRule[]> {
+    await delay();
+    return mockRules;
+  },
+
+  async addRule(rule: Omit<ReferralRule, 'id' | 'active'>): Promise<ReferralRule> {
+    await delay();
+    const created: ReferralRule = { id: nextId++, active: true, ...rule };
+    mockRules.push(created);
+    return created;
+  },
+
+  // --- admin: users -------------------------------------------------------
+
+  async listUsers(): Promise<UserSummary[]> {
+    await delay();
+    return mockUsers
+      .filter((u) => u.role !== 'PATIENT')
+      .map((u) => ({ email: u.email, role: u.role }));
+  },
+
+  async adminCreateUser(email: string, role: Role): Promise<void> {
+    await delay();
+    if (mockUsers.some((u) => u.email === email)) {
+      throw new Error('Email already registered');
+    }
+    mockUsers.push({ email, password: 'password', role });
+  },
+
+  // --- admin: audit -------------------------------------------------------
+
+  async listAudit(): Promise<AuditEntry[]> {
+    await delay();
+    return [...mockAudit].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   },
 };
