@@ -1,0 +1,8 @@
+# Never copy local install/build output into the image build context.
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.git
+*.log

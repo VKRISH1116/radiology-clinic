@@ -1,0 +1,7 @@
+# Keep the build context small & reproducible — never ship local build junk.
+target/
+data/
+*.log
+.git
+.idea
+*.iml
