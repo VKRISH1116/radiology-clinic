@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { mockApi } from '../../../mock/api';
+import { api } from '../../../api/api';
 import type { Referral } from '../../../types';
 import { formatINR } from '../../../util/format';
 import styles from '../Admin.module.css';
@@ -11,7 +11,7 @@ export function ReferralsSection() {
 
   useEffect(() => {
     let active = true;
-    mockApi.listReferrals().then((r) => {
+    api.listReferrals().then((r) => {
       if (!active) return;
       setRefs([...r]);
       setLoading(false);
@@ -36,7 +36,7 @@ export function ReferralsSection() {
   async function pay(id: number) {
     setBusyId(id);
     try {
-      const updated = await mockApi.payReferral(id);
+      const updated = await api.payReferral(id);
       setRefs((prev) => prev.map((r) => (r.id === id ? { ...updated } : r)));
     } finally {
       setBusyId(null);

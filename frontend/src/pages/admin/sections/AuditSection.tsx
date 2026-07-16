@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { mockApi } from '../../../mock/api';
+import { api } from '../../../api/api';
 import type { AuditEntry } from '../../../types';
 import { formatDateTime } from '../../../util/format';
 import styles from '../Admin.module.css';
@@ -10,7 +10,7 @@ export function AuditSection() {
 
   useEffect(() => {
     let active = true;
-    mockApi.listAudit().then((r) => {
+    api.listAudit().then((r) => {
       if (!active) return;
       setRows(r);
       setLoading(false);
@@ -32,7 +32,7 @@ export function AuditSection() {
               <th>When</th>
               <th>Action</th>
               <th>Entity</th>
-              <th>Actor</th>
+              <th>User</th>
             </tr>
           </thead>
           <tbody>
@@ -44,7 +44,7 @@ export function AuditSection() {
                   {r.entity}
                   {r.entityId != null ? ` #${r.entityId}` : ''}
                 </td>
-                <td className={styles.muted}>{r.actor}</td>
+                <td className={styles.muted}>{r.userId != null ? `user #${r.userId}` : '—'}</td>
               </tr>
             ))}
           </tbody>

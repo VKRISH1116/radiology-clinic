@@ -1,12 +1,24 @@
-// Real patient-facing API calls against the Spring backend. Each function keeps
-// the SAME signature the mock had, so the screens don't change when we swap the
-// import — that's the payoff of mirroring the backend DTOs in src/types.
+// Real API calls against the Spring backend. Every function keeps the SAME
+// signature the mock had, so screens only swap their import — the payoff of
+// mirroring the backend DTOs in src/types.
 
-import type { Appointment, Service, SlotAvailability } from '../types';
-import { request } from './client';
+import type {
+  AdminService,
+  Appointment,
+  AuditEntry,
+  Referral,
+  ReferralRule,
+  ReferringDoctor,
+  Role,
+  Service,
+  SlotAvailability,
+  UserSummary,
+} from '../types';
+import { request, upload } from './client';
 import { getSession } from './session';
 
 export const api = {
+  // --- patient ------------------------------------------------------------
   listServices: () => request<Service[]>('/api/services'),
 
   listMyAppointments: () => request<Appointment[]>('/api/appointments/mine'),
@@ -17,8 +29,6 @@ export const api = {
   book: (slot: SlotAvailability, serviceIds: number[]) =>
     request<Appointment>('/api/appointments', {
       method: 'POST',
-      // The backend requires a patient name to create the profile on first
-      // booking; registration only captured an email, so we use that for now.
       body: { slotId: slot.id, serviceIds, patient: { fullName: getSession()?.email ?? 'Patient' } },
     }),
 
@@ -30,4 +40,58 @@ export const api = {
       method: 'POST',
       body: { slotId: slot.id },
     }),
+
+  // --- staff --------------------------------------------------------------
+  listSchedule: () => request<Appointment[]>('/api/appointments'),
+
+  completeAppointment: (appointmentId: number) =>
+    request<Appointment>(`/api/appointments/${appointmentId}/complete`, { method: 'POST' }),
+
+  uploadReport: (appointmentId: number, file: File) =>
+    upload(`/api/appointments/${appointmentId}/report`, file),
+
+  walkInBook: (patientName: string, slot: SlotAvailability, serviceIds: number[]) =>
+    request<Appointment>('/api/appointments/walk-in', {
+      method: 'POST',
+      body: { slotId: slot.id, serviceIds, patient: { fullName: patientName } },
+    }),
+
+  // --- admin: catalogue ---------------------------------------------------
+  listCatalog: () => request<AdminService[]>('/api/services/all'),
+
+  createService: (category: string, name: string, price: number) =>
+    request<AdminService>('/api/services', {
+      method: 'POST',
+      body: { category, name, price },
+    }),
+
+  // Full PUT — the backend replaces the row, so send every field.
+  updateService: (svc: AdminService) =>
+    request<AdminService>(`/api/services/${svc.id}`, {
+      method: 'PUT',
+      body: { category: svc.category, name: svc.name, price: svc.price, active: svc.active },
+    }),
+
+  // --- admin: referrals ---------------------------------------------------
+  listReferrals: () => request<Referral[]>('/api/referrals'),
+
+  payReferral: (id: number) =>
+    request<Referral>(`/api/referrals/${id}/pay`, { method: 'POST' }),
+
+  // --- admin: rules -------------------------------------------------------
+  listRules: () => request<ReferralRule[]>('/api/referral-rules'),
+
+  listReferringDoctors: () => request<ReferringDoctor[]>('/api/referring-doctors'),
+
+  addRule: (rule: Omit<ReferralRule, 'id' | 'active'>) =>
+    request<ReferralRule>('/api/referral-rules', { method: 'POST', body: rule }),
+
+  // --- admin: users -------------------------------------------------------
+  listUsers: () => request<UserSummary[]>('/api/admin/users'),
+
+  adminCreateUser: (email: string, password: string, role: Role) =>
+    request<void>('/api/admin/users', { method: 'POST', body: { email, password, role } }),
+
+  // --- admin: audit -------------------------------------------------------
+  listAudit: () => request<AuditEntry[]>('/api/audit-logs'),
 };
