@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phases 5–8 Recap & Deployment Readiness — Radiology Clinic</title>
+<style>
+  :root{
+    --bg:#f7f8fb;--panel:#fff;--ink:#1a2233;--ink-soft:#55617a;--ink-faint:#8a93a8;
+    --line:#e6e9f0;--accent:#4f46e5;--accent-soft:#eef0fe;--teal:#0d9488;--amber:#d97706;
+    --green:#16a34a;--red:#dc2626;--shadow:0 1px 2px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.06);--radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1117;--panel:#161b24;--ink:#e8ecf4;--ink-soft:#a4adc2;--ink-faint:#6b7488;
+    --line:#262d3a;--accent:#7c83ff;--accent-soft:#1e2233;--teal:#2dd4bf;--amber:#fbbf24;
+    --green:#4ade80;--red:#f87171;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px 70px;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto}
+  header.top{padding:38px 0 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:5px 11px;border-radius:999px}
+  h1{font-size:28px;margin:14px 0 6px;letter-spacing:-.02em}
+  .lede{color:var(--ink-soft);margin:0;max-width:760px}
+  .docctl{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px;font-size:13px;color:var(--ink-faint)}
+  .docctl b{color:var(--ink-soft)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 20px;margin:24px 0;box-shadow:var(--shadow);font-size:14px}
+  nav.toc b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  nav.toc a{color:var(--accent);text-decoration:none;margin-right:16px;line-height:2;white-space:nowrap}
+  h2{font-size:20px;margin:38px 0 10px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font-weight:700;margin-right:8px}
+  h3{font-size:15px;margin:20px 0 6px}
+  h3 .fid{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--teal);margin-right:8px}
+  p{color:var(--ink-soft)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 20px;box-shadow:var(--shadow);margin:14px 0}
+  .callout{border-left:4px solid var(--teal);background:var(--accent-soft);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:16px 0;font-size:14px;color:var(--ink-soft)}
+  .callout b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .tablewrap{overflow-x:auto}
+  code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:12.5px}
+  pre code{background:none;padding:0}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:6px;text-transform:uppercase;white-space:nowrap}
+  .done{background:rgba(22,163,74,.14);color:var(--green)}
+  .todo{background:rgba(217,119,6,.16);color:var(--amber)}
+  ul,ol{color:var(--ink-soft)}li{margin:5px 0}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;font-size:13px}
+  .flow .step{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 11px;color:var(--ink-soft)}
+  .flow .arr{color:var(--ink-faint)}
+  .chk{list-style:none;padding-left:0}
+  .chk li{padding-left:26px;position:relative}
+  .chk li::before{content:"";position:absolute;left:2px;top:7px;width:13px;height:13px;border-radius:4px;border:2px solid var(--ink-faint)}
+  .chk li.ok::before{background:var(--green);border-color:var(--green)}
+  footer{margin-top:44px;font-size:12px;color:var(--ink-faint);text-align:center;border-top:1px solid var(--line);padding-top:18px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">● Phases 5–8 · Build → Ship</span>
+    <h1>Phases 5–8 Recap &amp; Deployment Readiness</h1>
+    <p class="lede">A single page for the mentor: what got built from the frontend through to a containerised,
+      CI-backed stack — and exactly what stands between "runs on my machine" and a real deployment.</p>
+    <div class="docctl">
+      <span><b>Version:</b> 0.1</span>
+      <span><b>Date:</b> 2026-07-16</span>
+      <span><b>Author:</b> Yatin Krishna</span>
+      <span><b>Covers:</b> Phases 5 · 6 · 7 · 8</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <b>Contents</b>
+    <a href="#recap">1 · Phases 5–8 recap</a>
+    <a href="#arch">2 · Deployment architecture</a>
+    <a href="#ready">3 · What's ready</a>
+    <a href="#checklist">4 · Go-live checklist</a>
+    <a href="#run">5 · Commands</a>
+    <a href="#next">6 · Beyond MVP</a>
+  </nav>
+
+  <!-- 1 -->
+  <h2 id="recap"><span class="n">1</span>Phases 5–8 recap</h2>
+
+  <h3><span class="fid">P5</span>Build — Frontend</h3>
+  <p>A role-based React 19 + TypeScript SPA (Vite, CSS Modules, React Router), built first against a mock API so
+     screens could be finished before the backend was wired. Three role areas: <b>patient</b> (register/login,
+     dashboard, book, cancel, reschedule), <b>staff</b> (schedule, mark-complete, upload report, walk-in), and
+     <b>admin</b> (catalogue, referral payouts, rules, users, audit). A reusable <code>SlotPicker</code> is shared by
+     the booking and reschedule flows.</p>
+
+  <h3><span class="fid">P6</span>Integration</h3>
+  <p>Swapped the mock for the live backend over real HTTP, in slices. A small <code>client.ts</code> centralises the
+     fetch layer: base URL, the JWT <code>Bearer</code> header, turning errors into typed <code>ApiError</code>s, and
+     transparently <b>refreshing the access token once on a 401</b> then retrying. CORS was enabled on the backend for
+     the browser origin. By the end the mock was deleted — the whole SPA runs on Spring Boot + Postgres.</p>
+
+  <h3><span class="fid">P7</span>Testing (unit → E2E → UAT)</h3>
+  <p>Three automated layers plus a documented UAT pass. <b>Backend:</b> 79 JUnit/MockMvc tests (REST contracts, role
+     gates, the referral maths, DB rules) on an in-memory H2 profile. <b>Frontend:</b> 20 Vitest + React Testing
+     Library component tests. <b>E2E:</b> one Playwright journey through a real browser. The
+     <a href="UAT.html">UAT traceability page</a> maps every PRD acceptance criterion to its evidence — the pass that
+     found (and led us to close) the consent-gate and admin-dashboard gaps.</p>
+
+  <h3><span class="fid">P8</span>Deployment &amp; CI/CD</h3>
+  <p>The stack is now containerised. Multi-stage Dockerfiles (Maven→JRE for the backend; Vite build→nginx for the
+     frontend) keep the shipped images small. One <code>docker-compose</code> file brings up Postgres + backend +
+     frontend; nginx reverse-proxies <code>/api</code> to the backend, so the browser sees one origin (no CORS, no
+     backend URL baked into the bundle). A GitHub Actions workflow runs the backend and frontend tests + build on every
+     push.</p>
+
+  <!-- 2 -->
+  <h2 id="arch"><span class="n">2</span>Deployment architecture</h2>
+  <div class="flow">
+    <span class="step">Browser</span><span class="arr">→ :3000 →</span>
+    <span class="step">nginx (frontend)</span><span class="arr">serves SPA · proxies /api →</span>
+    <span class="step">Spring Boot (backend) :8080</span><span class="arr">→</span>
+    <span class="step">PostgreSQL :5432</span>
+  </div>
+  <p>Three containers on one Docker network. Report PDFs and the database each live on a <b>named volume</b>, so data
+     survives restarts. The <code>db</code> service always starts; <code>backend</code> and <code>frontend</code> sit
+     behind an <code>app</code> compose profile, so day-to-day dev still runs just the database.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Container</th><th>Image</th><th>Port (host→container)</th><th>Persists</th></tr></thead>
+    <tbody>
+      <tr><td>frontend</td><td>nginx serving the built SPA</td><td>3000 → 80</td><td>—</td></tr>
+      <tr><td>backend</td><td>Spring Boot fat jar on a slim JRE</td><td>8080 → 8080</td><td>report PDFs (volume)</td></tr>
+      <tr><td>db</td><td>postgres:16</td><td>5432 → 5432</td><td>database (volume)</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 3 -->
+  <h2 id="ready"><span class="n">3</span>What's ready</h2>
+  <ul class="chk">
+    <li class="ok">Both images build reproducibly; full stack boots with one command.</li>
+    <li class="ok">Verified end-to-end in containers: register → login → book → complete → referral, through the proxy.</li>
+    <li class="ok">Schema is migration-managed (Flyway V1–V4) and applied automatically on startup.</li>
+    <li class="ok">Secrets are <b>externalised</b>: DB password, JWT secret, and the bootstrap-admin password read from a
+        <code>.env</code> file at deploy time (dev defaults only when absent).</li>
+    <li class="ok">CI runs backend + frontend tests and the production build on every push.</li>
+    <li class="ok">Data survives restarts (named volumes for DB + reports).</li>
+  </ul>
+
+  <!-- 4 -->
+  <h2 id="checklist"><span class="n">4</span>Go-live checklist</h2>
+  <p>Before pointing this at anything real, do these — none is code, all are configuration:</p>
+  <ul class="chk">
+    <li>Copy <code>.env.example</code> → <code>.env</code> and set <b>strong, unique</b> values for
+        <code>JWT_SECRET</code> (≥32 random bytes), <code>DB_PASSWORD</code>, and <code>BOOTSTRAP_ADMIN_PASSWORD</code>.</li>
+    <li>Set <code>CORS_ALLOWED_ORIGINS</code> to the real frontend URL (e.g. <code>https://clinic.example.com</code>).</li>
+    <li>Put the app behind <b>HTTPS/TLS</b> (a reverse proxy or load balancer terminating certificates) — JWTs and
+        report downloads must not travel over plain HTTP.</li>
+    <li>Change the first admin login immediately after the initial bootstrap.</li>
+    <li>Decide the database home: the bundled <code>db</code> container (single host) or a managed service such as AWS
+        RDS (point <code>DB_URL</code> at it). Set up backups for whichever.</li>
+    <li>Confirm the report-PDF volume is backed up and has enough disk.</li>
+  </ul>
+  <div class="callout"><b>Why externalised secrets matter.</b> The dev defaults (a known JWT secret, a known admin
+    password) are fine on a laptop but would be a serious hole in production — anyone reading this public repo could
+    forge tokens. Moving them to an un-committed <code>.env</code> means the code ships without secrets, and each
+    environment supplies its own.</div>
+
+  <!-- 5 -->
+  <h2 id="run"><span class="n">5</span>Commands</h2>
+  <div class="card">
+    <p style="margin:0 0 4px"><b>Local dev</b> — database only, run backend &amp; frontend from the IDE:</p>
+    <pre><code>docker compose up -d</code></pre>
+    <p style="margin:12px 0 4px"><b>Full stack in containers</b> (build + run all three):</p>
+    <pre><code>docker compose --profile app up -d --build
+# open http://localhost:3000</code></pre>
+    <p style="margin:12px 0 4px"><b>Deploy-style run</b> with real secrets:</p>
+    <pre><code>cp .env.example .env      # then edit .env with strong values
+docker compose --profile app up -d --build</code></pre>
+    <p style="margin:12px 0 4px"><b>Stop</b> the app (keep the dev DB running):</p>
+    <pre><code>docker compose --profile app stop backend frontend</code></pre>
+  </div>
+
+  <!-- 6 -->
+  <h2 id="next"><span class="n">6</span>Beyond MVP</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Item</th><th>Status</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Cloud deploy (AWS — long-term target)</td><td><span class="pill todo">Next</span></td>
+        <td>Push images to a registry, run on ECS/EC2 (or a PaaS), Postgres on RDS, TLS at a load balancer.</td></tr>
+      <tr><td>Playwright E2E in CI</td><td><span class="pill todo">Next</span></td>
+        <td>Add a job that boots the stack + installs a headless browser; kept out of the first pipeline to stay fast.</td></tr>
+      <tr><td>Reports on object storage (S3)</td><td><span class="pill todo">Later</span></td>
+        <td>Local-disk volume is fine on one host; multi-instance would move PDFs to S3.</td></tr>
+      <tr><td>Notifications, online payments, DICOM</td><td><span class="pill todo">Deferred</span></td>
+        <td>Explicitly out of MVP scope since Phase 1.</td></tr>
+    </tbody>
+  </table></div>
+
+  <footer>Radiology Clinic · Phases 5–8 Recap &amp; Deployment Readiness · 2026-07-16</footer>
+</div>
+</body>
+</html>
