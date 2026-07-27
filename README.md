@@ -29,4 +29,8 @@ radiology-clinic/
 Open **`docs/index.html`** in a browser for the full roadmap and phase-by-phase plan.
 
 ## Progress
-Phase 0 — Onboarding & Setup ✅ (in progress) · Next: Phase 1 — Requirements (URD)
+**v1.0.0 shipped** ✅ — MVP live and verified end to end (see [`CHANGELOG.md`](CHANGELOG.md)).
+Now in Phase 9 — Iterate & Maintain.
+
+## Author
+**Yatin Krishna Vellanki** — [@VKRISH1116](https://github.com/VKRISH1116)
